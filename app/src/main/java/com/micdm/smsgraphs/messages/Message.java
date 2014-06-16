@@ -1,27 +1,25 @@
-package com.micdm.smsgraphs.parser;
+package com.micdm.smsgraphs.messages;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 public class Message {
 
     public static enum Type {
-        DEPOSIT,
         WITHDRAWAL,
         PURCHASE,
         TRANSFER
     }
 
     private final String card;
-    private final int year;
-    private final int month;
+    private final Date created;
     private final Type type;
     private final String target;
     private final BigDecimal amount;
 
-    public Message(String card, int year, int month, Type type, String target, BigDecimal amount) {
+    public Message(String card, Date created, Type type, String target, BigDecimal amount) {
         this.card = card;
-        this.year = year;
-        this.month = month;
+        this.created = created;
         this.type = type;
         this.target = target;
         this.amount = amount;
@@ -31,12 +29,8 @@ public class Message {
         return card;
     }
 
-    public int getYear() {
-        return year;
-    }
-
-    public int getMonth() {
-        return month;
+    public Date getCreated() {
+        return created;
     }
 
     public Type getType() {
@@ -49,13 +43,5 @@ public class Message {
 
     public BigDecimal getAmount() {
         return amount;
-    }
-
-    public boolean isIncome() {
-        return type == Type.DEPOSIT;
-    }
-
-    public boolean isOutcome() {
-        return type == Type.WITHDRAWAL || type == Type.PURCHASE || type == Type.TRANSFER;
     }
 }

@@ -1,6 +1,4 @@
-package com.micdm.smsgraphs.data.outcomes;
-
-import com.micdm.smsgraphs.data.Category;
+package com.micdm.smsgraphs.data;
 
 public class OutcomeTarget {
 
