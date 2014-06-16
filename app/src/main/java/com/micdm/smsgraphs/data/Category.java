@@ -2,13 +2,11 @@ package com.micdm.smsgraphs.data;
 
 public class Category {
 
-    private final String title;
+    public final int id;
+    public final String name;
 
-    public Category(String title) {
-        this.title = title;
-    }
-
-    public String getTitle() {
-        return title;
+    public Category(int id, String name) {
+        this.id = id;
+        this.name = name;
     }
 }

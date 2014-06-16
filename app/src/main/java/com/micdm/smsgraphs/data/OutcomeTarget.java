@@ -2,22 +2,13 @@ package com.micdm.smsgraphs.data;
 
 public class OutcomeTarget {
 
-    private final String title;
-    private Category category;
+    public final int id;
+    public final String name;
+    public final Category category;
 
-    public OutcomeTarget(String title) {
-        this.title = title;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
+    public OutcomeTarget(int id, String name, Category category) {
+        this.id = id;
+        this.name = name;
         this.category = category;
     }
 }

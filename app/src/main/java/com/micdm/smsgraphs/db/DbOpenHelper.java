@@ -1,16 +1,22 @@
 package com.micdm.smsgraphs.db;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import com.micdm.smsgraphs.R;
 
 public class DbOpenHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "main";
     private static final int DB_VERSION = 1;
 
+    private final Context context;
+
     public DbOpenHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
+        this.context = context;
     }
 
     @Override
@@ -18,8 +24,8 @@ public class DbOpenHelper extends SQLiteOpenHelper {
         createCardTable(db);
         createCategoryTable(db);
         createTargetTable(db);
-        createTargetCategoryTable(db);
         createOperationTable(db);
+        addCategories(db);
     }
 
     private void createCardTable(SQLiteDatabase db) {
@@ -44,17 +50,8 @@ public class DbOpenHelper extends SQLiteOpenHelper {
         db.execSQL(
             "CREATE TABLE targets (" +
                 "id INTEGER PRIMARY KEY," +
-                "name TEXT UNIQUE" +
-            ")"
-        );
-    }
-
-    private void createTargetCategoryTable(SQLiteDatabase db) {
-        db.execSQL(
-            "CREATE TABLE target_categories (" +
-                "target_id INTEGER REFERENCES targets(id)," +
                 "category_id INTEGER REFERENCES categories(id)," +
-                "PRIMARY KEY (target_id, category_id)" +
+                "name TEXT UNIQUE" +
             ")"
         );
     }
@@ -63,14 +60,23 @@ public class DbOpenHelper extends SQLiteOpenHelper {
         db.execSQL(
             "CREATE TABLE operations (" +
                 "id INTEGER PRIMARY KEY," +
-                "card INTEGER REFERENCES cards(id)," +
-                "target INTEGER REFERENCES targets(id)," +
+                "card_id INTEGER REFERENCES cards(id)," +
+                "target_id INTEGER REFERENCES targets(id)," +
                 "created DATETIME," +
                 "type INTEGER," +
                 "amount DECIMAL(10, 2)," +
-                "UNIQUE (card, target, created, type, amount)" +
+                "UNIQUE (card_id, target_id, created, type, amount)" +
             ")"
         );
+    }
+
+    private void addCategories(SQLiteDatabase db) {
+        String[] names = context.getResources().getStringArray(R.array.categories);
+        for (String name: names) {
+            ContentValues values = new ContentValues();
+            values.put("name", name);
+            db.insert("categories", null, values);
+        }
     }
 
     @Override

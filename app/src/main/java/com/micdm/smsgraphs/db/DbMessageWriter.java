@@ -60,18 +60,23 @@ public class DbMessageWriter {
 
     private ContentValues getTargetValues(Message message) {
         ContentValues result = new ContentValues();
+        result.putNull("category_id");
         result.put("name", message.getTarget());
         return result;
     }
 
     private long writeOperation(Message message, long cardRowId, long targetRowId) {
-        return db.insert("operations", null, getMessageValues(message, cardRowId, targetRowId));
+        try {
+            return db.insertOrThrow("operations", null, getMessageValues(message, cardRowId, targetRowId));
+        } catch (SQLException e) {
+            return -1;
+        }
     }
 
     private ContentValues getMessageValues(Message message, long cardRowId, long targetRowId) {
         ContentValues result = new ContentValues();
-        result.put("card", cardRowId);
-        result.put("target", targetRowId);
+        result.put("card_id", cardRowId);
+        result.put("target_id", targetRowId);
         result.put("created", formatter.format(message.getCreated()));
         result.put("type", getMessageType(message.getType()));
         result.put("amount", message.getAmount().toString());

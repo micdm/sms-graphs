@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">SMS Graphs</string>
+    <!-- Категории -->
+    <string-array name="categories">
+        <item>Автомобиль</item>
+        <item>Еда</item>
+        <item>Комуслуги</item>
+        <item>Одежда</item>
+        <item>Развлечения</item>
+        <item>Связь</item>
+        <item>Хозтовары</item>
+    </string-array>
+    <!-- Названия вкладок -->
+    <string name="tab_title_targets">Продавцы</string>
 </resources>
