@@ -1,3 +1,8 @@
 <resources>
-    <style name="AppTheme" parent="android:Theme.NoTitleBar"/>
+    <style name="AppTheme" parent="android:Theme.Holo.Light">
+        <item name="android:actionBarTabStyle">@style/ActionBarTabStyle</item>
+    </style>
+    <style name="ActionBarTabStyle" parent="android:Widget.Holo.Light.ActionBar.TabView">
+        <item name="android:gravity">center</item>
+    </style>
 </resources>

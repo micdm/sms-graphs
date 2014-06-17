@@ -1,0 +1,20 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:gravity="center">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/v__actionbar__target_list_tab__title"
+        android:padding="3dp"
+        style="@android:style/Widget.Holo.ActionBar.TabText"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/v__actionbar__target_list_tab__count"
+        android:padding="3dp"
+        android:background="@drawable/actionbar_tab_badge"
+        android:textColor="#ffffff"
+        style="@android:style/Widget.Holo.ActionBar.TabText"/>
+</LinearLayout>

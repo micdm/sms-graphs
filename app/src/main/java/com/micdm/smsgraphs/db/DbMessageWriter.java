@@ -78,21 +78,7 @@ public class DbMessageWriter {
         result.put("card_id", cardRowId);
         result.put("target_id", targetRowId);
         result.put("created", formatter.format(message.getCreated()));
-        result.put("type", getMessageType(message.getType()));
         result.put("amount", message.getAmount().toString());
         return result;
-    }
-
-    private int getMessageType(Message.Type type) {
-        switch (type) {
-            case WITHDRAWAL:
-                return 0;
-            case PURCHASE:
-                return 1;
-            case TRANSFER:
-                return 2;
-            default:
-                throw new RuntimeException(String.format("unknown message type %s", type));
-        }
     }
 }

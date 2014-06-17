@@ -23,11 +23,10 @@ public class MessageParser {
         if (!m.find()) {
             return null;
         }
-        Message.Type type = getType(m);
-        if (type == null) {
-            return null;
+        if (isOutcome(m)) {
+            return new Message(getCard(m), getCreated(m), getTarget(m), getAmount(m));
         }
-        return new Message(getCard(m), getCreated(m), type, getTarget(m), getAmount(m));
+        return null;
     }
 
     private static String getCard(Matcher m) {
@@ -58,18 +57,9 @@ public class MessageParser {
         return new Date(getYear(m) - 2000 + 100, getMonth(m) - 1, getDay(m), getHour(m), getMinute(m));
     }
 
-    private static Message.Type getType(Matcher m) {
+    private static boolean isOutcome(Matcher m) {
         String type = m.group(GROUP_TYPE);
-        if (type.equals("выдача наличных")) {
-            return Message.Type.WITHDRAWAL;
-        }
-        if (type.equals("оплата услуг") || type.equals("покупка") || type.equals("оплата обслуживания банковской карты")) {
-            return Message.Type.PURCHASE;
-        }
-        if (type.equals("операция списания")) {
-            return Message.Type.TRANSFER;
-        }
-        return null;
+        return type.equals("оплата услуг") || type.equals("покупка") || type.equals("оплата обслуживания банковской карты");
     }
 
     private static String getTarget(Matcher m) {

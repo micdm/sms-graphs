@@ -6,12 +6,12 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.micdm.smsgraphs.data.Category;
-import com.micdm.smsgraphs.data.OutcomeTarget;
+import com.micdm.smsgraphs.data.Target;
+import com.micdm.smsgraphs.data.TargetList;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class DbTargetLoader extends AsyncTaskLoader<List<OutcomeTarget>> {
+public class DbTargetLoader extends AsyncTaskLoader<TargetList> {
 
     private final List<Category> categories;
     private final SQLiteDatabase db;
@@ -31,19 +31,19 @@ public class DbTargetLoader extends AsyncTaskLoader<List<OutcomeTarget>> {
     }
 
     @Override
-    public List<OutcomeTarget> loadInBackground() {
+    public TargetList loadInBackground() {
         Cursor cursor = db.rawQuery(
             "SELECT id, category_id, name " +
             "FROM targets " +
             "ORDER BY name", null
         );
         cursor.moveToFirst();
-        List<OutcomeTarget> targets = new ArrayList<OutcomeTarget>();
+        TargetList targets = new TargetList();
         while (!cursor.isAfterLast()) {
             int id = cursor.getInt(0);
             int categoryId = cursor.getInt(1);
             String name = cursor.getString(2);
-            OutcomeTarget target = new OutcomeTarget(id, name, categoryId == 0 ? null : getCategoryById(categoryId));
+            Target target = new Target(id, name, categoryId == 0 ? null : getCategoryById(categoryId));
             targets.add(target);
             cursor.moveToNext();
         }

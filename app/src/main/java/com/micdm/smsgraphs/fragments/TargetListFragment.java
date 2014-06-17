@@ -5,22 +5,20 @@ import android.app.ListFragment;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import com.micdm.smsgraphs.R;
-import com.micdm.smsgraphs.data.OutcomeTarget;
+import com.micdm.smsgraphs.data.Target;
+import com.micdm.smsgraphs.data.TargetList;
 import com.micdm.smsgraphs.handlers.TargetHandler;
-
-import java.util.List;
 
 public class TargetListFragment extends ListFragment {
 
     private class TargetListAdapter extends BaseAdapter {
 
-        private final List<OutcomeTarget> targets;
+        private final TargetList targets;
 
-        public TargetListAdapter(List<OutcomeTarget> targets) {
+        public TargetListAdapter(TargetList targets) {
             this.targets = targets;
         }
 
@@ -30,7 +28,7 @@ public class TargetListFragment extends ListFragment {
         }
 
         @Override
-        public OutcomeTarget getItem(int position) {
+        public Target getItem(int position) {
             return targets.get(position);
         }
 
@@ -44,7 +42,7 @@ public class TargetListFragment extends ListFragment {
             if (view == null) {
                 view = View.inflate(getActivity(), R.layout.v__target_list__list_item, null);
             }
-            OutcomeTarget target = getItem(position);
+            Target target = getItem(position);
             TextView nameView = (TextView) view.findViewById(R.id.v__target_list__list_item__name);
             nameView.setText(target.name);
             if (target.category != null) {
@@ -58,8 +56,9 @@ public class TargetListFragment extends ListFragment {
     private TargetHandler handler;
     private TargetHandler.OnLoadTargetsListener onLoadTargetsListener = new TargetHandler.OnLoadTargetsListener() {
         @Override
-        public void onLoadTargets(List<OutcomeTarget> targets) {
+        public void onLoadTargets(TargetList targets) {
             setListAdapter(new TargetListAdapter(targets));
+            handler.updateWithNoCategoryCount(targets.getWithNoCategoryCount());
         }
     };
 

@@ -1,16 +1,18 @@
 package com.micdm.smsgraphs;
 
 import android.app.ActionBar;
-import android.app.Activity;
-import android.app.FragmentTransaction;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Loader;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.micdm.smsgraphs.data.Category;
-import com.micdm.smsgraphs.data.OutcomeTarget;
+import com.micdm.smsgraphs.data.TargetList;
 import com.micdm.smsgraphs.db.DbCategoryLoader;
 import com.micdm.smsgraphs.db.DbTargetLoader;
 import com.micdm.smsgraphs.fragments.TargetListFragment;
@@ -34,7 +36,7 @@ public class MainActivity extends PagerActivity implements TargetHandler {
     private final EventListenerManager events = new EventListenerManager();
 
     private List<Category> categories;
-    private List<OutcomeTarget> targets;
+    private TargetList targets;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,16 +92,16 @@ public class MainActivity extends PagerActivity implements TargetHandler {
 
     private void loadTargets() {
         final Context context = this;
-        getLoaderManager().initLoader(TARGET_LOADER_LOADER_ID, null, new LoaderManager.LoaderCallbacks<List<OutcomeTarget>>() {
+        getLoaderManager().initLoader(TARGET_LOADER_LOADER_ID, null, new LoaderManager.LoaderCallbacks<TargetList>() {
             @Override
-            public Loader<List<OutcomeTarget>> onCreateLoader(int id, Bundle params) {
+            public Loader<TargetList> onCreateLoader(int id, Bundle params) {
                 if (id == TARGET_LOADER_LOADER_ID) {
                     return new DbTargetLoader(context, categories);
                 }
                 return null;
             }
             @Override
-            public void onLoadFinished(Loader<List<OutcomeTarget>> loader, List<OutcomeTarget> loaded) {
+            public void onLoadFinished(Loader<TargetList> loader, TargetList loaded) {
                 targets = loaded;
                 events.notify(EVENT_LISTENER_KEY_ON_LOAD_TARGETS, new EventListenerManager.OnIterateListener() {
                     @Override
@@ -109,7 +111,7 @@ public class MainActivity extends PagerActivity implements TargetHandler {
                 });
             }
             @Override
-            public void onLoaderReset(Loader<List<OutcomeTarget>> loader) {
+            public void onLoaderReset(Loader<TargetList> loader) {
                 // TODO: что-то нужно сделать?
             }
         });
@@ -118,7 +120,43 @@ public class MainActivity extends PagerActivity implements TargetHandler {
     @Override
     protected void setupPager(ViewPager pager) {
         super.setupPager(pager);
+        addTargetListPage(pager);
+    }
+
+    private void addTargetListPage(ViewPager pager) {
+        ActionBar.Tab tab = addTab(pager, R.layout.v__actionbar__target_list_tab);
+        View view = tab.getCustomView();
+        TextView titleView = (TextView) view.findViewById(R.id.v__actionbar__target_list_tab__title);
+        titleView.setText(R.string.tab_title_targets);
+        View countView = view.findViewById(R.id.v__actionbar__target_list_tab__count);
+        countView.setVisibility(View.GONE);
         addPage(pager, new PagerAdapter.Page(getString(R.string.tab_title_targets), new TargetListFragment()));
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    public void updateWithNoCategoryCount(int count) {
+        ActionBar actionBar = getActionBar();
+        if (actionBar == null) {
+            return;
+        }
+        View view = actionBar.getTabAt(0).getCustomView();
+        TextView countView = (TextView) view.findViewById(R.id.v__actionbar__target_list_tab__count);
+        if (count == 0) {
+            countView.setVisibility(View.GONE);
+        } else {
+            countView.setText(String.valueOf(count));
+            countView.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
