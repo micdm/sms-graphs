@@ -4,20 +4,18 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.micdm.smsgraphs.messages.Message;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
-public class DbMessageWriter {
+public class DbMessageWriter extends DbWriter {
 
-    private final SQLiteDatabase db;
     private final DateFormat formatter = new SimpleDateFormat("yyyy-MM-d k:m:s");
 
     public DbMessageWriter(Context context) {
-        db = new DbOpenHelper(context).getWritableDatabase();
+        super(context);
     }
 
     public boolean write(Message message) {

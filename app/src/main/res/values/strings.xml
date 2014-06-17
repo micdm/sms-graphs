@@ -5,12 +5,26 @@
     <string-array name="categories">
         <item>Автомобиль</item>
         <item>Еда</item>
+        <item>Здоровье</item>
+        <item>Искусство</item>
         <item>Комуслуги</item>
+        <item>Красота</item>
+        <item>Образование</item>
         <item>Одежда</item>
+        <item>Пожертвования</item>
+        <item>Прочее</item>
+        <item>Путешествия</item>
         <item>Развлечения</item>
         <item>Связь</item>
+        <item>Транспорт</item>
         <item>Хозтовары</item>
     </string-array>
     <!-- Названия вкладок -->
     <string name="tab_title_targets">Продавцы</string>
+    <!-- Фрагмент для редактирования продавца -->
+    <string name="fragment_target_title_label">Название:</string>
+    <string name="fragment_target_category_label">Категория:</string>
+    <string name="fragment_target_no_category">Не выбрана</string>
+    <string name="fragment_target_save_button">Готово</string>
+    <string name="fragment_target_next_button">Следующий…</string>
 </resources>

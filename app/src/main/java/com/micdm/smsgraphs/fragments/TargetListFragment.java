@@ -5,6 +5,7 @@ import android.app.ListFragment;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.micdm.smsgraphs.R;
@@ -43,10 +44,21 @@ public class TargetListFragment extends ListFragment {
                 view = View.inflate(getActivity(), R.layout.v__target_list__list_item, null);
             }
             Target target = getItem(position);
+            TextView titleView = (TextView) view.findViewById(R.id.v__target_list__list_item__title);
             TextView nameView = (TextView) view.findViewById(R.id.v__target_list__list_item__name);
-            nameView.setText(target.name);
-            if (target.category != null) {
-                TextView categoryView = (TextView) view.findViewById(R.id.v__target_list__list_item__category);
+            if (target.title == null) {
+                titleView.setText(target.name);
+                nameView.setVisibility(View.GONE);
+            } else {
+                titleView.setText(target.title);
+                nameView.setVisibility(View.VISIBLE);
+                nameView.setText(target.name);
+            }
+            TextView categoryView = (TextView) view.findViewById(R.id.v__target_list__list_item__category);
+            if (target.category == null) {
+                categoryView.setVisibility(View.GONE);
+            } else {
+                categoryView.setVisibility(View.VISIBLE);
                 categoryView.setText(target.category.name);
             }
             return view;
@@ -58,7 +70,12 @@ public class TargetListFragment extends ListFragment {
         @Override
         public void onLoadTargets(TargetList targets) {
             setListAdapter(new TargetListAdapter(targets));
-            handler.updateWithNoCategoryCount(targets.getWithNoCategoryCount());
+        }
+    };
+    private TargetHandler.OnEditTargetListener onEditTargetListener = new TargetHandler.OnEditTargetListener() {
+        @Override
+        public void onEditTarget(Target target) {
+            ((TargetListAdapter) getListView().getAdapter()).notifyDataSetChanged();
         }
     };
 
@@ -72,11 +89,19 @@ public class TargetListFragment extends ListFragment {
     public void onStart() {
         super.onStart();
         handler.addOnLoadTargetsListener(onLoadTargetsListener);
+        handler.addOnEditTargetListener(onEditTargetListener);
+    }
+
+    @Override
+    public void onListItemClick(ListView listView, View view, int position, long id) {
+        Target target = ((TargetListAdapter) listView.getAdapter()).getItem(position);
+        handler.startEditTarget(target);
     }
 
     @Override
     public void onStop() {
         super.onStop();
         handler.removeOnLoadTargetsListener(onLoadTargetsListener);
+        handler.removeOnEditTargetListener(onEditTargetListener);
     }
 }

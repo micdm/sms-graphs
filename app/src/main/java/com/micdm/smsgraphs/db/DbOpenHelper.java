@@ -51,7 +51,8 @@ public class DbOpenHelper extends SQLiteOpenHelper {
             "CREATE TABLE targets (" +
                 "id INTEGER PRIMARY KEY," +
                 "category_id INTEGER REFERENCES categories(id)," +
-                "name TEXT UNIQUE" +
+                "name TEXT UNIQUE," +
+                "title TEXT" +
             ")"
         );
     }

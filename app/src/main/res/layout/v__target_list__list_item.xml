@@ -1,17 +1,30 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="horizontal"
+    android:gravity="center_vertical"
     android:padding="5dp">
     <TextView
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:id="@+id/v__target_list__list_item__name"
-        android:layout_weight="1"
-        android:textSize="20sp"/>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/v__target_list__list_item__title"
+        android:textSize="20sp"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:ellipsize="end"/>
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/v__target_list__list_item__name"
+        android:layout_below="@id/v__target_list__list_item__title"
+        android:textSize="13sp"
+        android:textColor="#888"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:id="@+id/v__target_list__list_item__category"
-        android:textSize="20sp"/>
-</LinearLayout>
+        android:layout_alignParentEnd="true"
+        android:padding="3dp"
+        android:textSize="13sp"
+        android:background="@drawable/target_list_category_badge"/>
+</RelativeLayout>
