@@ -19,7 +19,7 @@ public interface TargetHandler {
     }
 
     public void startEditTarget(Target target);
-    public void stopEditTarget();
+    public void finishEditTarget(boolean editNext);
     public void addOnLoadTargetsListener(OnLoadTargetsListener listener);
     public void removeOnLoadTargetsListener(OnLoadTargetsListener listener);
     public void addOnStartEditTargetListener(OnStartEditTargetListener listener);

@@ -198,13 +198,14 @@ public class MainActivity extends PagerActivity implements CategoryHandler, Targ
             }
         });
         FragmentManager manager = getFragmentManager();
-        if (manager.findFragmentByTag(FRAGMENT_TARGET_TAG) == null) {
+        TargetFragment fragment = (TargetFragment) manager.findFragmentByTag(FRAGMENT_TARGET_TAG);
+        if (fragment == null || fragment.isDismissing()) {
             (new TargetFragment()).show(manager, FRAGMENT_TARGET_TAG);
         }
     }
 
     @Override
-    public void stopEditTarget() {
+    public void finishEditTarget(boolean editNext) {
         updateWithNoCategoryCount();
         events.notify(EVENT_LISTENER_KEY_ON_EDIT_TARGET, new EventListenerManager.OnIterateListener() {
             @Override
@@ -213,7 +214,17 @@ public class MainActivity extends PagerActivity implements CategoryHandler, Targ
             }
         });
         (new DbTargetWriter(this)).write(currentTarget);
-        currentTarget = null;
+        if (editNext) {
+            Target nextTarget = targets.getFirstWithNoCategory();
+            if (nextTarget == null) {
+                int index = targets.indexOf(currentTarget);
+                nextTarget = targets.get((index == targets.size() - 1) ? 0 : index + 1);
+            }
+            currentTarget = null;
+            startEditTarget(nextTarget);
+        } else {
+            currentTarget = null;
+        }
     }
 
     @Override

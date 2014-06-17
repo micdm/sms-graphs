@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SMS Graphs</string>
+    <string name="app_name">900</string>
     <!-- Категории -->
     <string-array name="categories">
         <item>Автомобиль</item>
+        <item>Бытовая техника</item>
         <item>Еда</item>
         <item>Здоровье</item>
         <item>Искусство</item>
@@ -21,8 +22,11 @@
     </string-array>
     <!-- Названия вкладок -->
     <string name="tab_title_targets">Продавцы</string>
+    <!-- Фрагмент со списком продавцов -->
+    <string name="fragment_target_list_no_category">Новый</string>
     <!-- Фрагмент для редактирования продавца -->
-    <string name="fragment_target_title_label">Название:</string>
+    <string name="fragment_target_title">Продавец</string>
+    <string name="fragment_target_title_label">Удобное имя:</string>
     <string name="fragment_target_category_label">Категория:</string>
     <string name="fragment_target_no_category">Не выбрана</string>
     <string name="fragment_target_save_button">Готово</string>

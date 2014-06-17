@@ -18,7 +18,8 @@ public class DbCategoryReader extends DbReader<List<Category>> {
     public List<Category> loadInBackground() {
         Cursor cursor = db.rawQuery(
             "SELECT id, name " +
-            "FROM categories", null
+            "FROM categories " +
+            "ORDER BY name", null
         );
         cursor.moveToFirst();
         List<Category> categories = new ArrayList<Category>();

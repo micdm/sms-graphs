@@ -91,6 +91,9 @@ public class TargetFragment extends DialogFragment {
     private EditText titleView;
     private Spinner categoriesView;
 
+    private boolean isDismissing;
+    private boolean editNext;
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -101,26 +104,30 @@ public class TargetFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle(R.string.fragment_target_title);
         View view = View.inflate(getActivity(), R.layout.f__target, null);
         titleView = (EditText) view.findViewById(R.id.f__target__title);
         categoriesView = (Spinner) view.findViewById(R.id.f__target__categories);
         builder.setView(view);
-        builder.setPositiveButton(R.string.fragment_target_next_button, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int position) {
-
-            }
-        });
         builder.setNeutralButton(R.string.fragment_target_save_button, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int position) {
-                String title = titleView.getText().toString();
-                target.title = (title.length() == 0) ? null : title;
-                target.category = (Category) categoriesView.getSelectedItem();
-                targetHandler.stopEditTarget();
+            public void onClick(DialogInterface dialog, int which) {
+                editNext = false;
+            }
+        });
+        builder.setPositiveButton(R.string.fragment_target_next_button, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                editNext = true;
             }
         });
         return builder.create();
+    }
+
+    private void updateTarget() {
+        String title = titleView.getText().toString();
+        target.title = (title.length() == 0) ? null : title;
+        target.category = (Category) categoriesView.getSelectedItem();
     }
 
     @Override
@@ -130,10 +137,22 @@ public class TargetFragment extends DialogFragment {
         targetHandler.addOnStartEditTargetListener(onStartEditTargetListener);
     }
 
+    public boolean isDismissing() {
+        return isDismissing;
+    }
+
     @Override
     public void onStop() {
         super.onStop();
         categoryHandler.removeOnLoadCategoriesListener(onLoadCategoriesListener);
         targetHandler.removeOnStartEditTargetListener(onStartEditTargetListener);
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        super.onDismiss(dialog);
+        isDismissing = true;
+        updateTarget();
+        targetHandler.finishEditTarget(editNext);
     }
 }

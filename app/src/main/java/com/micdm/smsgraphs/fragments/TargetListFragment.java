@@ -58,11 +58,14 @@ public class TargetListFragment extends ListFragment {
             TextView lastPaidView = (TextView) view.findViewById(R.id.v__target_list__list_item__last_paid);
             lastPaidView.setText(DateUtils.formatForHuman(target.lastPaid));
             TextView categoryView = (TextView) view.findViewById(R.id.v__target_list__list_item__category);
+            View noCategoryView = view.findViewById(R.id.v__target_list__list_item__no_category);
             if (target.category == null) {
                 categoryView.setVisibility(View.GONE);
+                noCategoryView.setVisibility(View.VISIBLE);
             } else {
                 categoryView.setVisibility(View.VISIBLE);
                 categoryView.setText(target.category.name);
+                noCategoryView.setVisibility(View.GONE);
             }
             return view;
         }

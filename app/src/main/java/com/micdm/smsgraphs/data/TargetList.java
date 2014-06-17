@@ -13,4 +13,13 @@ public class TargetList extends ArrayList<Target> {
         }
         return count;
     }
+
+    public Target getFirstWithNoCategory() {
+        for (Target target: this) {
+            if (target.category == null) {
+                return target;
+            }
+        }
+        return null;
+    }
 }

@@ -36,4 +36,13 @@
         android:padding="3dp"
         android:textSize="13sp"
         android:background="@drawable/target_list_category_badge"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/v__target_list__list_item__no_category"
+        android:padding="3dp"
+        android:textSize="13sp"
+        android:textColor="#fff"
+        android:background="@drawable/target_list_no_category_badge"
+        android:text="@string/fragment_target_list_no_category"/>
 </LinearLayout>
