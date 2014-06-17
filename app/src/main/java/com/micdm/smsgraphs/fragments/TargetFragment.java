@@ -115,9 +115,7 @@ public class TargetFragment extends DialogFragment {
             @Override
             public void onClick(DialogInterface dialog, int position) {
                 String title = titleView.getText().toString();
-                if (title.length() != 0) {
-                    target.title = title;
-                }
+                target.title = (title.length() == 0) ? null : title;
                 target.category = (Category) categoriesView.getSelectedItem();
                 targetHandler.stopEditTarget();
             }

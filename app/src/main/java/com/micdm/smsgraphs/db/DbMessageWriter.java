@@ -6,13 +6,9 @@ import android.database.Cursor;
 import android.database.SQLException;
 
 import com.micdm.smsgraphs.messages.Message;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import com.micdm.smsgraphs.misc.DateUtils;
 
 public class DbMessageWriter extends DbWriter {
-
-    private final DateFormat formatter = new SimpleDateFormat("yyyy-MM-d k:m:s");
 
     public DbMessageWriter(Context context) {
         super(context);
@@ -75,7 +71,7 @@ public class DbMessageWriter extends DbWriter {
         ContentValues result = new ContentValues();
         result.put("card_id", cardRowId);
         result.put("target_id", targetRowId);
-        result.put("created", formatter.format(message.getCreated()));
+        result.put("created", DateUtils.formatForDb(message.getCreated()));
         result.put("amount", message.getAmount().toString());
         return result;
     }

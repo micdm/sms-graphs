@@ -6,7 +6,9 @@ import android.database.Cursor;
 import com.micdm.smsgraphs.data.Category;
 import com.micdm.smsgraphs.data.Target;
 import com.micdm.smsgraphs.data.TargetList;
+import com.micdm.smsgraphs.misc.DateUtils;
 
+import java.util.Date;
 import java.util.List;
 
 public class DbTargetReader extends DbReader<TargetList> {
@@ -21,9 +23,11 @@ public class DbTargetReader extends DbReader<TargetList> {
     @Override
     public TargetList loadInBackground() {
         Cursor cursor = db.rawQuery(
-            "SELECT id, category_id, name, title " +
-            "FROM targets " +
-            "ORDER BY name", null
+            "SELECT t.id, t.category_id, t.name, t.title, MAX(o.created) " +
+            "FROM targets AS t " +
+                "INNER JOIN operations AS o ON(o.target_id = t.id) " +
+            "GROUP BY t.id " +
+            "ORDER BY t.name", null
         );
         cursor.moveToFirst();
         TargetList targets = new TargetList();
@@ -32,7 +36,8 @@ public class DbTargetReader extends DbReader<TargetList> {
             int categoryId = cursor.getInt(1);
             String name = cursor.getString(2);
             String title = cursor.getString(3);
-            Target target = new Target(id, name, title, categoryId == 0 ? null : getCategoryById(categoryId));
+            Date lastPaid = DateUtils.parseForDb(cursor.getString(4));
+            Target target = new Target(id, categoryId == 0 ? null : getCategoryById(categoryId), name, title, lastPaid);
             targets.add(target);
             cursor.moveToNext();
         }

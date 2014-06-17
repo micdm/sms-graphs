@@ -1,16 +1,20 @@
 package com.micdm.smsgraphs.data;
 
+import java.util.Date;
+
 public class Target {
 
     public final int id;
+    public Category category;
     public final String name;
     public String title;
-    public Category category;
+    public final Date lastPaid;
 
-    public Target(int id, String name, String title, Category category) {
+    public Target(int id, Category category, String name, String title, Date lastPaid) {
         this.id = id;
+        this.category = category;
         this.name = name;
         this.title = title;
-        this.category = category;
+        this.lastPaid = lastPaid;
     }
 }

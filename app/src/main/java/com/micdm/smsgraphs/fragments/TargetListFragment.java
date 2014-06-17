@@ -12,6 +12,7 @@ import com.micdm.smsgraphs.R;
 import com.micdm.smsgraphs.data.Target;
 import com.micdm.smsgraphs.data.TargetList;
 import com.micdm.smsgraphs.handlers.TargetHandler;
+import com.micdm.smsgraphs.misc.DateUtils;
 
 public class TargetListFragment extends ListFragment {
 
@@ -54,6 +55,8 @@ public class TargetListFragment extends ListFragment {
                 nameView.setVisibility(View.VISIBLE);
                 nameView.setText(target.name);
             }
+            TextView lastPaidView = (TextView) view.findViewById(R.id.v__target_list__list_item__last_paid);
+            lastPaidView.setText(DateUtils.formatForHuman(target.lastPaid));
             TextView categoryView = (TextView) view.findViewById(R.id.v__target_list__list_item__category);
             if (target.category == null) {
                 categoryView.setVisibility(View.GONE);
