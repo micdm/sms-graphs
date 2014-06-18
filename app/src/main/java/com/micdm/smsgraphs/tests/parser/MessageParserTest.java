@@ -6,6 +6,7 @@ import com.micdm.smsgraphs.messages.Message;
 import com.micdm.smsgraphs.messages.MessageParser;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
 
 public class MessageParserTest extends InstrumentationTestCase {
 
@@ -27,35 +28,42 @@ public class MessageParserTest extends InstrumentationTestCase {
     public void testGetYear() {
         for (String text: texts) {
             Message message = MessageParser.parse(text);
-            assertEquals(114, message.getCreated().getYear());
+            assertEquals(2014, message.getCreated().get(Calendar.YEAR));
         }
     }
 
     public void testGetMonth() {
         for (String text: texts) {
             Message message = MessageParser.parse(text);
-            assertEquals(0, message.getCreated().getMonth());
+            assertEquals(0, message.getCreated().get(Calendar.MONTH));
         }
     }
 
     public void testGetDay() {
         for (String text: texts) {
             Message message = MessageParser.parse(text);
-            assertEquals(31, message.getCreated().getDate());
+            assertEquals(31, message.getCreated().get(Calendar.DAY_OF_MONTH));
         }
     }
 
     public void testGetHour() {
         for (String text: texts) {
             Message message = MessageParser.parse(text);
-            assertEquals(22, message.getCreated().getHours());
+            assertEquals(22, message.getCreated().get(Calendar.HOUR_OF_DAY));
         }
     }
 
     public void testGetMinute() {
         for (String text: texts) {
             Message message = MessageParser.parse(text);
-            assertEquals(50, message.getCreated().getMinutes());
+            assertEquals(50, message.getCreated().get(Calendar.MINUTE));
+        }
+    }
+
+    public void testGetSecond() {
+        for (String text: texts) {
+            Message message = MessageParser.parse(text);
+            assertEquals(0, message.getCreated().get(Calendar.SECOND));
         }
     }
 

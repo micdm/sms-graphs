@@ -1,7 +1,9 @@
-package com.micdm.smsgraphs.db;
+package com.micdm.smsgraphs.db.writers;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+
+import com.micdm.smsgraphs.db.DbOpenHelper;
 
 public abstract class DbWriter {
 

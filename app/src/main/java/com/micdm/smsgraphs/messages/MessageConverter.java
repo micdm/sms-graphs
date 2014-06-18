@@ -3,12 +3,12 @@ package com.micdm.smsgraphs.messages;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 
-import com.micdm.smsgraphs.db.DbMessageWriter;
+import com.micdm.smsgraphs.db.writers.DbOperationWriter;
 
 public class MessageConverter extends AsyncTaskLoader<Void> {
 
     private final MessageLoader loader;
-    private final DbMessageWriter writer;
+    private final DbOperationWriter writer;
 
     public MessageConverter(Context context) {
         super(context);
@@ -18,7 +18,7 @@ public class MessageConverter extends AsyncTaskLoader<Void> {
                 return message == null || writer.write(message);
             }
         });
-        writer = new DbMessageWriter(context);
+        writer = new DbOperationWriter(context);
         onContentChanged();
     }
 

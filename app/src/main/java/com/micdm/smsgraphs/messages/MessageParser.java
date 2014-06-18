@@ -1,6 +1,7 @@
 package com.micdm.smsgraphs.messages;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,7 +24,7 @@ public class MessageParser {
         if (!m.find()) {
             return null;
         }
-        if (isOutcome(m)) {
+        if (isOperation(m)) {
             return new Message(getCard(m), getCreated(m), getTarget(m), getAmount(m));
         }
         return null;
@@ -53,11 +54,18 @@ public class MessageParser {
         return Integer.valueOf(m.group(GROUP_MINUTE));
     }
 
-    private static Date getCreated(Matcher m) {
-        return new Date(getYear(m) - 2000 + 100, getMonth(m) - 1, getDay(m), getHour(m), getMinute(m));
+    private static Calendar getCreated(Matcher m) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, getYear(m));
+        calendar.set(Calendar.MONTH, getMonth(m) - 1);
+        calendar.set(Calendar.DAY_OF_MONTH, getDay(m));
+        calendar.set(Calendar.HOUR_OF_DAY, getHour(m));
+        calendar.set(Calendar.MINUTE, getMinute(m));
+        calendar.set(Calendar.SECOND, 0);
+        return calendar;
     }
 
-    private static boolean isOutcome(Matcher m) {
+    private static boolean isOperation(Matcher m) {
         String type = m.group(GROUP_TYPE);
         return type.equals("оплата услуг") || type.equals("покупка") || type.equals("оплата обслуживания банковской карты");
     }

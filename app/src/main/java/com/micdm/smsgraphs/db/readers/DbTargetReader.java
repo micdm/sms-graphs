@@ -1,4 +1,4 @@
-package com.micdm.smsgraphs.db;
+package com.micdm.smsgraphs.db.readers;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -8,7 +8,7 @@ import com.micdm.smsgraphs.data.Target;
 import com.micdm.smsgraphs.data.TargetList;
 import com.micdm.smsgraphs.misc.DateUtils;
 
-import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
 
 public class DbTargetReader extends DbReader<TargetList> {
@@ -36,11 +36,12 @@ public class DbTargetReader extends DbReader<TargetList> {
             int categoryId = cursor.getInt(1);
             String name = cursor.getString(2);
             String title = cursor.getString(3);
-            Date lastPaid = DateUtils.parseForDb(cursor.getString(4));
+            Calendar lastPaid = DateUtils.parseForDb(cursor.getString(4));
             Target target = new Target(id, categoryId == 0 ? null : getCategoryById(categoryId), name, title, lastPaid);
             targets.add(target);
             cursor.moveToNext();
         }
+        cursor.close();
         return targets;
     }
 

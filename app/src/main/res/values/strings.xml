@@ -21,7 +21,11 @@
         <item>Хозтовары</item>
     </string-array>
     <!-- Названия вкладок -->
+    <string name="tab_title_graph">График</string>
     <string name="tab_title_targets">Продавцы</string>
+    <!-- Фрагмент с графиком -->
+    <string name="fragment_graph_previous">Раньше</string>
+    <string name="fragment_graph_next">Позже</string>
     <!-- Фрагмент со списком продавцов -->
     <string name="fragment_target_list_no_category">Новый</string>
     <!-- Фрагмент для редактирования продавца -->

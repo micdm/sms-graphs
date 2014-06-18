@@ -1,4 +1,4 @@
-package com.micdm.smsgraphs.db;
+package com.micdm.smsgraphs.db.writers;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -8,9 +8,9 @@ import android.database.SQLException;
 import com.micdm.smsgraphs.messages.Message;
 import com.micdm.smsgraphs.misc.DateUtils;
 
-public class DbMessageWriter extends DbWriter {
+public class DbOperationWriter extends DbWriter {
 
-    public DbMessageWriter(Context context) {
+    public DbOperationWriter(Context context) {
         super(context);
     }
 

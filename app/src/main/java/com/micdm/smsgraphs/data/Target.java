@@ -1,5 +1,6 @@
 package com.micdm.smsgraphs.data;
 
+import java.util.Calendar;
 import java.util.Date;
 
 public class Target {
@@ -8,9 +9,9 @@ public class Target {
     public Category category;
     public final String name;
     public String title;
-    public final Date lastPaid;
+    public final Calendar lastPaid;
 
-    public Target(int id, Category category, String name, String title, Date lastPaid) {
+    public Target(int id, Category category, String name, String title, Calendar lastPaid) {
         this.id = id;
         this.category = category;
         this.name = name;

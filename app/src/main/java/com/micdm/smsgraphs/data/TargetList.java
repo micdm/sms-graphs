@@ -22,4 +22,13 @@ public class TargetList extends ArrayList<Target> {
         }
         return null;
     }
+
+    public Target getTargetById(int id) {
+        for (Target target: this) {
+            if (target.id == id) {
+                return target;
+            }
+        }
+        return null;
+    }
 }

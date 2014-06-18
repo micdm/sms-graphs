@@ -1,4 +1,4 @@
-package com.micdm.smsgraphs.db;
+package com.micdm.smsgraphs.db.readers;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -30,6 +30,7 @@ public class DbCategoryReader extends DbReader<List<Category>> {
             categories.add(category);
             cursor.moveToNext();
         }
+        cursor.close();
         return categories;
     }
 }

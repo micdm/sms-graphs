@@ -24,11 +24,11 @@ public class MessageLoader {
 
     private Cursor getCursor() {
         String[] fields = new String[] {"body"};
-        Cursor cursor = context.getContentResolver().query(INBOX_URI, fields, "address = ?", new String[] {SERVICE_NUMBER}, null);
+        Cursor cursor = context.getContentResolver().query(INBOX_URI, fields, "address = ?", new String[] {SERVICE_NUMBER}, "_id DESC");
         if (cursor == null) {
             throw new RuntimeException("can not access to messages");
         }
-        cursor.moveToLast();
+        cursor.moveToFirst();
         return cursor;
     }
 
@@ -36,12 +36,12 @@ public class MessageLoader {
         if (cursor == null) {
             cursor = getCursor();
         }
-        while (!cursor.isBeforeFirst()) {
+        while (!cursor.isAfterLast()) {
             Message message = MessageParser.parse(cursor.getString(0));
             if (!listener.onMessage(message)) {
                 break;
             }
-            cursor.moveToPrevious();
+            cursor.moveToNext();
         }
         cursor.close();
     }

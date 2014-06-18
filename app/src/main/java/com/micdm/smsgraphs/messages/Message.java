@@ -1,16 +1,17 @@
 package com.micdm.smsgraphs.messages;
 
 import java.math.BigDecimal;
+import java.util.Calendar;
 import java.util.Date;
 
 public class Message {
 
     private final String card;
-    private final Date created;
+    private final Calendar created;
     private final String target;
     private final BigDecimal amount;
 
-    public Message(String card, Date created, String target, BigDecimal amount) {
+    public Message(String card, Calendar created, String target, BigDecimal amount) {
         this.card = card;
         this.created = created;
         this.target = target;
@@ -21,7 +22,7 @@ public class Message {
         return card;
     }
 
-    public Date getCreated() {
+    public Calendar getCreated() {
         return created;
     }
 

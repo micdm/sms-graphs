@@ -1,4 +1,4 @@
-package com.micdm.smsgraphs.db;
+package com.micdm.smsgraphs.db.writers;
 
 import android.content.ContentValues;
 import android.content.Context;
