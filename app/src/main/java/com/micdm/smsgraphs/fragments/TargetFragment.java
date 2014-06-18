@@ -21,6 +21,7 @@ import com.micdm.smsgraphs.handlers.TargetHandler;
 
 import java.util.List;
 
+// TODO: показывать дату последней операции и сумму
 public class TargetFragment extends DialogFragment {
 
     private class CategoryListAdapter extends BaseAdapter {

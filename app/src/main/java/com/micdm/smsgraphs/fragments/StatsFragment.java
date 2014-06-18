@@ -1,6 +1,5 @@
 package com.micdm.smsgraphs.fragments;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
@@ -8,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -28,6 +26,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+// TODO: перезагружать отчет при изменении продавцов
 public class StatsFragment extends Fragment {
 
     private class CategoryStatsListAdapter extends BaseAdapter {
@@ -75,10 +74,20 @@ public class StatsFragment extends Fragment {
             previousView.setEnabled(previous);
             monthView.setText(DateUtils.formatMonthForHuman(operations.month));
             nextView.setEnabled(next);
-            List<CategoryStat> stats = getCategoryStats(operations.operations);
-            categoriesView.setAdapter(new CategoryStatsListAdapter(stats));
-            BigDecimal total = getTotalSum(stats);
-            totalView.setText(total.toString());
+            if (operations.operations.size() == 0) {
+                noOperationsView.setVisibility(View.VISIBLE);
+            } else {
+                List<CategoryStat> stats = getCategoryStats(operations.operations);
+                if (stats.size() == 0) {
+                    noCategoryStatsView.setVisibility(View.VISIBLE);
+                } else {
+                    categoriesView.setAdapter(new CategoryStatsListAdapter(stats));
+                    BigDecimal total = getTotalSum(stats);
+                    totalView.setText(total.toString());
+                    noCategoryStatsView.setVisibility(View.GONE);
+                }
+                noOperationsView.setVisibility(View.GONE);
+            }
         }
     };
 
@@ -87,6 +96,8 @@ public class StatsFragment extends Fragment {
     private View nextView;
     private ListView categoriesView;
     private TextView totalView;
+    private View noCategoryStatsView;
+    private View noOperationsView;
 
     @Override
     public void onAttach(Activity activity) {
@@ -114,6 +125,8 @@ public class StatsFragment extends Fragment {
         });
         categoriesView = (ListView) view.findViewById(R.id.f__stats__categories);
         totalView = (TextView) view.findViewById(R.id.f__stats__total);
+        noCategoryStatsView = view.findViewById(R.id.f__stats__no_category_stats);
+        noOperationsView = view.findViewById(R.id.f__stats__no_operations);
         return view;
     }
 

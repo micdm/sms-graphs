@@ -14,6 +14,7 @@ import com.micdm.smsgraphs.data.TargetList;
 import com.micdm.smsgraphs.handlers.TargetHandler;
 import com.micdm.smsgraphs.misc.DateUtils;
 
+// TODO: к дате последней операции добавить сумму
 public class TargetListFragment extends ListFragment {
 
     private class TargetListAdapter extends BaseAdapter {

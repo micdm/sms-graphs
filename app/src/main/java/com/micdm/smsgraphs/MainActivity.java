@@ -35,6 +35,9 @@ import com.micdm.utils.pager.PagerAdapter;
 import java.util.Calendar;
 import java.util.List;
 
+// TODO: добавить иконку
+// TODO: при первом запуске показать обучение
+// TODO: добавить индикатор загрузки новых сообщений
 public class MainActivity extends PagerActivity implements OperationHandler, CategoryHandler, TargetHandler {
 
     private static final int MESSAGE_CONVERTER_LOADER_ID = 0;
