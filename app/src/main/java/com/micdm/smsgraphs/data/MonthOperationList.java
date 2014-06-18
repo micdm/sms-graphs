@@ -1,7 +1,6 @@
 package com.micdm.smsgraphs.data;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 public class MonthOperationList {

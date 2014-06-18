@@ -3,6 +3,7 @@ package com.micdm.smsgraphs.messages;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 
+import com.micdm.smsgraphs.data.Message;
 import com.micdm.smsgraphs.db.writers.DbOperationWriter;
 
 public class MessageConverter extends AsyncTaskLoader<Void> {

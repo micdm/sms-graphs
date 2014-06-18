@@ -1,8 +1,9 @@
 package com.micdm.smsgraphs.messages;
 
+import com.micdm.smsgraphs.data.Message;
+
 import java.math.BigDecimal;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

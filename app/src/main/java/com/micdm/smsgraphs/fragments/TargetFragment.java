@@ -62,7 +62,7 @@ public class TargetFragment extends DialogFragment {
     }
 
     private CategoryHandler categoryHandler;
-    private CategoryHandler.OnLoadCategoriesListener onLoadCategoriesListener = new CategoryHandler.OnLoadCategoriesListener() {
+    private final CategoryHandler.OnLoadCategoriesListener onLoadCategoriesListener = new CategoryHandler.OnLoadCategoriesListener() {
         @Override
         public void onLoadCategories(List<Category> categories) {
             Spinner view = (Spinner) getDialog().findViewById(R.id.f__target__categories);
@@ -71,7 +71,7 @@ public class TargetFragment extends DialogFragment {
     };
 
     private TargetHandler targetHandler;
-    private TargetHandler.OnStartEditTargetListener onStartEditTargetListener = new TargetHandler.OnStartEditTargetListener() {
+    private final TargetHandler.OnStartEditTargetListener onStartEditTargetListener = new TargetHandler.OnStartEditTargetListener() {
         @Override
         public void onStartEditTarget(Target editable) {
             target = editable;

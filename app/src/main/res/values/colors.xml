@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item type="color" name="target_with_no_category">#f00</item>
+    <item type="color" name="target_with_category">#ddd</item>
+    <item type="color" name="category_stats_percentage">#ddd</item>
+</resources>

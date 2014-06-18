@@ -4,8 +4,10 @@
     <!-- Категории -->
     <string-array name="categories">
         <item>Автомобиль</item>
+        <item>Алкоголь</item>
         <item>Бытовая техника</item>
         <item>Еда</item>
+        <item>Животные</item>
         <item>Здоровье</item>
         <item>Искусство</item>
         <item>Комуслуги</item>
@@ -18,14 +20,16 @@
         <item>Развлечения</item>
         <item>Связь</item>
         <item>Транспорт</item>
+        <item>Хобби</item>
         <item>Хозтовары</item>
     </string-array>
     <!-- Названия вкладок -->
-    <string name="tab_title_graph">График</string>
+    <string name="tab_title_stats">Статистика</string>
     <string name="tab_title_targets">Продавцы</string>
-    <!-- Фрагмент с графиком -->
-    <string name="fragment_graph_previous">Раньше</string>
-    <string name="fragment_graph_next">Позже</string>
+    <!-- Фрагмент со статистикой -->
+    <string name="fragment_stats_previous">Раньше</string>
+    <string name="fragment_stats_next">Позже</string>
+    <string name="fragment_stats_total">Итого</string>
     <!-- Фрагмент со списком продавцов -->
     <string name="fragment_target_list_no_category">Новый</string>
     <!-- Фрагмент для редактирования продавца -->

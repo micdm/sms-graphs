@@ -1,8 +1,7 @@
-package com.micdm.smsgraphs.messages;
+package com.micdm.smsgraphs.data;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
-import java.util.Date;
 
 public class Message {
 

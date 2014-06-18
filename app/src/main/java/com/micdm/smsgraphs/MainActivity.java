@@ -20,7 +20,7 @@ import com.micdm.smsgraphs.db.readers.DbOperationReader;
 import com.micdm.smsgraphs.db.readers.DbOperationReportReader;
 import com.micdm.smsgraphs.db.readers.DbTargetReader;
 import com.micdm.smsgraphs.db.writers.DbTargetWriter;
-import com.micdm.smsgraphs.fragments.GraphFragment;
+import com.micdm.smsgraphs.fragments.StatsFragment;
 import com.micdm.smsgraphs.fragments.TargetFragment;
 import com.micdm.smsgraphs.fragments.TargetListFragment;
 import com.micdm.smsgraphs.handlers.CategoryHandler;
@@ -160,7 +160,7 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
                     }
                 });
                 // TODO: не запускать до загрузки репорта
-                loadOperations(report.last);
+                loadLastMonthOperations();
             }
             @Override
             public void onLoaderReset(Loader<TargetList> loader) {
@@ -169,44 +169,17 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
         });
     }
 
-    private void loadOperations(final Calendar month) {
-        final Context context = this;
-        getLoaderManager().restartLoader(OPERATION_READER_LOADER_ID, null, new LoaderManager.LoaderCallbacks<MonthOperationList>() {
-            @Override
-            public Loader<MonthOperationList> onCreateLoader(int id, Bundle params) {
-                if (id == OPERATION_READER_LOADER_ID) {
-                    return new DbOperationReader(context, month, targets);
-                }
-                return null;
-            }
-            @Override
-            public void onLoadFinished(Loader<MonthOperationList> loader, MonthOperationList loaded) {
-                operations = loaded;
-                events.notify(EVENT_LISTENER_KEY_ON_LOAD_OPERATIONS, new EventListenerManager.OnIterateListener() {
-                    @Override
-                    public void onIterate(EventListener listener) {
-                        ((OnLoadOperationsListener) listener).onLoadOperations(operations);
-                    }
-                });
-            }
-            @Override
-            public void onLoaderReset(Loader<MonthOperationList> loader) {
-                // TODO: что-то нужно сделать?
-            }
-        });
-    }
-
     @Override
     protected void setupPager(ViewPager pager) {
         super.setupPager(pager);
-        addGraphPage(pager);
+        addStatsPage(pager);
         addTargetListPage(pager);
     }
 
-    private void addGraphPage(ViewPager pager) {
-        String title = getString(R.string.tab_title_graph);
+    private void addStatsPage(ViewPager pager) {
+        String title = getString(R.string.tab_title_stats);
         addTab(pager, title);
-        addPage(pager, new PagerAdapter.Page(title, new GraphFragment()));
+        addPage(pager, new PagerAdapter.Page(title, new StatsFragment()));
     }
 
     private void addTargetListPage(ViewPager pager) {
@@ -246,11 +219,68 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
         super.onStop();
     }
 
+    private void loadLastMonthOperations() {
+        Calendar month = (Calendar) report.last.clone();
+        month.set(Calendar.DAY_OF_MONTH, 1);
+        loadOperations(month);
+    }
+
+    @Override
+    public void loadPreviousMonthOperations() {
+        Calendar month = (Calendar) operations.month.clone();
+        month.add(Calendar.MONTH, -1);
+        loadOperations(month);
+    }
+
+    @Override
+    public void loadNextMonthOperations() {
+        Calendar month = (Calendar) operations.month.clone();
+        month.add(Calendar.MONTH, 1);
+        loadOperations(month);
+    }
+
+    private void loadOperations(final Calendar month) {
+        final Context context = this;
+        getLoaderManager().restartLoader(OPERATION_READER_LOADER_ID, null, new LoaderManager.LoaderCallbacks<MonthOperationList>() {
+            @Override
+            public Loader<MonthOperationList> onCreateLoader(int id, Bundle params) {
+                if (id == OPERATION_READER_LOADER_ID) {
+                    return new DbOperationReader(context, month, targets);
+                }
+                return null;
+            }
+            @Override
+            public void onLoadFinished(Loader<MonthOperationList> loader, MonthOperationList loaded) {
+                operations = loaded;
+                events.notify(EVENT_LISTENER_KEY_ON_LOAD_OPERATIONS, new EventListenerManager.OnIterateListener() {
+                    @Override
+                    public void onIterate(EventListener listener) {
+                        ((OnLoadOperationsListener) listener).onLoadOperations(operations, hasPreviousMonth(), hasNextMonth());
+                    }
+                });
+            }
+            @Override
+            public void onLoaderReset(Loader<MonthOperationList> loader) {
+                // TODO: что-то нужно сделать?
+            }
+        });
+    }
+
+    private boolean hasPreviousMonth() {
+        return report.first.before(operations.month);
+    }
+
+    private boolean hasNextMonth() {
+        Calendar month = (Calendar) operations.month.clone();
+        month.add(Calendar.MONTH, 1);
+        return report.last.after(month);
+    }
+
     @Override
     public void addOnLoadOperationsListener(OnLoadOperationsListener listener) {
         events.add(EVENT_LISTENER_KEY_ON_LOAD_OPERATIONS, listener);
         if (operations != null) {
-            listener.onLoadOperations(operations);
+            listener.onLoadOperations(operations, hasPreviousMonth(), hasNextMonth());
         }
     }
 
@@ -299,6 +329,7 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
         });
         (new DbTargetWriter(this)).write(currentTarget);
         if (editNext) {
+            // TODO: можно застрять на одном и том же
             Target nextTarget = targets.getFirstWithNoCategory();
             if (nextTarget == null) {
                 int index = targets.indexOf(currentTarget);

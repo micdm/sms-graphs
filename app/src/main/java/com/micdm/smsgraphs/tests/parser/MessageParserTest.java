@@ -2,7 +2,7 @@ package com.micdm.smsgraphs.tests.parser;
 
 import android.test.InstrumentationTestCase;
 
-import com.micdm.smsgraphs.messages.Message;
+import com.micdm.smsgraphs.data.Message;
 import com.micdm.smsgraphs.messages.MessageParser;
 
 import java.math.BigDecimal;

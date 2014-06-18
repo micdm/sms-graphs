@@ -4,6 +4,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
+import com.micdm.smsgraphs.data.Message;
+
 public class MessageLoader {
 
     public static interface OnMessageListener {

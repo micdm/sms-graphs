@@ -5,7 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 
-import com.micdm.smsgraphs.messages.Message;
+import com.micdm.smsgraphs.data.Message;
 import com.micdm.smsgraphs.misc.DateUtils;
 
 public class DbOperationWriter extends DbWriter {

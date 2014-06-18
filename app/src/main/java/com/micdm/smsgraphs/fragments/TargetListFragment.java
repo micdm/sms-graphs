@@ -72,13 +72,13 @@ public class TargetListFragment extends ListFragment {
     }
 
     private TargetHandler handler;
-    private TargetHandler.OnLoadTargetsListener onLoadTargetsListener = new TargetHandler.OnLoadTargetsListener() {
+    private final TargetHandler.OnLoadTargetsListener onLoadTargetsListener = new TargetHandler.OnLoadTargetsListener() {
         @Override
         public void onLoadTargets(TargetList targets) {
             setListAdapter(new TargetListAdapter(targets));
         }
     };
-    private TargetHandler.OnEditTargetListener onEditTargetListener = new TargetHandler.OnEditTargetListener() {
+    private final TargetHandler.OnEditTargetListener onEditTargetListener = new TargetHandler.OnEditTargetListener() {
         @Override
         public void onEditTarget(Target target) {
             ((TargetListAdapter) getListView().getAdapter()).notifyDataSetChanged();
