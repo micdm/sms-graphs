@@ -1,26 +1,29 @@
 package com.micdm.smsgraphs.db.writers;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.micdm.smsgraphs.data.Message;
+import com.micdm.smsgraphs.db.DbHelper;
 import com.micdm.smsgraphs.misc.DateUtils;
 
-public class DbOperationWriter extends DbWriter {
+public class DbOperationWriter extends DbWriter<Message> {
 
-    public DbOperationWriter(Context context) {
-        super(context);
+    public DbOperationWriter(DbHelper dbHelper) {
+        super(dbHelper);
     }
 
+    @Override
     public boolean write(Message message) {
-        long cardRowId = writeCard(message);
-        long targetRowId = writeTarget(message);
-        return writeOperation(message, cardRowId, targetRowId) != -1;
+        SQLiteDatabase db = getDb();
+        long cardRowId = writeCard(db, message);
+        long targetRowId = writeTarget(db, message);
+        return writeOperation(db, message, cardRowId, targetRowId) != -1;
     }
 
-    private long writeCard(Message message) {
+    private long writeCard(SQLiteDatabase db, Message message) {
         ContentValues values = getCardValues(message);
         try {
             return db.insertOrThrow("cards", null, values);
@@ -39,7 +42,7 @@ public class DbOperationWriter extends DbWriter {
         return result;
     }
 
-    private long writeTarget(Message message) {
+    private long writeTarget(SQLiteDatabase db, Message message) {
         ContentValues values = getTargetValues(message);
         try {
             return db.insertOrThrow("targets", null, getTargetValues(message));
@@ -59,7 +62,7 @@ public class DbOperationWriter extends DbWriter {
         return result;
     }
 
-    private long writeOperation(Message message, long cardRowId, long targetRowId) {
+    private long writeOperation(SQLiteDatabase db, Message message, long cardRowId, long targetRowId) {
         try {
             return db.insertOrThrow("operations", null, getMessageValues(message, cardRowId, targetRowId));
         } catch (SQLException e) {

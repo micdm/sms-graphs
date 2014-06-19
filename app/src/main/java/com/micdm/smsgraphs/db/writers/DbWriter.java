@@ -1,15 +1,20 @@
 package com.micdm.smsgraphs.db.writers;
 
-import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.micdm.smsgraphs.db.DbOpenHelper;
+import com.micdm.smsgraphs.db.DbHelper;
 
-public abstract class DbWriter {
+public abstract class DbWriter<Entity> {
 
-    protected final SQLiteDatabase db;
+    private DbHelper dbHelper;
 
-    public DbWriter(Context context) {
-        db = new DbOpenHelper(context).getWritableDatabase();
+    public DbWriter(DbHelper dbHelper) {
+        this.dbHelper = dbHelper;
     }
+
+    protected SQLiteDatabase getDb() {
+        return dbHelper.getWritableDatabase();
+    }
+
+    public abstract boolean write(Entity entity);
 }

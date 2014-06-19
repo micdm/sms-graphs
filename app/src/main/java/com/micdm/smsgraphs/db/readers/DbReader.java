@@ -4,22 +4,23 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.micdm.smsgraphs.db.DbOpenHelper;
+import com.micdm.smsgraphs.db.DbHelper;
 
 public abstract class DbReader<Entity> extends AsyncTaskLoader<Entity> {
 
-    protected final SQLiteDatabase db;
+    private DbHelper dbHelper;
 
-    public DbReader(Context context) {
+    public DbReader(Context context, DbHelper dbHelper) {
         super(context);
-        db = new DbOpenHelper(context).getReadableDatabase();
-        onContentChanged();
+        this.dbHelper = dbHelper;
+    }
+
+    protected SQLiteDatabase getDb() {
+        return dbHelper.getReadableDatabase();
     }
 
     @Override
     protected void onStartLoading() {
-        if (takeContentChanged()) {
-            forceLoad();
-        }
+        forceLoad();
     }
 }

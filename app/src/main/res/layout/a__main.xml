@@ -9,6 +9,34 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/a__main__loading_targets"
+        android:gravity="center"
+        android:background="@android:color/background_light"
+        android:text="@string/activity_main_loading_targets"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/a__main__loading_categories"
+        android:gravity="center"
+        android:background="@android:color/background_light"
+        android:text="@string/activity_main_loading_categories"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/a__main__no_operations"
+        android:gravity="center"
+        android:background="@android:color/background_light"
+        android:text="@string/activity_main_no_operations"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/a__main__loading_operation_report"
+        android:gravity="center"
+        android:background="@android:color/background_light"
+        android:text="@string/activity_main_loading_operation_report"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:id="@+id/a__main__loading_messages"
         android:gravity="center"
         android:background="@android:color/background_light"

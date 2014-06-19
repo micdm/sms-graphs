@@ -2,10 +2,12 @@ package com.micdm.smsgraphs.db.readers;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.micdm.smsgraphs.data.Category;
 import com.micdm.smsgraphs.data.Target;
 import com.micdm.smsgraphs.data.TargetList;
+import com.micdm.smsgraphs.db.DbHelper;
 import com.micdm.smsgraphs.misc.DateUtils;
 
 import java.util.Calendar;
@@ -15,13 +17,14 @@ public class DbTargetReader extends DbReader<TargetList> {
 
     private final List<Category> categories;
 
-    public DbTargetReader(Context context, List<Category> categories) {
-        super(context);
+    public DbTargetReader(Context context, DbHelper dbHelper, List<Category> categories) {
+        super(context, dbHelper);
         this.categories = categories;
     }
 
     @Override
     public TargetList loadInBackground() {
+        SQLiteDatabase db = getDb();
         Cursor cursor = db.rawQuery(
             "SELECT t.id, t.category_id, t.name, t.title, MAX(o.created) " +
             "FROM targets AS t " +

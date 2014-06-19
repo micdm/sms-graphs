@@ -7,14 +7,14 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.micdm.smsgraphs.R;
 
-public class DbOpenHelper extends SQLiteOpenHelper {
+public class DbHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "main";
     private static final int DB_VERSION = 1;
 
     private final Context context;
 
-    public DbOpenHelper(Context context) {
+    public DbHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
         this.context = context;
     }

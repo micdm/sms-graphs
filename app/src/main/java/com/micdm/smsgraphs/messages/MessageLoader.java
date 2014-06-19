@@ -17,27 +17,15 @@ public class MessageLoader {
 
     private final Context context;
     private final OnMessageListener listener;
-    private Cursor cursor;
 
     public MessageLoader(Context context, OnMessageListener listener) {
         this.context = context;
         this.listener = listener;
     }
 
-    private Cursor getCursor() {
-        String[] fields = new String[] {"body"};
-        Cursor cursor = context.getContentResolver().query(INBOX_URI, fields, "address = ?", new String[] {SERVICE_NUMBER}, "_id DESC");
-        if (cursor == null) {
-            throw new RuntimeException("can not access to messages");
-        }
-        cursor.moveToFirst();
-        return cursor;
-    }
-
     public void load() {
-        if (cursor == null) {
-            cursor = getCursor();
-        }
+        Cursor cursor = getCursor();
+        cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             Message message = MessageParser.parse(cursor.getString(0));
             if (!listener.onMessage(message)) {
@@ -46,5 +34,14 @@ public class MessageLoader {
             cursor.moveToNext();
         }
         cursor.close();
+    }
+
+    private Cursor getCursor() {
+        String[] fields = new String[] {"body"};
+        Cursor cursor = context.getContentResolver().query(INBOX_URI, fields, "address = ?", new String[] {SERVICE_NUMBER}, "_id DESC");
+        if (cursor == null) {
+            throw new RuntimeException("can not access to messages");
+        }
+        return cursor;
     }
 }

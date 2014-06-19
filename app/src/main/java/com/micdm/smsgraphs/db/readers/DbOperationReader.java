@@ -2,11 +2,13 @@ package com.micdm.smsgraphs.db.readers;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.micdm.smsgraphs.data.MonthOperationList;
 import com.micdm.smsgraphs.data.Operation;
 import com.micdm.smsgraphs.data.Target;
 import com.micdm.smsgraphs.data.TargetList;
+import com.micdm.smsgraphs.db.DbHelper;
 import com.micdm.smsgraphs.misc.DateUtils;
 
 import java.math.BigDecimal;
@@ -19,14 +21,15 @@ public class DbOperationReader extends DbReader<MonthOperationList> {
     private final Calendar month;
     private final TargetList targets;
 
-    public DbOperationReader(Context context, Calendar month, TargetList targets) {
-        super(context);
+    public DbOperationReader(Context context, DbHelper dbHelper, Calendar month, TargetList targets) {
+        super(context, dbHelper);
         this.month = month;
         this.targets = targets;
     }
 
     @Override
     public MonthOperationList loadInBackground() {
+        SQLiteDatabase db = getDb();
         Cursor cursor = db.rawQuery(
             "SELECT id, target_id, created, amount " +
             "FROM operations " +

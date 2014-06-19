@@ -84,19 +84,14 @@ public class StatsFragment extends Fragment {
             previousView.setEnabled(previous);
             monthView.setText(DateUtils.formatMonthForHuman(operations.month));
             nextView.setEnabled(next);
-            if (operations.operations.size() == 0) {
-                noOperationsView.setVisibility(View.VISIBLE);
+            List<CategoryStat> stats = getCategoryStats(operations.operations);
+            if (stats.size() == 0) {
+                noCategoryStatsView.setVisibility(View.VISIBLE);
             } else {
-                List<CategoryStat> stats = getCategoryStats(operations.operations);
-                if (stats.size() == 0) {
-                    noCategoryStatsView.setVisibility(View.VISIBLE);
-                } else {
-                    categoriesView.setAdapter(new CategoryStatsListAdapter(stats));
-                    BigDecimal total = getTotalSum(stats);
-                    totalView.setText(total.toString());
-                    noCategoryStatsView.setVisibility(View.GONE);
-                }
-                noOperationsView.setVisibility(View.GONE);
+                categoriesView.setAdapter(new CategoryStatsListAdapter(stats));
+                BigDecimal total = getTotalSum(stats);
+                totalView.setText(total.toString());
+                noCategoryStatsView.setVisibility(View.GONE);
             }
         }
     };
@@ -108,7 +103,6 @@ public class StatsFragment extends Fragment {
     private TextView totalView;
     private View noCategoryStatsView;
     private TextView loadingOperationsView;
-    private View noOperationsView;
 
     @Override
     public void onAttach(Activity activity) {
@@ -138,7 +132,6 @@ public class StatsFragment extends Fragment {
         totalView = (TextView) view.findViewById(R.id.f__stats__total);
         noCategoryStatsView = view.findViewById(R.id.f__stats__no_category_stats);
         loadingOperationsView = (TextView) view.findViewById(R.id.f__stats__loading_operations);
-        noOperationsView = view.findViewById(R.id.f__stats__no_operations);
         return view;
     }
 

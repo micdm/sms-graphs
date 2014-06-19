@@ -1,18 +1,21 @@
 package com.micdm.smsgraphs.db.writers;
 
 import android.content.ContentValues;
-import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.micdm.smsgraphs.data.Target;
+import com.micdm.smsgraphs.db.DbHelper;
 
-public class DbTargetWriter extends DbWriter {
+public class DbTargetWriter extends DbWriter<Target> {
 
-    public DbTargetWriter(Context context) {
-        super(context);
+    public DbTargetWriter(DbHelper dbHelper) {
+        super(dbHelper);
     }
 
-    public void write(Target target) {
-        db.update("targets", getValues(target), "id = ?", new String[] {String.valueOf(target.id)});
+    @Override
+    public boolean write(Target target) {
+        SQLiteDatabase db = getDb();
+        return db.update("targets", getValues(target), "id = ?", new String[] {String.valueOf(target.id)}) != 0;
     }
 
     private ContentValues getValues(Target target) {

@@ -2,20 +2,23 @@ package com.micdm.smsgraphs.db.readers;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.micdm.smsgraphs.data.Category;
+import com.micdm.smsgraphs.db.DbHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class DbCategoryReader extends DbReader<List<Category>> {
 
-    public DbCategoryReader(Context context) {
-        super(context);
+    public DbCategoryReader(Context context, DbHelper dbHelper) {
+        super(context, dbHelper);
     }
 
     @Override
     public List<Category> loadInBackground() {
+        SQLiteDatabase db = getDb();
         Cursor cursor = db.rawQuery(
             "SELECT id, name " +
             "FROM categories " +

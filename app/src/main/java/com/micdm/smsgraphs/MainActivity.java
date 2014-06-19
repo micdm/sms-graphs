@@ -15,6 +15,7 @@ import com.micdm.smsgraphs.data.MonthOperationList;
 import com.micdm.smsgraphs.data.OperationReport;
 import com.micdm.smsgraphs.data.Target;
 import com.micdm.smsgraphs.data.TargetList;
+import com.micdm.smsgraphs.db.DbHelper;
 import com.micdm.smsgraphs.db.readers.DbCategoryReader;
 import com.micdm.smsgraphs.db.readers.DbOperationReader;
 import com.micdm.smsgraphs.db.readers.DbOperationReportReader;
@@ -52,6 +53,7 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
     private static final String EVENT_LISTENER_KEY_ON_START_EDIT_TARGET = "OnStartEditTarget";
     private static final String EVENT_LISTENER_KEY_ON_EDIT_TARGET = "OnEditTarget";
 
+    private final DbHelper dbHelper = new DbHelper(this);
     private final EventListenerManager events = new EventListenerManager();
 
     private OperationReport report;
@@ -60,12 +62,27 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
     private TargetList targets;
     private Target currentTarget;
 
+    private View loadingTargetsView;
+    private View loadingCategoriesView;
+    private View noOperationsView;
+    private View loadingOperationReportView;
+    private View loadingMessagesView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.a__main);
+        setupView();
         setupActionBar();
         setupPager((ViewPager) findViewById(R.id.a__main__pager));
+    }
+
+    private void setupView() {
+        setContentView(R.layout.a__main);
+        loadingTargetsView = findViewById(R.id.a__main__loading_targets);
+        loadingCategoriesView = findViewById(R.id.a__main__loading_categories);
+        noOperationsView = findViewById(R.id.a__main__no_operations);
+        loadingOperationReportView = findViewById(R.id.a__main__loading_operation_report);
+        loadingMessagesView = findViewById(R.id.a__main__loading_messages);
     }
 
     @Override
@@ -116,13 +133,12 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
 
     private void loadNewMessages() {
         final Context context = this;
-        final View loadingMessagesView = findViewById(R.id.a__main__loading_messages);
         loadingMessagesView.setVisibility(View.VISIBLE);
-        getLoaderManager().initLoader(MESSAGE_CONVERTER_LOADER_ID, null, new LoaderManager.LoaderCallbacks<Void>() {
+        getLoaderManager().restartLoader(MESSAGE_CONVERTER_LOADER_ID, null, new LoaderManager.LoaderCallbacks<Void>() {
             @Override
             public Loader<Void> onCreateLoader(int id, Bundle params) {
                 if (id == MESSAGE_CONVERTER_LOADER_ID) {
-                    return new MessageConverter(context);
+                    return new MessageConverter(context, dbHelper);
                 }
                 return null;
             }
@@ -130,7 +146,6 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
             public void onLoadFinished(Loader<Void> loader, Void result) {
                 loadingMessagesView.setVisibility(View.GONE);
                 loadOperationReport();
-                loadCategories();
             }
             @Override
             public void onLoaderReset(Loader<Void> loader) {
@@ -141,17 +156,25 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
 
     private void loadOperationReport() {
         final Context context = this;
-        getLoaderManager().initLoader(OPERATION_REPORT_READER_LOADER_ID, null, new LoaderManager.LoaderCallbacks<OperationReport>() {
+        loadingOperationReportView.setVisibility(View.VISIBLE);
+        getLoaderManager().restartLoader(OPERATION_REPORT_READER_LOADER_ID, null, new LoaderManager.LoaderCallbacks<OperationReport>() {
             @Override
             public Loader<OperationReport> onCreateLoader(int id, Bundle params) {
                 if (id == OPERATION_REPORT_READER_LOADER_ID) {
-                    return new DbOperationReportReader(context);
+                    return new DbOperationReportReader(context, dbHelper);
                 }
                 return null;
             }
             @Override
             public void onLoadFinished(Loader<OperationReport> loader, OperationReport loaded) {
                 report = loaded;
+                if (report.last == null) {
+                    noOperationsView.setVisibility(View.VISIBLE);
+                } else {
+                    loadCategories();
+                    noOperationsView.setVisibility(View.GONE);
+                }
+                loadingOperationReportView.setVisibility(View.GONE);
             }
             @Override
             public void onLoaderReset(Loader<OperationReport> loader) {
@@ -162,11 +185,12 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
 
     private void loadCategories() {
         final Context context = this;
-        getLoaderManager().initLoader(CATEGORY_READER_LOADER_ID, null, new LoaderManager.LoaderCallbacks<List<Category>>() {
+        loadingCategoriesView.setVisibility(View.VISIBLE);
+        getLoaderManager().restartLoader(CATEGORY_READER_LOADER_ID, null, new LoaderManager.LoaderCallbacks<List<Category>>() {
             @Override
             public Loader<List<Category>> onCreateLoader(int id, Bundle params) {
                 if (id == CATEGORY_READER_LOADER_ID) {
-                    return new DbCategoryReader(context);
+                    return new DbCategoryReader(context, dbHelper);
                 }
                 return null;
             }
@@ -180,6 +204,7 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
                     }
                 });
                 loadTargets();
+                loadingCategoriesView.setVisibility(View.GONE);
             }
             @Override
             public void onLoaderReset(Loader<List<Category>> loader) {
@@ -190,11 +215,12 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
 
     private void loadTargets() {
         final Context context = this;
-        getLoaderManager().initLoader(TARGET_READER_LOADER_ID, null, new LoaderManager.LoaderCallbacks<TargetList>() {
+        loadingTargetsView.setVisibility(View.VISIBLE);
+        getLoaderManager().restartLoader(TARGET_READER_LOADER_ID, null, new LoaderManager.LoaderCallbacks<TargetList>() {
             @Override
             public Loader<TargetList> onCreateLoader(int id, Bundle params) {
                 if (id == TARGET_READER_LOADER_ID) {
-                    return new DbTargetReader(context, categories);
+                    return new DbTargetReader(context, dbHelper, categories);
                 }
                 return null;
             }
@@ -208,8 +234,12 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
                         ((OnLoadTargetsListener) listener).onLoadTargets(targets);
                     }
                 });
-                // TODO: не запускать до загрузки репорта
-                loadLastMonthOperations();
+                if (operations == null) {
+                    loadLastMonthOperations();
+                } else {
+                    loadOperations(operations.month);
+                }
+                loadingTargetsView.setVisibility(View.GONE);
             }
             @Override
             public void onLoaderReset(Loader<TargetList> loader) {
@@ -221,6 +251,12 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
     @Override
     public void onStop() {
         super.onStop();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        dbHelper.close();
     }
 
     private void loadLastMonthOperations() {
@@ -255,7 +291,7 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
             @Override
             public Loader<MonthOperationList> onCreateLoader(int id, Bundle params) {
                 if (id == OPERATION_READER_LOADER_ID) {
-                    return new DbOperationReader(context, month, targets);
+                    return new DbOperationReader(context, dbHelper, month, targets);
                 }
                 return null;
             }
@@ -343,7 +379,8 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
                 ((OnEditTargetListener) listener).onEditTarget(currentTarget);
             }
         });
-        (new DbTargetWriter(this)).write(currentTarget);
+        DbTargetWriter writer = new DbTargetWriter(dbHelper);
+        writer.write(currentTarget);
         if (editNext) {
             // TODO: можно застрять на одном и том же
             Target nextTarget = targets.getFirstWithNoCategory();
