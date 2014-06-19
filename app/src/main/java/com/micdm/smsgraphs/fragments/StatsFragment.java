@@ -22,6 +22,7 @@ import com.micdm.smsgraphs.misc.DateUtils;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -70,6 +71,15 @@ public class StatsFragment extends Fragment {
     private OperationHandler operationHandler;
     private final OperationHandler.OnLoadOperationsListener onLoadOperationsListener = new OperationHandler.OnLoadOperationsListener() {
         @Override
+        public void onStartLoadOperations(Calendar month) {
+            loadingOperationsView.setText(getString(R.string.fragment_stats_loading_operations, DateUtils.formatMonthForHuman(month).toLowerCase()));
+            loadingOperationsView.setVisibility(View.VISIBLE);
+        }
+        @Override
+        public void onFinishLoadOperations() {
+            loadingOperationsView.setVisibility(View.GONE);
+        }
+        @Override
         public void onLoadOperations(MonthOperationList operations, boolean previous, boolean next) {
             previousView.setEnabled(previous);
             monthView.setText(DateUtils.formatMonthForHuman(operations.month));
@@ -97,6 +107,7 @@ public class StatsFragment extends Fragment {
     private ListView categoriesView;
     private TextView totalView;
     private View noCategoryStatsView;
+    private TextView loadingOperationsView;
     private View noOperationsView;
 
     @Override
@@ -126,6 +137,7 @@ public class StatsFragment extends Fragment {
         categoriesView = (ListView) view.findViewById(R.id.f__stats__categories);
         totalView = (TextView) view.findViewById(R.id.f__stats__total);
         noCategoryStatsView = view.findViewById(R.id.f__stats__no_category_stats);
+        loadingOperationsView = (TextView) view.findViewById(R.id.f__stats__loading_operations);
         noOperationsView = view.findViewById(R.id.f__stats__no_operations);
         return view;
     }

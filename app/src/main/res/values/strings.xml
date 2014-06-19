@@ -28,17 +28,15 @@
     <string name="tab_title_targets">Продавцы</string>
     <!-- Главный экран -->
     <string name="activity_main_loading_messages">
-        Загружаются новые SMS-сообщения.\n
-        Пожалуйста, подождите.
+        Обрабатываем новые SMS-сообщения.\n
+        Пожалуйста, подождите…
     </string>
     <!-- Фрагмент со статистикой -->
     <string name="fragment_stats_previous">Раньше</string>
     <string name="fragment_stats_next">Позже</string>
     <string name="fragment_stats_total">Итого</string>
-    <string name="fragment_stats_no_category_stats">
-        В этом месяце деньги были потрачены, но в неизвестных пока категориях.\n
-        Загляните в соседнюю вкладку.
-    </string>
+    <string name="fragment_stats_no_category_stats">Настройте категории для продавцов в соседней вкладке.</string>
+    <string name="fragment_stats_loading_operations">Подсчитываем статистику за %s…</string>
     <string name="fragment_stats_no_operations">Похоже, у вас пока нет сообщений из банка.</string>
     <!-- Фрагмент со списком продавцов -->
     <string name="fragment_target_list_no_category">Новый</string>

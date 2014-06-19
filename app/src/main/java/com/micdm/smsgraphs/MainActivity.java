@@ -244,6 +244,12 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
     }
 
     private void loadOperations(final Calendar month) {
+        events.notify(EVENT_LISTENER_KEY_ON_LOAD_OPERATIONS, new EventListenerManager.OnIterateListener() {
+            @Override
+            public void onIterate(EventListener listener) {
+                ((OnLoadOperationsListener) listener).onStartLoadOperations(month);
+            }
+        });
         final Context context = this;
         getLoaderManager().restartLoader(OPERATION_READER_LOADER_ID, null, new LoaderManager.LoaderCallbacks<MonthOperationList>() {
             @Override
@@ -256,6 +262,12 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
             @Override
             public void onLoadFinished(Loader<MonthOperationList> loader, MonthOperationList loaded) {
                 operations = loaded;
+                events.notify(EVENT_LISTENER_KEY_ON_LOAD_OPERATIONS, new EventListenerManager.OnIterateListener() {
+                    @Override
+                    public void onIterate(EventListener listener) {
+                        ((OnLoadOperationsListener) listener).onFinishLoadOperations();
+                    }
+                });
                 events.notify(EVENT_LISTENER_KEY_ON_LOAD_OPERATIONS, new EventListenerManager.OnIterateListener() {
                     @Override
                     public void onIterate(EventListener listener) {
