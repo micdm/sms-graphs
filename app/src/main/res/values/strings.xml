@@ -26,6 +26,11 @@
     <!-- Названия вкладок -->
     <string name="tab_title_stats">Статистика</string>
     <string name="tab_title_targets">Продавцы</string>
+    <!-- Главный экран -->
+    <string name="activity_main_loading_messages">
+        Загружаются новые SMS-сообщения.\n
+        Пожалуйста, подождите.
+    </string>
     <!-- Фрагмент со статистикой -->
     <string name="fragment_stats_previous">Раньше</string>
     <string name="fragment_stats_next">Позже</string>

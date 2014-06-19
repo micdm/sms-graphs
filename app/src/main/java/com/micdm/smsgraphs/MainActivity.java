@@ -36,7 +36,6 @@ import java.util.Calendar;
 import java.util.List;
 
 // TODO: при первом запуске показать обучение
-// TODO: добавить индикатор загрузки новых сообщений
 public class MainActivity extends PagerActivity implements OperationHandler, CategoryHandler, TargetHandler {
 
     private static final int MESSAGE_CONVERTER_LOADER_ID = 0;
@@ -65,13 +64,60 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a__main);
-        convert();
         setupActionBar();
         setupPager((ViewPager) findViewById(R.id.a__main__pager));
     }
 
-    private void convert() {
+    @Override
+    protected void setupPager(ViewPager pager) {
+        super.setupPager(pager);
+        addStatsPage(pager);
+        addTargetListPage(pager);
+    }
+
+    private void addStatsPage(ViewPager pager) {
+        String title = getString(R.string.tab_title_stats);
+        addTab(pager, title);
+        addPage(pager, new PagerAdapter.Page(title, new StatsFragment()));
+    }
+
+    private void addTargetListPage(ViewPager pager) {
+        String title = getString(R.string.tab_title_targets);
+        ActionBar.Tab tab = addTab(pager, R.layout.v__actionbar__target_list_tab);
+        View view = tab.getCustomView();
+        TextView titleView = (TextView) view.findViewById(R.id.v__actionbar__target_list_tab__title);
+        titleView.setText(title);
+        View countView = view.findViewById(R.id.v__actionbar__target_list_tab__count);
+        countView.setVisibility(View.GONE);
+        addPage(pager, new PagerAdapter.Page(title, new TargetListFragment()));
+    }
+
+    private void updateWithNoCategoryCount() {
+        ActionBar actionBar = getActionBar();
+        if (actionBar == null) {
+            return;
+        }
+        View view = actionBar.getTabAt(1).getCustomView();
+        TextView countView = (TextView) view.findViewById(R.id.v__actionbar__target_list_tab__count);
+        int count = targets.getWithNoCategoryCount();
+        if (count == 0) {
+            countView.setVisibility(View.GONE);
+        } else {
+            countView.setText(String.valueOf(count));
+            countView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        loadNewMessages();
+    }
+
+    private void loadNewMessages() {
         final Context context = this;
+        final View loadingMessagesView = findViewById(R.id.a__main__loading_messages);
+        loadingMessagesView.setVisibility(View.VISIBLE);
         getLoaderManager().initLoader(MESSAGE_CONVERTER_LOADER_ID, null, new LoaderManager.LoaderCallbacks<Void>() {
             @Override
             public Loader<Void> onCreateLoader(int id, Bundle params) {
@@ -82,6 +128,7 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
             }
             @Override
             public void onLoadFinished(Loader<Void> loader, Void result) {
+                loadingMessagesView.setVisibility(View.GONE);
                 loadOperationReport();
                 loadCategories();
             }
@@ -169,51 +216,6 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
                 // TODO: что-то нужно сделать?
             }
         });
-    }
-
-    @Override
-    protected void setupPager(ViewPager pager) {
-        super.setupPager(pager);
-        addStatsPage(pager);
-        addTargetListPage(pager);
-    }
-
-    private void addStatsPage(ViewPager pager) {
-        String title = getString(R.string.tab_title_stats);
-        addTab(pager, title);
-        addPage(pager, new PagerAdapter.Page(title, new StatsFragment()));
-    }
-
-    private void addTargetListPage(ViewPager pager) {
-        String title = getString(R.string.tab_title_targets);
-        ActionBar.Tab tab = addTab(pager, R.layout.v__actionbar__target_list_tab);
-        View view = tab.getCustomView();
-        TextView titleView = (TextView) view.findViewById(R.id.v__actionbar__target_list_tab__title);
-        titleView.setText(title);
-        View countView = view.findViewById(R.id.v__actionbar__target_list_tab__count);
-        countView.setVisibility(View.GONE);
-        addPage(pager, new PagerAdapter.Page(title, new TargetListFragment()));
-    }
-
-    private void updateWithNoCategoryCount() {
-        ActionBar actionBar = getActionBar();
-        if (actionBar == null) {
-            return;
-        }
-        View view = actionBar.getTabAt(1).getCustomView();
-        TextView countView = (TextView) view.findViewById(R.id.v__actionbar__target_list_tab__count);
-        int count = targets.getWithNoCategoryCount();
-        if (count == 0) {
-            countView.setVisibility(View.GONE);
-        } else {
-            countView.setText(String.valueOf(count));
-            countView.setVisibility(View.VISIBLE);
-        }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
     }
 
     @Override
