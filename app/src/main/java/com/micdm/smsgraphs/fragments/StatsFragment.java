@@ -19,8 +19,6 @@ import com.micdm.smsgraphs.handlers.OperationHandler;
 import com.micdm.smsgraphs.misc.CategoryStatsListItemView;
 import com.micdm.smsgraphs.misc.DateUtils;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -63,7 +61,7 @@ public class StatsFragment extends Fragment {
             TextView nameView = (TextView) view.findViewById(R.id.v__stats__list_item__name);
             nameView.setText(stat.category.name);
             TextView amountView = (TextView) view.findViewById(R.id.v__stats__list_item__amount);
-            amountView.setText(stat.amount.toString());
+            amountView.setText(String.valueOf(stat.amount));
             return view;
         }
     }
@@ -89,8 +87,7 @@ public class StatsFragment extends Fragment {
                 noCategoryStatsView.setVisibility(View.VISIBLE);
             } else {
                 categoriesView.setAdapter(new CategoryStatsListAdapter(stats));
-                BigDecimal total = getTotalSum(stats);
-                totalView.setText(total.toString());
+                totalView.setText(String.valueOf(getTotalSum(stats)));
                 noCategoryStatsView.setVisibility(View.GONE);
             }
         }
@@ -153,9 +150,8 @@ public class StatsFragment extends Fragment {
                 stat = new CategoryStat(category);
                 stats.add(stat);
             }
-            stat.amount = stat.amount.add(operation.amount);
+            stat.amount += operation.amount;
         }
-        roundAmounts(stats);
         addPercentages(stats);
         sortCategoryStatsByName(stats);
         return stats;
@@ -170,23 +166,17 @@ public class StatsFragment extends Fragment {
         return null;
     }
 
-    private void roundAmounts(List<CategoryStat> stats) {
-        for (CategoryStat stat: stats) {
-            stat.amount = stat.amount.setScale(0, BigDecimal.ROUND_UP);
-        }
-    }
-
     private void addPercentages(List<CategoryStat> stats) {
-        BigDecimal total = getTotalSum(stats);
+        int total = getTotalSum(stats);
         for (CategoryStat stat: stats) {
-            stat.percentage = stat.amount.divide(total, MathContext.DECIMAL64).doubleValue();
+            stat.percentage = (double) stat.amount / total;
         }
     }
 
-    private BigDecimal getTotalSum(List<CategoryStat> stats) {
-        BigDecimal total = new BigDecimal(0);
+    private int getTotalSum(List<CategoryStat> stats) {
+        int total = 0;
         for (CategoryStat stat: stats) {
-            total = total.add(stat.amount);
+            total += stat.amount;
         }
         return total;
     }

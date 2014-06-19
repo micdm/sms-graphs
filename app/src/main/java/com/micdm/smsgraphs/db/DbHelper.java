@@ -64,7 +64,7 @@ public class DbHelper extends SQLiteOpenHelper {
                 "card_id INTEGER REFERENCES cards(id)," +
                 "target_id INTEGER REFERENCES targets(id)," +
                 "created DATETIME," +
-                "amount DECIMAL(10, 2)," +
+                "amount INTEGER," +
                 "UNIQUE (card_id, target_id, created, amount)" +
             ")"
         );

@@ -2,7 +2,6 @@ package com.micdm.smsgraphs.messages;
 
 import com.micdm.smsgraphs.data.Message;
 
-import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -75,7 +74,7 @@ public class MessageParser {
         return m.group(GROUP_TARGET);
     }
 
-    private static BigDecimal getAmount(Matcher m) {
-        return new BigDecimal(m.group(GROUP_AMOUNT));
+    private static int getAmount(Matcher m) {
+        return (int) Math.round(Double.valueOf(m.group(GROUP_AMOUNT)));
     }
 }

@@ -11,7 +11,6 @@ import com.micdm.smsgraphs.data.TargetList;
 import com.micdm.smsgraphs.db.DbHelper;
 import com.micdm.smsgraphs.misc.DateUtils;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -42,7 +41,7 @@ public class DbOperationReader extends DbReader<MonthOperationList> {
             int id = cursor.getInt(0);
             Target target = targets.getTargetById(cursor.getInt(1));
             Calendar created = DateUtils.parseForDb(cursor.getString(2));
-            BigDecimal amount = new BigDecimal(cursor.getString(3));
+            int amount = cursor.getInt(3);
             Operation operation = new Operation(id, target, created, amount);
             operations.add(operation);
             cursor.moveToNext();
