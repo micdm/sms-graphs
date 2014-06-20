@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-// TODO: перезагружать отчет при изменении продавцов
 public class StatsFragment extends Fragment {
 
     private class CategoryStatsListAdapter extends BaseAdapter {

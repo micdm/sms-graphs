@@ -23,7 +23,7 @@ public class DbOperationReportReader extends DbReader<OperationReport> {
             "FROM operations ", null
         );
         cursor.moveToFirst();
-        OperationReport report = null;
+        OperationReport report;
         if (cursor.isNull(0) && cursor.isNull(1)) {
             report = new OperationReport(null, null);
         } else {

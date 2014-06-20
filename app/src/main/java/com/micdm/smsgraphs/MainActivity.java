@@ -6,6 +6,7 @@ import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Loader;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.TextView;
@@ -136,7 +137,7 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
             @Override
             public void onLoadFinished(Loader<OperationReport> loader, OperationReport loaded) {
                 report = loaded;
-                noOperationsView.setVisibility(report.last == null ? View.VISIBLE : View.GONE);
+                noOperationsView.setVisibility((report.last == null) ? View.VISIBLE : View.GONE);
             }
             @Override
             public void onLoaderReset(Loader<OperationReport> loader) {
@@ -207,7 +208,10 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
                             ((OnLoadTargetsListener) listener).onLoadTargets(targets);
                         }
                     });
-                    loadMonthOperations(month == null ? getLastMonth() : month);
+                    Calendar mnth = (month == null) ? getLastMonth() : month;
+                    if (mnth != null) {
+                        loadMonthOperations(mnth);
+                    }
                 }
             }
             @Override
@@ -417,6 +421,7 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
                 ((OnEditTargetListener) listener).onEditTarget(currentTarget);
             }
         });
+        loadMonthOperations(month);
         DbTargetWriter writer = new DbTargetWriter(dbHelper);
         writer.write(currentTarget);
         if (editNext) {
