@@ -6,7 +6,6 @@ import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Loader;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.TextView;
@@ -112,9 +111,7 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
                 }
             }
             @Override
-            public void onLoaderReset(Loader<Integer> loader) {
-                // TODO: что-то нужно сделать?
-            }
+            public void onLoaderReset(Loader<Integer> loader) {}
         };
     }
 
@@ -140,9 +137,7 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
                 noOperationsView.setVisibility((report.last == null) ? View.VISIBLE : View.GONE);
             }
             @Override
-            public void onLoaderReset(Loader<OperationReport> loader) {
-                // TODO: что-то нужно сделать?
-            }
+            public void onLoaderReset(Loader<OperationReport> loader) {}
         };
     }
 
@@ -175,9 +170,7 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
 
             }
             @Override
-            public void onLoaderReset(Loader<CategoryList> loader) {
-                // TODO: что-то нужно сделать?
-            }
+            public void onLoaderReset(Loader<CategoryList> loader) {}
         };
     }
 
@@ -215,9 +208,7 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
                 }
             }
             @Override
-            public void onLoaderReset(Loader<TargetList> loader) {
-                // TODO: что-то нужно сделать?
-            }
+            public void onLoaderReset(Loader<TargetList> loader) {}
         };
     }
 
@@ -260,9 +251,7 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
                 }
             }
             @Override
-            public void onLoaderReset(Loader<MonthOperationList> loader) {
-                // TODO: что-то нужно сделать?
-            }
+            public void onLoaderReset(Loader<MonthOperationList> loader) {}
         };
     }
 
@@ -425,17 +414,31 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
         DbTargetWriter writer = new DbTargetWriter(dbHelper);
         writer.write(currentTarget);
         if (editNext) {
-            // TODO: можно застрять на одном и том же
-            Target nextTarget = targets.getFirstWithNoCategory();
-            if (nextTarget == null) {
-                int index = targets.indexOf(currentTarget);
-                nextTarget = targets.get((index == targets.size() - 1) ? 0 : index + 1);
-            }
+            Target nextTarget = getNextTargetToEdit(targets, currentTarget);
             currentTarget = null;
             startEditTarget(nextTarget);
         } else {
             currentTarget = null;
         }
+    }
+
+    private Target getNextTargetToEdit(TargetList targets, Target current) {
+        if (targets.size() == 1) {
+            return current;
+        }
+        int index = targets.indexOf(current);
+        int i = index + 1;
+        while (i != index) {
+            if (i == targets.size()) {
+                i = 0;
+            }
+            Target next = targets.get(i);
+            if (next.category == null) {
+                return next;
+            }
+            i += 1;
+        }
+        return (index + 1 == targets.size()) ? targets.get(0) : targets.get(index + 1);
     }
 
     @Override
