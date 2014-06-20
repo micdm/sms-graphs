@@ -19,8 +19,8 @@ import com.micdm.smsgraphs.data.CategoryList;
 import com.micdm.smsgraphs.data.Target;
 import com.micdm.smsgraphs.handlers.CategoryHandler;
 import com.micdm.smsgraphs.handlers.TargetHandler;
+import com.micdm.smsgraphs.misc.DateUtils;
 
-// TODO: показывать дату последней операции и сумму
 public class TargetFragment extends DialogFragment {
 
     private class CategoryListAdapter extends BaseAdapter {
@@ -81,6 +81,8 @@ public class TargetFragment extends DialogFragment {
         @Override
         public void onStartEditTarget(Target editable) {
             target = editable;
+            getDialog().setTitle(getString(R.string.fragment_target_title_with_last_operation,
+                    DateUtils.formatForHuman(target.lastPaid), target.lastAmount, getResources().getQuantityString(R.plurals.rubles, target.lastAmount)));
             titleView.setHint(target.name);
             if (target.title != null) {
                 titleView.setText(target.title);

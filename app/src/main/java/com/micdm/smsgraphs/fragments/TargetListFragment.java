@@ -14,7 +14,6 @@ import com.micdm.smsgraphs.data.TargetList;
 import com.micdm.smsgraphs.handlers.TargetHandler;
 import com.micdm.smsgraphs.misc.DateUtils;
 
-// TODO: к дате последней операции добавить сумму
 public class TargetListFragment extends ListFragment {
 
     private class TargetListAdapter extends BaseAdapter {
@@ -56,8 +55,9 @@ public class TargetListFragment extends ListFragment {
                 nameView.setVisibility(View.VISIBLE);
                 nameView.setText(target.name);
             }
-            TextView lastPaidView = (TextView) view.findViewById(R.id.v__target_list__list_item__last_paid);
-            lastPaidView.setText(DateUtils.formatForHuman(target.lastPaid));
+            TextView lastOperationView = (TextView) view.findViewById(R.id.v__target_list__list_item__last_operation);
+            lastOperationView.setText(getString(R.string.fragment_target_list_last_operation,
+                    DateUtils.formatForHuman(target.lastPaid), target.lastAmount, getResources().getQuantityString(R.plurals.rubles, target.lastAmount)));
             TextView categoryView = (TextView) view.findViewById(R.id.v__target_list__list_item__category);
             View noCategoryView = view.findViewById(R.id.v__target_list__list_item__no_category);
             if (target.category == null) {

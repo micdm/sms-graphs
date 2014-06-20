@@ -27,11 +27,11 @@ public class DbTargetReader extends DbReader<TargetList> {
         }
         SQLiteDatabase db = getDb();
         Cursor cursor = db.rawQuery(
-            "SELECT t.id, t.category_id, t.name, t.title, MAX(o.created) " +
+            "SELECT t.id, t.category_id, t.name, t.title, o.created, o.amount " +
             "FROM targets AS t " +
                 "INNER JOIN operations AS o ON(o.target_id = t.id) " +
             "GROUP BY t.id " +
-            "ORDER BY t.name", null
+            "ORDER BY t.name, o.created DESC", null
         );
         cursor.moveToFirst();
         TargetList targets = new TargetList();
@@ -41,7 +41,8 @@ public class DbTargetReader extends DbReader<TargetList> {
             String name = cursor.getString(2);
             String title = cursor.getString(3);
             Calendar lastPaid = DateUtils.parseForDb(cursor.getString(4));
-            Target target = new Target(id, categoryId == 0 ? null : categories.getById(categoryId), name, title, lastPaid);
+            int lastAmount = cursor.getInt(5);
+            Target target = new Target(id, categoryId == 0 ? null : categories.getById(categoryId), name, title, lastPaid, lastAmount);
             targets.add(target);
             cursor.moveToNext();
         }
