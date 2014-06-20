@@ -1,17 +1,14 @@
 package com.micdm.smsgraphs.db.readers;
 
-import android.content.AsyncTaskLoader;
-import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.micdm.smsgraphs.db.DbHelper;
 
-public abstract class DbReader<Entity> extends AsyncTaskLoader<Entity> {
+public abstract class DbReader<Entity> {
 
     private DbHelper dbHelper;
 
-    public DbReader(Context context, DbHelper dbHelper) {
-        super(context);
+    public DbReader(DbHelper dbHelper) {
         this.dbHelper = dbHelper;
     }
 
@@ -19,8 +16,5 @@ public abstract class DbReader<Entity> extends AsyncTaskLoader<Entity> {
         return dbHelper.getReadableDatabase();
     }
 
-    @Override
-    protected void onStartLoading() {
-        forceLoad();
-    }
+    public abstract Entity read();
 }

@@ -15,20 +15,19 @@ import android.widget.TextView;
 
 import com.micdm.smsgraphs.R;
 import com.micdm.smsgraphs.data.Category;
+import com.micdm.smsgraphs.data.CategoryList;
 import com.micdm.smsgraphs.data.Target;
 import com.micdm.smsgraphs.handlers.CategoryHandler;
 import com.micdm.smsgraphs.handlers.TargetHandler;
-
-import java.util.List;
 
 // TODO: показывать дату последней операции и сумму
 public class TargetFragment extends DialogFragment {
 
     private class CategoryListAdapter extends BaseAdapter {
 
-        private final List<Category> categories;
+        private final CategoryList categories;
 
-        public CategoryListAdapter(List<Category> categories) {
+        public CategoryListAdapter(CategoryList categories) {
             this.categories = categories;
         }
 
@@ -65,7 +64,7 @@ public class TargetFragment extends DialogFragment {
     private CategoryHandler categoryHandler;
     private final CategoryHandler.OnLoadCategoriesListener onLoadCategoriesListener = new CategoryHandler.OnLoadCategoriesListener() {
         @Override
-        public void onLoadCategories(List<Category> categories) {
+        public void onLoadCategories(CategoryList categories) {
             Spinner view = (Spinner) getDialog().findViewById(R.id.f__target__categories);
             view.setAdapter(new CategoryListAdapter(categories));
         }

@@ -1,29 +1,30 @@
 package com.micdm.smsgraphs.db.readers;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.micdm.smsgraphs.data.Category;
+import com.micdm.smsgraphs.data.CategoryList;
 import com.micdm.smsgraphs.data.Target;
 import com.micdm.smsgraphs.data.TargetList;
 import com.micdm.smsgraphs.db.DbHelper;
 import com.micdm.smsgraphs.misc.DateUtils;
 
 import java.util.Calendar;
-import java.util.List;
 
 public class DbTargetReader extends DbReader<TargetList> {
 
-    private final List<Category> categories;
+    private final CategoryList categories;
 
-    public DbTargetReader(Context context, DbHelper dbHelper, List<Category> categories) {
-        super(context, dbHelper);
+    public DbTargetReader(DbHelper dbHelper, CategoryList categories) {
+        super(dbHelper);
         this.categories = categories;
     }
 
     @Override
-    public TargetList loadInBackground() {
+    public TargetList read() {
+        if (categories == null) {
+            return null;
+        }
         SQLiteDatabase db = getDb();
         Cursor cursor = db.rawQuery(
             "SELECT t.id, t.category_id, t.name, t.title, MAX(o.created) " +
@@ -40,20 +41,11 @@ public class DbTargetReader extends DbReader<TargetList> {
             String name = cursor.getString(2);
             String title = cursor.getString(3);
             Calendar lastPaid = DateUtils.parseForDb(cursor.getString(4));
-            Target target = new Target(id, categoryId == 0 ? null : getCategoryById(categoryId), name, title, lastPaid);
+            Target target = new Target(id, categoryId == 0 ? null : categories.getById(categoryId), name, title, lastPaid);
             targets.add(target);
             cursor.moveToNext();
         }
         cursor.close();
         return targets;
-    }
-
-    private Category getCategoryById(Integer id) {
-        for (Category category: categories) {
-            if (category.id == id) {
-                return category;
-            }
-        }
-        throw new RuntimeException(String.format("cannot find category %s", id));
     }
 }

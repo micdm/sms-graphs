@@ -1,23 +1,20 @@
 package com.micdm.smsgraphs.db.readers;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.micdm.smsgraphs.data.Category;
+import com.micdm.smsgraphs.data.CategoryList;
 import com.micdm.smsgraphs.db.DbHelper;
 
-import java.util.ArrayList;
-import java.util.List;
+public class DbCategoryReader extends DbReader<CategoryList> {
 
-public class DbCategoryReader extends DbReader<List<Category>> {
-
-    public DbCategoryReader(Context context, DbHelper dbHelper) {
-        super(context, dbHelper);
+    public DbCategoryReader(DbHelper dbHelper) {
+        super(dbHelper);
     }
 
     @Override
-    public List<Category> loadInBackground() {
+    public CategoryList read() {
         SQLiteDatabase db = getDb();
         Cursor cursor = db.rawQuery(
             "SELECT id, name " +
@@ -25,7 +22,7 @@ public class DbCategoryReader extends DbReader<List<Category>> {
             "ORDER BY name", null
         );
         cursor.moveToFirst();
-        List<Category> categories = new ArrayList<Category>();
+        CategoryList categories = new CategoryList();
         while (!cursor.isAfterLast()) {
             int id = cursor.getInt(0);
             String name = cursor.getString(1);

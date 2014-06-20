@@ -1,6 +1,5 @@
 package com.micdm.smsgraphs.db.readers;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -12,12 +11,12 @@ import java.util.Calendar;
 
 public class DbOperationReportReader extends DbReader<OperationReport> {
 
-    public DbOperationReportReader(Context context, DbHelper dbHelper) {
-        super(context, dbHelper);
+    public DbOperationReportReader(DbHelper dbHelper) {
+        super(dbHelper);
     }
 
     @Override
-    public OperationReport loadInBackground() {
+    public OperationReport read() {
         SQLiteDatabase db = getDb();
         Cursor cursor = db.rawQuery(
             "SELECT MIN(created), MAX(created) " +

@@ -6,7 +6,7 @@ import android.net.Uri;
 
 import com.micdm.smsgraphs.data.Message;
 
-public class MessageLoader {
+public class MessageReader {
 
     public static interface OnMessageListener {
         public boolean onMessage(Message message);
@@ -18,12 +18,12 @@ public class MessageLoader {
     private final Context context;
     private final OnMessageListener listener;
 
-    public MessageLoader(Context context, OnMessageListener listener) {
+    public MessageReader(Context context, OnMessageListener listener) {
         this.context = context;
         this.listener = listener;
     }
 
-    public void load() {
+    public void read() {
         Cursor cursor = getCursor();
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
