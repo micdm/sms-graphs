@@ -25,15 +25,15 @@ public class TargetFragment extends DialogFragment {
 
     private class CategoryListAdapter extends BaseAdapter {
 
-        private final CategoryList categories;
+        private CategoryList categories;
 
-        public CategoryListAdapter(CategoryList categories) {
+        public void setCategories(CategoryList categories) {
             this.categories = categories;
         }
 
         @Override
         public int getCount() {
-            return categories.size() + 1;
+            return (categories == null) ? 0 : categories.size() + 1;
         }
 
         @Override
@@ -66,7 +66,13 @@ public class TargetFragment extends DialogFragment {
         @Override
         public void onLoadCategories(CategoryList categories) {
             Spinner view = (Spinner) getDialog().findViewById(R.id.f__target__categories);
-            view.setAdapter(new CategoryListAdapter(categories));
+            CategoryListAdapter adapter = (CategoryListAdapter) view.getAdapter();
+            if (adapter == null) {
+                adapter = new CategoryListAdapter();
+                view.setAdapter(adapter);
+            }
+            adapter.setCategories(categories);
+            adapter.notifyDataSetChanged();
         }
     };
 

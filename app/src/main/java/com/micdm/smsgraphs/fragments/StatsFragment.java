@@ -30,15 +30,15 @@ public class StatsFragment extends Fragment {
 
     private class CategoryStatsListAdapter extends BaseAdapter {
 
-        private final List<CategoryStat> stats;
+        private List<CategoryStat> stats;
 
-        public CategoryStatsListAdapter(List<CategoryStat> stats) {
+        public void setStats(List<CategoryStat> stats) {
             this.stats = stats;
         }
 
         @Override
         public int getCount() {
-            return stats.size();
+            return (stats == null) ? 0 : stats.size();
         }
 
         @Override
@@ -86,7 +86,13 @@ public class StatsFragment extends Fragment {
             if (stats.size() == 0) {
                 noCategoryStatsView.setVisibility(View.VISIBLE);
             } else {
-                categoriesView.setAdapter(new CategoryStatsListAdapter(stats));
+                CategoryStatsListAdapter adapter = (CategoryStatsListAdapter) categoriesView.getAdapter();
+                if (adapter == null) {
+                    adapter = new CategoryStatsListAdapter();
+                    categoriesView.setAdapter(adapter);
+                }
+                adapter.setStats(stats);
+                adapter.notifyDataSetChanged();
                 totalView.setText(String.valueOf(getTotalSum(stats)));
                 noCategoryStatsView.setVisibility(View.GONE);
             }

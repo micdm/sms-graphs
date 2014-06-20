@@ -19,15 +19,15 @@ public class TargetListFragment extends ListFragment {
 
     private class TargetListAdapter extends BaseAdapter {
 
-        private final TargetList targets;
+        private TargetList targets;
 
-        public TargetListAdapter(TargetList targets) {
+        public void setTargets(TargetList targets) {
             this.targets = targets;
         }
 
         @Override
         public int getCount() {
-            return targets.size();
+            return (targets == null) ? 0 : targets.size();
         }
 
         @Override
@@ -76,7 +76,13 @@ public class TargetListFragment extends ListFragment {
     private final TargetHandler.OnLoadTargetsListener onLoadTargetsListener = new TargetHandler.OnLoadTargetsListener() {
         @Override
         public void onLoadTargets(TargetList targets) {
-            setListAdapter(new TargetListAdapter(targets));
+            TargetListAdapter adapter = (TargetListAdapter) getListAdapter();
+            if (adapter == null) {
+                adapter = new TargetListAdapter();
+                setListAdapter(adapter);
+            }
+            adapter.setTargets(targets);
+            adapter.notifyDataSetChanged();
         }
     };
     private final TargetHandler.OnEditTargetListener onEditTargetListener = new TargetHandler.OnEditTargetListener() {
