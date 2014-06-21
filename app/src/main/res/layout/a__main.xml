@@ -34,11 +34,23 @@
         android:gravity="center"
         android:background="@android:color/background_light"
         android:text="@string/activity_main_loading_operation_report"/>
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="vertical"
         android:id="@+id/a__main__loading_messages"
+        android:padding="5dp"
         android:gravity="center"
-        android:background="@android:color/background_light"
-        android:text="@string/activity_main_loading_messages"/>
+        android:background="@android:color/background_light">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/activity_main_loading_messages"/>
+        <ProgressBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/a__main__loading_messages_progress"
+            android:layout_marginTop="5dp"
+            style="@android:style/Widget.ProgressBar.Horizontal"/>
+    </LinearLayout>
 </FrameLayout>

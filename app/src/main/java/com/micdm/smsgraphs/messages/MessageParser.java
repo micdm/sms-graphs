@@ -18,7 +18,7 @@ public class MessageParser {
     private static final int GROUP_AMOUNT = 8;
     private static final int GROUP_TARGET = 9;
 
-    public static Message parse(String message) {
+    public Message parse(String message) {
         Pattern pattern = Pattern.compile("^(VISA\\d+): (\\d{2})\\.(\\d{2})\\.(\\d{2}) (\\d{2}):(\\d{2}) (.+?) на сумму ([\\d\\.]+) руб\\. (.+?) выполнена успешно");
         Matcher m = pattern.matcher(message);
         if (!m.find()) {
@@ -30,31 +30,31 @@ public class MessageParser {
         return null;
     }
 
-    private static String getCard(Matcher m) {
+    private String getCard(Matcher m) {
         return m.group(GROUP_CARD);
     }
 
-    private static int getYear(Matcher m) {
+    private int getYear(Matcher m) {
         return 2000 + Integer.valueOf(m.group(GROUP_YEAR));
     }
 
-    private static int getMonth(Matcher m) {
+    private int getMonth(Matcher m) {
         return Integer.valueOf(m.group(GROUP_MONTH));
     }
 
-    private static int getDay(Matcher m) {
+    private int getDay(Matcher m) {
         return Integer.valueOf(m.group(GROUP_DAY));
     }
 
-    private static int getHour(Matcher m) {
+    private int getHour(Matcher m) {
         return Integer.valueOf(m.group(GROUP_HOUR));
     }
 
-    private static int getMinute(Matcher m) {
+    private int getMinute(Matcher m) {
         return Integer.valueOf(m.group(GROUP_MINUTE));
     }
 
-    private static Calendar getCreated(Matcher m) {
+    private Calendar getCreated(Matcher m) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR, getYear(m));
         calendar.set(Calendar.MONTH, getMonth(m) - 1);
@@ -65,16 +65,16 @@ public class MessageParser {
         return calendar;
     }
 
-    private static boolean isOperation(Matcher m) {
+    private boolean isOperation(Matcher m) {
         String type = m.group(GROUP_TYPE);
         return type.equals("оплата услуг") || type.equals("покупка") || type.equals("оплата обслуживания банковской карты");
     }
 
-    private static String getTarget(Matcher m) {
+    private String getTarget(Matcher m) {
         return m.group(GROUP_TARGET);
     }
 
-    private static int getAmount(Matcher m) {
+    private int getAmount(Matcher m) {
         return (int) Math.round(Double.valueOf(m.group(GROUP_AMOUNT)));
     }
 }

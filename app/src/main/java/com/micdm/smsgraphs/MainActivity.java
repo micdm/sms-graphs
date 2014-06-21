@@ -8,6 +8,7 @@ import android.content.Loader;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.micdm.smsgraphs.data.CategoryList;
@@ -62,11 +63,12 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
     private MonthOperationList operations;
     private Target currentTarget;
 
-    private View loadingTargetsView;
-    private View loadingCategoriesView;
-    private View noOperationsView;
-    private View loadingOperationReportView;
     private View loadingMessagesView;
+    private ProgressBar loadingMessagesProgressView;
+    private View loadingOperationReportView;
+    private View loadingCategoriesView;
+    private View loadingTargetsView;
+    private View noOperationsView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +101,12 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
                     @Override
                     public void onFinishLoad() {
                         loadingMessagesView.setVisibility(View.GONE);
+                    }
+                }, new MessageLoader.OnProgressListener() {
+                    @Override
+                    public void onProgress(int total, int current) {
+                        loadingMessagesProgressView.setMax(total);
+                        loadingMessagesProgressView.setProgress(current);
                     }
                 });
             }
@@ -258,6 +266,7 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
     private void setupView() {
         setContentView(R.layout.a__main);
         loadingMessagesView = findViewById(R.id.a__main__loading_messages);
+        loadingMessagesProgressView = (ProgressBar) findViewById(R.id.a__main__loading_messages_progress);
         loadingOperationReportView = findViewById(R.id.a__main__loading_operation_report);
         noOperationsView = findViewById(R.id.a__main__no_operations);
         loadingCategoriesView = findViewById(R.id.a__main__loading_categories);

@@ -16,5 +16,5 @@ public abstract class DbWriter<Entity> {
         return dbHelper.getWritableDatabase();
     }
 
-    public abstract boolean write(Entity entity);
+    public abstract void write(Entity entity);
 }

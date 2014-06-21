@@ -9,23 +9,25 @@ import com.micdm.smsgraphs.messages.MessageReader;
 
 public class MessageLoader extends Loader<Integer> {
 
+    public static interface OnProgressListener {
+        public void onProgress(int total, int current);
+    }
+
     private final MessageReader reader;
     private final DbOperationWriter writer;
     private int count;
 
-    public MessageLoader(Context context, DbHelper dbHelper, OnLoadListener onLoadListener) {
+    public MessageLoader(Context context, DbHelper dbHelper, OnLoadListener onLoadListener, final OnProgressListener onProgressListener) {
         super(context, onLoadListener);
         reader = new MessageReader(context, new MessageReader.OnMessageListener() {
             @Override
-            public boolean onMessage(Message message) {
-                if (message == null) {
-                    return true;
-                }
-                if (writer.write(message)) {
-                    count += 1;
-                    return true;
-                }
-                return false;
+            public void onProgress(int total, int current) {
+                onProgressListener.onProgress(total, current);
+            }
+            @Override
+            public void onMessage(Message message) {
+                writer.write(message);
+                count += 1;
             }
         });
         writer = new DbOperationWriter(dbHelper);

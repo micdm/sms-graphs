@@ -16,11 +16,11 @@ public class DbOperationWriter extends DbWriter<Message> {
     }
 
     @Override
-    public boolean write(Message message) {
+    public void write(Message message) {
         SQLiteDatabase db = getDb();
         long cardRowId = writeCard(db, message);
         long targetRowId = writeTarget(db, message);
-        return writeOperation(db, message, cardRowId, targetRowId) != -1;
+        writeOperation(db, message, cardRowId, targetRowId);
     }
 
     private long writeCard(SQLiteDatabase db, Message message) {
@@ -63,11 +63,7 @@ public class DbOperationWriter extends DbWriter<Message> {
     }
 
     private long writeOperation(SQLiteDatabase db, Message message, long cardRowId, long targetRowId) {
-        try {
-            return db.insertOrThrow("operations", null, getMessageValues(message, cardRowId, targetRowId));
-        } catch (SQLException e) {
-            return -1;
-        }
+        return db.insertWithOnConflict("operations", null, getMessageValues(message, cardRowId, targetRowId), SQLiteDatabase.CONFLICT_IGNORE);
     }
 
     private ContentValues getMessageValues(Message message, long cardRowId, long targetRowId) {

@@ -19,63 +19,63 @@ public class MessageParserTest extends InstrumentationTestCase {
 
     public void testGetCard() {
         for (String text: texts) {
-            Message message = MessageParser.parse(text);
+            Message message = (new MessageParser()).parse(text);
             assertEquals("VISA1234", message.card);
         }
     }
 
     public void testGetYear() {
         for (String text: texts) {
-            Message message = MessageParser.parse(text);
+            Message message = (new MessageParser()).parse(text);
             assertEquals(2014, message.created.get(Calendar.YEAR));
         }
     }
 
     public void testGetMonth() {
         for (String text: texts) {
-            Message message = MessageParser.parse(text);
+            Message message = (new MessageParser()).parse(text);
             assertEquals(0, message.created.get(Calendar.MONTH));
         }
     }
 
     public void testGetDay() {
         for (String text: texts) {
-            Message message = MessageParser.parse(text);
+            Message message = (new MessageParser()).parse(text);
             assertEquals(31, message.created.get(Calendar.DAY_OF_MONTH));
         }
     }
 
     public void testGetHour() {
         for (String text: texts) {
-            Message message = MessageParser.parse(text);
+            Message message = (new MessageParser()).parse(text);
             assertEquals(22, message.created.get(Calendar.HOUR_OF_DAY));
         }
     }
 
     public void testGetMinute() {
         for (String text: texts) {
-            Message message = MessageParser.parse(text);
+            Message message = (new MessageParser()).parse(text);
             assertEquals(50, message.created.get(Calendar.MINUTE));
         }
     }
 
     public void testGetSecond() {
         for (String text: texts) {
-            Message message = MessageParser.parse(text);
+            Message message = (new MessageParser()).parse(text);
             assertEquals(0, message.created.get(Calendar.SECOND));
         }
     }
 
     public void testGetTarget() {
         for (String text: texts) {
-            Message message = MessageParser.parse(text);
+            Message message = (new MessageParser()).parse(text);
             assertEquals("SOME PLACE 1", message.target);
         }
     }
 
     public void testGetAmount() {
         for (String text: texts) {
-            Message message = MessageParser.parse(text);
+            Message message = (new MessageParser()).parse(text);
             assertEquals(2014, message.amount);
         }
     }
