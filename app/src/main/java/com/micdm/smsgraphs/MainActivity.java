@@ -48,7 +48,6 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
     private static final String EVENT_LISTENER_KEY_ON_START_EDIT_TARGET = "OnStartEditTarget";
     private static final String EVENT_LISTENER_KEY_ON_EDIT_TARGET = "OnEditTarget";
 
-    private final DbHelper dbHelper = new DbHelper(this);
     private final EventListenerManager events = new EventListenerManager();
 
     private OperationReport report;
@@ -66,24 +65,23 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initLoaders();
+        restartLoaders();
         setupView();
         setupActionBar();
         setupPager((ViewPager) findViewById(R.id.a__main__pager));
     }
 
-    private void initLoaders() {
+    private void restartLoaders() {
         LoaderManager manager = getLoaderManager();
-        manager.initLoader(MESSAGE_LOADER_ID, null, getMessageLoaderCallbacks());
-        manager.initLoader(DATA_LOADER_ID, null, getDataLoaderCallbacks());
+        manager.restartLoader(MESSAGE_LOADER_ID, null, getMessageLoaderCallbacks());
+        manager.restartLoader(DATA_LOADER_ID, null, getDataLoaderCallbacks());
     }
 
     private LoaderManager.LoaderCallbacks getMessageLoaderCallbacks() {
-        final Context context = this;
         return new LoaderManager.LoaderCallbacks<Void>() {
             @Override
             public Loader<Void> onCreateLoader(int id, Bundle params) {
-                return new MessageLoader(context, dbHelper, new MessageLoader.OnLoadListener() {
+                return new MessageLoader(getApplicationContext(), ((CustomApplication) getApplication()).getDbHelper(), new MessageLoader.OnLoadListener() {
                     @Override
                     public void onStartLoad() {
                         loadingMessagesView.setVisibility(View.VISIBLE);
@@ -114,7 +112,7 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
         return new LoaderManager.LoaderCallbacks<LoaderResult>() {
             @Override
             public Loader<LoaderResult> onCreateLoader(int id, Bundle params) {
-                return new DataLoader(context, dbHelper, new DataLoader.OnLoadListener() {
+                return new DataLoader(getApplicationContext(), ((CustomApplication) getApplication()).getDbHelper(), new DataLoader.OnLoadListener() {
                     @Override
                     public void onStartLoadAll() {
                         loadingDataView.setVisibility(View.VISIBLE);
@@ -239,12 +237,6 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        dbHelper.close();
-    }
-
-    @Override
     public void loadPreviousMonthOperations() {
         Calendar month = (Calendar) operations.month.clone();
         month.add(Calendar.MONTH, -1);
@@ -326,7 +318,7 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
             }
         });
         loadMonthOperations(month);
-        DbTargetWriter writer = new DbTargetWriter(dbHelper);
+        DbTargetWriter writer = new DbTargetWriter(((CustomApplication) getApplication()).getDbHelper());
         writer.write(currentTarget);
         if (editNext) {
             Target nextTarget = getNextTargetToEdit(targets, currentTarget);
