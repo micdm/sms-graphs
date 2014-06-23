@@ -1,6 +1,10 @@
 <resources>
     <style name="AppTheme" parent="android:Theme.Holo.Light">
+        <item name="android:actionBarStyle">@style/ActionBarStyle</item>
         <item name="android:actionBarTabStyle">@style/ActionBarTabStyle</item>
+    </style>
+    <style name="ActionBarStyle" parent="android:Widget.Holo.Light.ActionBar">
+        <item name="android:displayOptions">disableHome</item>
     </style>
     <style name="ActionBarTabStyle" parent="android:Widget.Holo.Light.ActionBar.TabView">
         <item name="android:gravity">center</item>

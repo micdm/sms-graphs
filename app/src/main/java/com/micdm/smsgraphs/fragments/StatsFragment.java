@@ -69,6 +69,9 @@ public class StatsFragment extends Fragment {
     private final OperationHandler.OnLoadOperationsListener onLoadOperationsListener = new OperationHandler.OnLoadOperationsListener() {
         @Override
         public void onStartLoadOperations(Calendar month) {
+            if (month == null) {
+                return;
+            }
             loadingOperationsView.setText(getString(R.string.fragment_stats_loading_operations, DateUtils.formatMonthForHuman(month).toLowerCase()));
             loadingOperationsView.setVisibility(View.VISIBLE);
         }

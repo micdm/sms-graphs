@@ -35,10 +35,8 @@
     <string name="tab_title_targets">Продавцы</string>
     <!-- Главный экран -->
     <string name="activity_main_loading_messages">Обрабатываем новые SMS-сообщения…</string>
-    <string name="activity_main_loading_operation_report">Проверяем операции…</string>
     <string name="activity_main_no_operations">Похоже, у вас пока нет сообщений из банка.</string>
-    <string name="activity_main_loading_categories">Загружаем категории…</string>
-    <string name="activity_main_loading_targets">Определяем продавцов…</string>
+    <string name="activity_main_loading_data">Загружаем данные…</string>
     <!-- Фрагмент со статистикой -->
     <string name="fragment_stats_loading_operations">Подсчитываем статистику за %s…</string>
     <string name="fragment_stats_previous">Раньше</string>
