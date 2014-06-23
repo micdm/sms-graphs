@@ -48,7 +48,8 @@
     <string name="fragment_target_list_last_operation">%1$s — %2$s %3$s</string>
     <!-- Фрагмент для редактирования продавца -->
     <string name="fragment_target_title">Продавец</string>
-    <string name="fragment_target_title_with_last_operation">%1$s — %2$s %3$s</string>
+    <string name="fragment_target_last_operation_label">Последняя операция:</string>
+    <string name="fragment_target_last_operation">%1$s — %2$s %3$s</string>
     <string name="fragment_target_title_label">Удобное имя:</string>
     <string name="fragment_target_category_label">Категория:</string>
     <string name="fragment_target_no_category">Не выбрана</string>

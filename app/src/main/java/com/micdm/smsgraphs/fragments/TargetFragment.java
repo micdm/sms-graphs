@@ -81,7 +81,7 @@ public class TargetFragment extends DialogFragment {
         @Override
         public void onStartEditTarget(Target editable) {
             target = editable;
-            getDialog().setTitle(getString(R.string.fragment_target_title_with_last_operation,
+            lastOperationView.setText(getString(R.string.fragment_target_last_operation,
                     DateUtils.formatForHuman(target.lastPaid), target.lastAmount, getResources().getQuantityString(R.plurals.rubles, target.lastAmount)));
             titleView.setHint(target.name);
             if (target.title != null) {
@@ -96,6 +96,7 @@ public class TargetFragment extends DialogFragment {
 
     private Target target;
 
+    private TextView lastOperationView;
     private EditText titleView;
     private Spinner categoriesView;
 
@@ -114,6 +115,7 @@ public class TargetFragment extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.fragment_target_title);
         View view = View.inflate(getActivity(), R.layout.f__target, null);
+        lastOperationView = (TextView) view.findViewById(R.id.f__target__last_operation);
         titleView = (EditText) view.findViewById(R.id.f__target__title);
         categoriesView = (Spinner) view.findViewById(R.id.f__target__categories);
         builder.setView(view);
