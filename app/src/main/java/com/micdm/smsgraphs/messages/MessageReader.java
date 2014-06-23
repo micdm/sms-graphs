@@ -15,8 +15,9 @@ public class MessageReader {
         public void onMessage(Message message);
     }
 
+    public static final String SERVICE_NUMBER = "900";
+
     private static final Uri INBOX_URI = Uri.parse("content://sms/inbox");
-    private static final String SERVICE_NUMBER = "900";
     private static final String PREF_KEY = "last_parsed_message_id";
 
     private final MessageParser parser = new MessageParser();

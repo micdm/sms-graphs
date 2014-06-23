@@ -35,7 +35,6 @@ import com.micdm.utils.pager.PagerAdapter;
 import java.util.Calendar;
 
 // TODO: при первом запуске показать обучение
-// TODO: подписаться на получение сообщений, чтоб реагировать сразу
 public class MainActivity extends PagerActivity implements OperationHandler, CategoryHandler, TargetHandler {
 
     private static final int MESSAGE_LOADER_ID = 0;
