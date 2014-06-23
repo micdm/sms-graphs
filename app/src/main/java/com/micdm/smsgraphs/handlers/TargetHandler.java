@@ -15,7 +15,7 @@ public interface TargetHandler {
     }
 
     public static interface OnEditTargetListener extends EventListener {
-        public void onEditTarget(Target target);
+        public void onEditTarget();
     }
 
     public void startEditTarget(Target target);

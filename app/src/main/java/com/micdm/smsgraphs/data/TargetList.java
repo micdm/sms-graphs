@@ -14,15 +14,6 @@ public class TargetList extends ArrayList<Target> {
         return count;
     }
 
-    public Target getFirstWithNoCategory() {
-        for (Target target: this) {
-            if (target.category == null) {
-                return target;
-            }
-        }
-        return null;
-    }
-
     public Target getById(int id) {
         for (Target target: this) {
             if (target.id == id) {

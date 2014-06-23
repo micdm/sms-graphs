@@ -6,7 +6,7 @@ import com.micdm.smsgraphs.db.DbHelper;
 
 public abstract class DbWriter<Entity> {
 
-    private DbHelper dbHelper;
+    private final DbHelper dbHelper;
 
     public DbWriter(DbHelper dbHelper) {
         this.dbHelper = dbHelper;

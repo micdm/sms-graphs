@@ -1,6 +1,4 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<merge xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
     <android.support.v4.view.ViewPager
         android:id="@+id/a__main__pager"
         android:layout_width="match_parent"
@@ -39,4 +37,4 @@
             android:layout_marginTop="5dp"
             style="@android:style/Widget.ProgressBar.Horizontal"/>
     </LinearLayout>
-</FrameLayout>
+</merge>

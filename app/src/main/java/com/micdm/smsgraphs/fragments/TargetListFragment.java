@@ -87,7 +87,7 @@ public class TargetListFragment extends ListFragment {
     };
     private final TargetHandler.OnEditTargetListener onEditTargetListener = new TargetHandler.OnEditTargetListener() {
         @Override
-        public void onEditTarget(Target target) {
+        public void onEditTarget() {
             ((TargetListAdapter) getListView().getAdapter()).notifyDataSetChanged();
         }
     };

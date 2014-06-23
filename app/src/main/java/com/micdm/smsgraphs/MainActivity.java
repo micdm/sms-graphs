@@ -322,7 +322,7 @@ public class MainActivity extends PagerActivity implements OperationHandler, Cat
         events.notify(EVENT_LISTENER_KEY_ON_EDIT_TARGET, new EventListenerManager.OnIterateListener() {
             @Override
             public void onIterate(EventListener listener) {
-                ((OnEditTargetListener) listener).onEditTarget(currentTarget);
+                ((OnEditTargetListener) listener).onEditTarget();
             }
         });
         loadMonthOperations(month);

@@ -9,6 +9,9 @@ android {
         versionCode 1
         versionName '1.0'
     }
+    signingConfigs {
+        release {}
+    }
     buildTypes {
         release {
             runProguard false
@@ -23,11 +26,18 @@ android {
     }
 }
 
-repositories{
+repositories {
     flatDir {
         dirs 'libs'
     }
 }
+
+Properties p = new Properties ()
+p.load(new FileInputStream(rootProject.file('../keys/sign.properties')))
+android.signingConfigs.release.storeFile file(p.file)
+android.signingConfigs.release.storePassword p.password
+android.signingConfigs.release.keyAlias p.keyAlias
+android.signingConfigs.release.keyPassword p.keyPassword
 
 dependencies {
     compile 'com.android.support:support-v4:+'
