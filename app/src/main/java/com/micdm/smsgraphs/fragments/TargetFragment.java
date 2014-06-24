@@ -101,7 +101,6 @@ public class TargetFragment extends DialogFragment {
     private Spinner categoriesView;
 
     private boolean isDismissing;
-    private boolean editNext;
 
     @Override
     public void onAttach(Activity activity) {
@@ -122,13 +121,17 @@ public class TargetFragment extends DialogFragment {
         builder.setNeutralButton(R.string.fragment_target_save_button, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                editNext = false;
+                isDismissing = true;
+                updateTarget();
+                targetHandler.finishEditTarget(target, false);
             }
         });
         builder.setPositiveButton(R.string.fragment_target_next_button, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                editNext = true;
+                isDismissing = true;
+                updateTarget();
+                targetHandler.finishEditTarget(target, true);
             }
         });
         return builder.create();
@@ -156,13 +159,5 @@ public class TargetFragment extends DialogFragment {
         super.onStop();
         categoryHandler.removeOnLoadCategoriesListener(onLoadCategoriesListener);
         targetHandler.removeOnStartEditTargetListener(onStartEditTargetListener);
-    }
-
-    @Override
-    public void onDismiss(DialogInterface dialog) {
-        super.onDismiss(dialog);
-        isDismissing = true;
-        updateTarget();
-        targetHandler.finishEditTarget(editNext);
     }
 }

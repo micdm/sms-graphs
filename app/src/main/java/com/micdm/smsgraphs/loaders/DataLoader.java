@@ -24,9 +24,15 @@ public class DataLoader extends AsyncTaskLoader<LoaderResult> {
         public void onFinishLoadOperations();
     }
 
+    public static enum Task {
+        LOAD_ALL,
+        LOAD_OPERATIONS
+    }
+
     private final DbHelper dbHelper;
     private final OnLoadListener listener;
 
+    private Task task;
     private OperationReport report;
     private CategoryList categories;
     private TargetList targets;
@@ -40,6 +46,7 @@ public class DataLoader extends AsyncTaskLoader<LoaderResult> {
     }
 
     public void reloadAll() {
+        task = Task.LOAD_ALL;
         report = null;
         targets = null;
         operations = null;
@@ -47,31 +54,41 @@ public class DataLoader extends AsyncTaskLoader<LoaderResult> {
     }
 
     public void reloadOperations(Calendar month) {
+        task = Task.LOAD_OPERATIONS;
         this.month = month;
-        this.operations = null;
+        operations = null;
         forceLoad();
     }
 
     @Override
     public void onForceLoad() {
-        if (report == null && targets == null && operations == null) {
-            listener.onStartLoadAll();
-        }
-        if (operations == null) {
-            listener.onStartLoadOperations(month);
+        switch (task) {
+            case LOAD_ALL:
+                listener.onStartLoadAll();
+                break;
+            case LOAD_OPERATIONS:
+                listener.onStartLoadOperations(month);
+                break;
         }
         super.onForceLoad();
     }
 
     @Override
     public LoaderResult loadInBackground() {
+        switch (task) {
+            case LOAD_ALL:
+                return loadAll();
+            case LOAD_OPERATIONS:
+                return loadOperations();
+            default:
+                throw new RuntimeException("unknown task");
+        }
+    }
+
+    private LoaderResult loadAll() {
         OperationReport report = this.report;
-        Calendar month = this.month;
         if (report == null) {
             report = getReport();
-            if (month == null) {
-                month = getLastMonth(report);
-            }
         }
         CategoryList categories = this.categories;
         if (categories == null) {
@@ -81,20 +98,7 @@ public class DataLoader extends AsyncTaskLoader<LoaderResult> {
         if (targets == null) {
             targets = getTargets(categories);
         }
-        MonthOperationList operations = this.operations;
-        if (operations == null) {
-            operations = getOperations(targets, month);
-        }
-        return new LoaderResult(report, categories, targets, operations);
-    }
-
-    private Calendar getLastMonth(OperationReport report) {
-        if (report.last == null) {
-            return null;
-        }
-        Calendar month = (Calendar) report.last.clone();
-        month.set(Calendar.DAY_OF_MONTH, 1);
-        return month;
+        return new LoaderResult(task, report, categories, targets);
     }
 
     private OperationReport getReport() {
@@ -109,6 +113,14 @@ public class DataLoader extends AsyncTaskLoader<LoaderResult> {
         return (new DbTargetReader(dbHelper, categories)).read();
     }
 
+    private LoaderResult loadOperations() {
+        MonthOperationList operations = this.operations;
+        if (operations == null && month != null) {
+            operations = getOperations(targets, month);
+        }
+        return new LoaderResult(task, operations);
+    }
+
     private MonthOperationList getOperations(TargetList targets, Calendar month) {
         if (month == null) {
             return null;
@@ -118,16 +130,19 @@ public class DataLoader extends AsyncTaskLoader<LoaderResult> {
 
     @Override
     public void deliverResult(LoaderResult data) {
-        if (report == null && targets == null && operations == null) {
-            listener.onFinishLoadAll();
+        switch (task) {
+            case LOAD_ALL:
+                report = data.report;
+                categories = data.categories;
+                targets = data.targets;
+                listener.onFinishLoadAll();
+                break;
+            case LOAD_OPERATIONS:
+                operations = data.operations;
+                listener.onFinishLoadOperations();
+                break;
         }
-        if (operations == null) {
-            listener.onFinishLoadOperations();
-        }
-        report = data.report;
-        categories = data.categories;
-        targets = data.targets;
-        operations = data.operations;
+        task = null;
         super.deliverResult(data);
     }
 }
