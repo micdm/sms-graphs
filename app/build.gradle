@@ -45,7 +45,7 @@ android.signingConfigs.release.keyAlias p.keyAlias
 android.signingConfigs.release.keyPassword p.keyPassword
 
 dependencies {
-    compile 'com.android.support:support-v4:+'
-    compile 'com.android.support:support-v13:+'
+    compile 'com.android.support:support-v4:20+'
+    compile 'com.android.support:support-v13:20+'
     compile 'com.micdm.utils:dm-utils:1.0.0@aar'
 }

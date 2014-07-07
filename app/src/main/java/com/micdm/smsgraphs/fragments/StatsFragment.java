@@ -81,9 +81,9 @@ public class StatsFragment extends Fragment {
         }
         @Override
         public void onLoadOperations(MonthOperationList operations, boolean previous, boolean next) {
-            previousView.setEnabled(previous);
+            previousView.setVisibility(previous ? View.VISIBLE : View.INVISIBLE);
             monthView.setText(DateUtils.formatMonthForHuman(operations.month));
-            nextView.setEnabled(next);
+            nextView.setVisibility(next ? View.VISIBLE : View.INVISIBLE);
             List<CategoryStat> stats = getCategoryStats(operations.operations);
             if (stats.size() == 0) {
                 noCategoryStatsView.setVisibility(View.VISIBLE);
