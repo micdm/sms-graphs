@@ -15,6 +15,6 @@
         android:id="@+id/v__actionbar__target_list_tab__count"
         android:padding="3dp"
         android:background="@drawable/actionbar_tab_badge"
-        android:textColor="#ffffff"
+        android:textColor="@color/target_with_no_category_text"
         style="@android:style/Widget.Holo.ActionBar.TabText"/>
 </LinearLayout>

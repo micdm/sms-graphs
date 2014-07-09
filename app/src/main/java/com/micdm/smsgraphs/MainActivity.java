@@ -34,6 +34,8 @@ import com.micdm.utils.pager.PagerAdapter;
 import java.util.Calendar;
 
 // TODO: при первом запуске показать обучение
+// TODO: добавить пролистывание месяцев свайпом
+// TODO: вынести анализатор сообщений в отдельный сервис
 public class MainActivity extends PagerActivity implements OperationHandler, CategoryHandler, TargetHandler {
 
     private static final int MESSAGE_LOADER_ID = 0;

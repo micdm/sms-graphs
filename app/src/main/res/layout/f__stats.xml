@@ -7,28 +7,37 @@
         android:orientation="vertical">
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="70dp"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
-            <Button
+            android:gravity="center_vertical"
+            android:background="@color/stats_header_background">
+            <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:id="@+id/f__stats__previous"
-                android:text="@string/fragment_stats_previous"
-                android:textSize="12sp"/>
+                android:padding="10dp"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:textColor="@color/stats_navigation_text"
+                android:text="@string/fragment_stats_previous"/>
             <TextView
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:id="@+id/f__stats__month"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:textSize="25sp"/>
-            <Button
+                android:textSize="25sp"
+                android:textColor="@color/stats_header_text"
+                android:text="Июль"/>
+            <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:id="@+id/f__stats__next"
-                android:text="@string/fragment_stats_next"
-                android:textSize="12sp"/>
+                android:padding="10dp"
+                android:gravity="center"
+                android:textSize="16sp"
+                android:textColor="@color/stats_navigation_text"
+                android:text="@string/fragment_stats_next"/>
         </LinearLayout>
         <FrameLayout
             android:layout_width="match_parent"
@@ -48,20 +57,22 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:padding="5dp"
-                    android:background="@color/category_stats_total">
+                    android:background="@color/stats_total_background">
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:textSize="20sp"
                         android:textStyle="bold"
+                        android:textColor="@color/stats_total_text"
                         android:text="@string/fragment_stats_total"/>
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/f__stats__total"
                         android:textSize="20sp"
-                        android:textStyle="bold"/>
+                        android:textStyle="bold"
+                        android:textColor="@color/stats_total_text"/>
                 </LinearLayout>
             </LinearLayout>
             <TextView

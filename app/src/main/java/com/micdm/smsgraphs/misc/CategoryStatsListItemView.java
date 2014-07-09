@@ -21,7 +21,7 @@ public class CategoryStatsListItemView extends LinearLayout {
 
     private Paint getPaint() {
         Paint paint = new Paint();
-        paint.setColor(getResources().getColor(R.color.category_stats_percentage));
+        paint.setColor(getResources().getColor(R.color.stats_percentage_background));
         return paint;
     }
 
