@@ -3,6 +3,7 @@
     <!-- Название -->
     <string name="app_name">900</string>
     <!-- Категории -->
+    <string name="no_category">Без категории</string>
     <string-array name="categories">
         <item>Автомобиль</item>
         <item>Алкоголь</item>

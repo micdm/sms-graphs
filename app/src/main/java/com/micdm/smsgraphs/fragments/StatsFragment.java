@@ -6,8 +6,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
+import android.widget.BaseExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 import com.micdm.smsgraphs.R;
@@ -15,9 +15,11 @@ import com.micdm.smsgraphs.data.Category;
 import com.micdm.smsgraphs.data.CategoryStat;
 import com.micdm.smsgraphs.data.MonthOperationList;
 import com.micdm.smsgraphs.data.Operation;
+import com.micdm.smsgraphs.data.Target;
+import com.micdm.smsgraphs.data.TargetStat;
 import com.micdm.smsgraphs.handlers.OperationHandler;
-import com.micdm.smsgraphs.misc.CategoryStatsListItemView;
 import com.micdm.smsgraphs.misc.DateUtils;
+import com.micdm.smsgraphs.misc.PercentageView;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -27,7 +29,7 @@ import java.util.List;
 
 public class StatsFragment extends Fragment {
 
-    private class CategoryStatsListAdapter extends BaseAdapter {
+    private class CategoryStatsListAdapter extends BaseExpandableListAdapter {
 
         private List<CategoryStat> stats;
 
@@ -36,32 +38,71 @@ public class StatsFragment extends Fragment {
         }
 
         @Override
-        public int getCount() {
+        public int getGroupCount() {
             return (stats == null) ? 0 : stats.size();
         }
 
         @Override
-        public CategoryStat getItem(int position) {
+        public int getChildrenCount(int position) {
+            return getGroup(position).stats.size();
+        }
+
+        @Override
+        public CategoryStat getGroup(int position) {
             return stats.get(position);
         }
 
         @Override
-        public long getItemId(int position) {
-            return getItem(position).category.id;
+        public TargetStat getChild(int groupPosition, int childPosition) {
+            return getGroup(groupPosition).stats.get(childPosition);
         }
 
         @Override
-        public View getView(int position, View view, ViewGroup viewGroup) {
+        public long getGroupId(int position) {
+            return getGroup(position).category.id;
+        }
+
+        @Override
+        public long getChildId(int groupPosition, int childPosition) {
+            return getChild(groupPosition, childPosition).target.id;
+        }
+
+        @Override
+        public boolean hasStableIds() {
+            return true;
+        }
+
+        @Override
+        public View getGroupView(int position, boolean isExpanded, View view, ViewGroup parent) {
             if (view == null) {
-                view = View.inflate(getActivity(), R.layout.v__stats__list_item, null);
+                view = View.inflate(getActivity(), R.layout.v__stats__list_item_category, null);
             }
-            CategoryStat stat = getItem(position);
-            ((CategoryStatsListItemView) view).setPercentage(stat.percentage);
-            TextView nameView = (TextView) view.findViewById(R.id.v__stats__list_item__name);
+            CategoryStat stat = getGroup(position);
+            ((PercentageView) view).setPercentage(stat.percentage);
+            TextView nameView = (TextView) view.findViewById(R.id.v__stats__list_item_category__name);
             nameView.setText(stat.category.name);
-            TextView amountView = (TextView) view.findViewById(R.id.v__stats__list_item__amount);
+            TextView amountView = (TextView) view.findViewById(R.id.v__stats__list_item_category__amount);
             amountView.setText(String.valueOf(stat.amount));
             return view;
+        }
+
+        @Override
+        public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View view, ViewGroup parent) {
+            if (view == null) {
+                view = View.inflate(getActivity(), R.layout.v__stats__list_item_target, null);
+            }
+            TargetStat stat = getChild(groupPosition, childPosition);
+            ((PercentageView) view).setPercentage(stat.percentage);
+            TextView nameView = (TextView) view.findViewById(R.id.v__stats__list_item_target__name);
+            nameView.setText(stat.target.name);
+            TextView amountView = (TextView) view.findViewById(R.id.v__stats__list_item_target__amount);
+            amountView.setText(String.valueOf(stat.amount));
+            return view;
+        }
+
+        @Override
+        public boolean isChildSelectable(int groupPosition, int childPosition) {
+            return false;
         }
     }
 
@@ -88,7 +129,7 @@ public class StatsFragment extends Fragment {
             if (stats.size() == 0) {
                 noCategoryStatsView.setVisibility(View.VISIBLE);
             } else {
-                CategoryStatsListAdapter adapter = (CategoryStatsListAdapter) categoriesView.getAdapter();
+                CategoryStatsListAdapter adapter = (CategoryStatsListAdapter) categoriesView.getExpandableListAdapter();
                 if (adapter == null) {
                     adapter = new CategoryStatsListAdapter();
                     categoriesView.setAdapter(adapter);
@@ -104,7 +145,7 @@ public class StatsFragment extends Fragment {
     private View previousView;
     private TextView monthView;
     private View nextView;
-    private ListView categoriesView;
+    private ExpandableListView categoriesView;
     private TextView totalView;
     private View noCategoryStatsView;
     private TextView loadingOperationsView;
@@ -133,7 +174,7 @@ public class StatsFragment extends Fragment {
                 operationHandler.loadNextMonthOperations();
             }
         });
-        categoriesView = (ListView) view.findViewById(R.id.f__stats__categories);
+        categoriesView = (ExpandableListView) view.findViewById(R.id.f__stats__categories);
         totalView = (TextView) view.findViewById(R.id.f__stats__total);
         noCategoryStatsView = view.findViewById(R.id.f__stats__no_category_stats);
         loadingOperationsView = (TextView) view.findViewById(R.id.f__stats__loading_operations);
@@ -148,21 +189,25 @@ public class StatsFragment extends Fragment {
 
     private List<CategoryStat> getCategoryStats(List<Operation> operations) {
         List<CategoryStat> stats = new ArrayList<CategoryStat>();
+        Category noCategory = new Category(0, getString(R.string.no_category));
         for (Operation operation: operations) {
             Category category = operation.target.category;
-            if (category == null) {
-                continue;
-            }
-            CategoryStat stat = getCategoryStat(stats, category);
-            if (stat == null) {
-                stat = new CategoryStat(category);
-                stats.add(stat);
-            }
-            stat.amount += operation.amount;
+            CategoryStat stat = updateCategoryStat(stats, (category == null) ? noCategory : category, operation.amount);
+            updateTargetStat(stat.stats, operation.target, operation.amount);
         }
         addPercentages(stats);
-        sortCategoryStatsByName(stats);
+        sortByName(stats);
         return stats;
+    }
+
+    private CategoryStat updateCategoryStat(List<CategoryStat> stats, Category category, int amount) {
+        CategoryStat stat = getCategoryStat(stats, category);
+        if (stat == null) {
+            stat = new CategoryStat(category);
+            stats.add(stat);
+        }
+        stat.amount += amount;
+        return stat;
     }
 
     private CategoryStat getCategoryStat(List<CategoryStat> stats, Category category) {
@@ -174,10 +219,32 @@ public class StatsFragment extends Fragment {
         return null;
     }
 
+    private void updateTargetStat(List<TargetStat> stats, Target target, int amount) {
+        TargetStat targetStat = getTargetStat(stats, target);
+        if (targetStat == null) {
+            targetStat = new TargetStat(target);
+            stats.add(targetStat);
+        }
+        targetStat.amount += amount;
+    }
+
+
+    public TargetStat getTargetStat(List<TargetStat> stats, Target target) {
+        for (TargetStat stat: stats) {
+            if (stat.target == target) {
+                return stat;
+            }
+        }
+        return null;
+    }
+
     private void addPercentages(List<CategoryStat> stats) {
         int total = getTotalSum(stats);
-        for (CategoryStat stat: stats) {
-            stat.percentage = (double) stat.amount / total;
+        for (CategoryStat categoryStat: stats) {
+            categoryStat.percentage = (double) categoryStat.amount / total;
+            for (TargetStat targetStat: categoryStat.stats) {
+                targetStat.percentage = (double) targetStat.amount / categoryStat.amount;
+            }
         }
     }
 
@@ -189,13 +256,21 @@ public class StatsFragment extends Fragment {
         return total;
     }
 
-    private void sortCategoryStatsByName(List<CategoryStat> stats) {
+    private void sortByName(List<CategoryStat> stats) {
         Collections.sort(stats, new Comparator<CategoryStat>() {
             @Override
             public int compare(CategoryStat a, CategoryStat b) {
                 return a.category.name.compareTo(b.category.name);
             }
         });
+        for (CategoryStat stat: stats) {
+            Collections.sort(stat.stats, new Comparator<TargetStat>() {
+                @Override
+                public int compare(TargetStat a, TargetStat b) {
+                    return a.target.name.compareTo(b.target.name);
+                }
+            });
+        }
     }
 
     @Override

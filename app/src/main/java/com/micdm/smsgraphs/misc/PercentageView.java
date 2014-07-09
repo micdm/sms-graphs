@@ -1,6 +1,7 @@
 package com.micdm.smsgraphs.misc;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
@@ -8,20 +9,29 @@ import android.widget.LinearLayout;
 
 import com.micdm.smsgraphs.R;
 
-public class CategoryStatsListItemView extends LinearLayout {
+public class PercentageView extends LinearLayout {
 
     private double percentage;
     private final Paint paint;
 
-    public CategoryStatsListItemView(Context context, AttributeSet attrs) {
+    public PercentageView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        paint = getPaint();
+        paint = getPaint(getColor(context, attrs));
         setWillNotDraw(false);
     }
 
-    private Paint getPaint() {
+    private int getColor(Context context, AttributeSet attrs) {
+        TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.PercentageView, 0, 0);
+        try {
+            return a.getColor(R.styleable.PercentageView_color, 0);
+        } finally {
+            a.recycle();
+        }
+    }
+
+    private Paint getPaint(int color) {
         Paint paint = new Paint();
-        paint.setColor(getResources().getColor(R.color.stats_percentage_background));
+        paint.setColor(color);
         return paint;
     }
 

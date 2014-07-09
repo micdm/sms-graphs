@@ -1,0 +1,19 @@
+<com.micdm.smsgraphs.misc.PercentageView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="5dp"
+    custom:color="@color/stats_category_percentage_background">
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/v__stats__list_item_category__name"
+        android:layout_weight="1"
+        android:paddingLeft="25dp"
+        android:textSize="23sp"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/v__stats__list_item_category__amount"
+        android:textSize="23sp"/>
+</com.micdm.smsgraphs.misc.PercentageView>

@@ -9,7 +9,8 @@
     <item type="color" name="stats_header_background">#0969A3</item>
     <item type="color" name="stats_navigation_normal_text">#64A8D1</item>
     <item type="color" name="stats_navigation_active_text">#fff</item>
-    <item type="color" name="stats_percentage_background">#64DE89</item>
+    <item type="color" name="stats_category_percentage_background">#64DE89</item>
+    <item type="color" name="stats_target_percentage_background">#FFC073</item>
     <item type="color" name="stats_total_text">#fff</item>
     <item type="color" name="stats_total_background">#0969A3</item>
     <item type="color" name="target_name_text">#888</item>
