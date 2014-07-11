@@ -7,7 +7,7 @@ import com.micdm.smsgraphs.data.OperationReport;
 import com.micdm.smsgraphs.db.DbHelper;
 import com.micdm.smsgraphs.misc.DateUtils;
 
-import java.util.Calendar;
+import org.joda.time.DateTime;
 
 public class DbOperationReportReader extends DbReader<OperationReport> {
 
@@ -27,8 +27,8 @@ public class DbOperationReportReader extends DbReader<OperationReport> {
         if (cursor.isNull(0) && cursor.isNull(1)) {
             report = new OperationReport(null, null);
         } else {
-            Calendar first = DateUtils.parseForDb(cursor.getString(0));
-            Calendar last = DateUtils.parseForDb(cursor.getString(1));
+            DateTime first = DateUtils.parseForDb(cursor.getString(0));
+            DateTime last = DateUtils.parseForDb(cursor.getString(1));
             report = new OperationReport(first, last);
         }
         cursor.close();

@@ -5,8 +5,6 @@ import android.test.InstrumentationTestCase;
 import com.micdm.smsgraphs.data.Message;
 import com.micdm.smsgraphs.messages.MessageParser;
 
-import java.util.Calendar;
-
 public class MessageParserTest extends InstrumentationTestCase {
 
     private final String[] texts = new String[] {
@@ -27,42 +25,42 @@ public class MessageParserTest extends InstrumentationTestCase {
     public void testGetYear() {
         for (String text: texts) {
             Message message = (new MessageParser()).parse(text);
-            assertEquals(2014, message.created.get(Calendar.YEAR));
+            assertEquals(2014, message.created.getYear());
         }
     }
 
     public void testGetMonth() {
         for (String text: texts) {
             Message message = (new MessageParser()).parse(text);
-            assertEquals(0, message.created.get(Calendar.MONTH));
+            assertEquals(1, message.created.getMonthOfYear());
         }
     }
 
     public void testGetDay() {
         for (String text: texts) {
             Message message = (new MessageParser()).parse(text);
-            assertEquals(31, message.created.get(Calendar.DAY_OF_MONTH));
+            assertEquals(31, message.created.getDayOfMonth());
         }
     }
 
     public void testGetHour() {
         for (String text: texts) {
             Message message = (new MessageParser()).parse(text);
-            assertEquals(22, message.created.get(Calendar.HOUR_OF_DAY));
+            assertEquals(22, message.created.getHourOfDay());
         }
     }
 
     public void testGetMinute() {
         for (String text: texts) {
             Message message = (new MessageParser()).parse(text);
-            assertEquals(50, message.created.get(Calendar.MINUTE));
+            assertEquals(50, message.created.getMinuteOfHour());
         }
     }
 
     public void testGetSecond() {
         for (String text: texts) {
             Message message = (new MessageParser()).parse(text);
-            assertEquals(0, message.created.get(Calendar.SECOND));
+            assertEquals(0, message.created.getSecondOfMinute());
         }
     }
 

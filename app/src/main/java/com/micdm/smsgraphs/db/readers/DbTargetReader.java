@@ -9,7 +9,7 @@ import com.micdm.smsgraphs.data.TargetList;
 import com.micdm.smsgraphs.db.DbHelper;
 import com.micdm.smsgraphs.misc.DateUtils;
 
-import java.util.Calendar;
+import org.joda.time.DateTime;
 
 public class DbTargetReader extends DbReader<TargetList> {
 
@@ -40,7 +40,7 @@ public class DbTargetReader extends DbReader<TargetList> {
             int categoryId = cursor.getInt(1);
             String name = cursor.getString(2);
             String title = cursor.getString(3);
-            Calendar lastPaid = DateUtils.parseForDb(cursor.getString(4));
+            DateTime lastPaid = DateUtils.parseForDb(cursor.getString(4));
             int lastAmount = cursor.getInt(5);
             Target target = new Target(id, categoryId == 0 ? null : categories.getById(categoryId), name, title, lastPaid, lastAmount);
             targets.add(target);

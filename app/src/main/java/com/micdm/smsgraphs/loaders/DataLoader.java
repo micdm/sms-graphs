@@ -13,15 +13,13 @@ import com.micdm.smsgraphs.db.readers.DbOperationReader;
 import com.micdm.smsgraphs.db.readers.DbOperationReportReader;
 import com.micdm.smsgraphs.db.readers.DbTargetReader;
 
-import java.util.Calendar;
+import org.joda.time.DateTime;
 
 public class DataLoader extends AsyncTaskLoader<LoaderResult> {
 
     public static interface OnLoadListener {
         public void onStartLoadAll();
         public void onFinishLoadAll();
-        public void onStartLoadOperations(Calendar month);
-        public void onFinishLoadOperations();
     }
 
     public static enum Task {
@@ -36,7 +34,7 @@ public class DataLoader extends AsyncTaskLoader<LoaderResult> {
     private OperationReport report;
     private CategoryList categories;
     private TargetList targets;
-    private Calendar month;
+    private DateTime month;
     private MonthOperationList operations;
 
     public DataLoader(Context context, DbHelper dbHelper, OnLoadListener listener) {
@@ -53,7 +51,7 @@ public class DataLoader extends AsyncTaskLoader<LoaderResult> {
         forceLoad();
     }
 
-    public void reloadOperations(Calendar month) {
+    public void reloadOperations(DateTime month) {
         task = Task.LOAD_OPERATIONS;
         this.month = month;
         operations = null;
@@ -65,9 +63,6 @@ public class DataLoader extends AsyncTaskLoader<LoaderResult> {
         switch (task) {
             case LOAD_ALL:
                 listener.onStartLoadAll();
-                break;
-            case LOAD_OPERATIONS:
-                listener.onStartLoadOperations(month);
                 break;
         }
         super.onForceLoad();
@@ -121,7 +116,7 @@ public class DataLoader extends AsyncTaskLoader<LoaderResult> {
         return new LoaderResult(task, operations);
     }
 
-    private MonthOperationList getOperations(TargetList targets, Calendar month) {
+    private MonthOperationList getOperations(TargetList targets, DateTime month) {
         if (month == null) {
             return null;
         }
@@ -139,7 +134,6 @@ public class DataLoader extends AsyncTaskLoader<LoaderResult> {
                 break;
             case LOAD_OPERATIONS:
                 operations = data.operations;
-                listener.onFinishLoadOperations();
                 break;
         }
         task = null;

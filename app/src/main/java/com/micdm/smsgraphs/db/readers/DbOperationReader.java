@@ -9,16 +9,17 @@ import com.micdm.smsgraphs.data.Target;
 import com.micdm.smsgraphs.data.TargetList;
 import com.micdm.smsgraphs.db.DbHelper;
 
+import org.joda.time.DateTime;
+
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 public class DbOperationReader extends DbReader<MonthOperationList> {
 
     private final TargetList targets;
-    private final Calendar month;
+    private final DateTime month;
 
-    public DbOperationReader(DbHelper dbHelper, TargetList targets, Calendar month) {
+    public DbOperationReader(DbHelper dbHelper, TargetList targets, DateTime month) {
         super(dbHelper);
         this.targets = targets;
         this.month = month;
@@ -34,7 +35,7 @@ public class DbOperationReader extends DbReader<MonthOperationList> {
             "SELECT target_id, amount " +
             "FROM operations " +
             "WHERE STRFTIME('%m %Y', created) = ? " +
-            "ORDER BY id", new String[] {String.format("%02d %d", month.get(Calendar.MONTH) + 1, month.get(Calendar.YEAR))}
+            "ORDER BY id", new String[] {String.format("%02d %d", month.getMonthOfYear(), month.getYear())}
         );
         cursor.moveToFirst();
         List<Operation> operations = new ArrayList<Operation>();

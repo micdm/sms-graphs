@@ -70,6 +70,6 @@ public class MessageReader {
     private void setLastParsedMessageId(int id) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putInt(PREF_KEY, id).commit();
+        editor.putInt(PREF_KEY, id).apply();
     }
 }

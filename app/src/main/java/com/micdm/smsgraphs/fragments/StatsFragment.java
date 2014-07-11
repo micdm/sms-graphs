@@ -2,158 +2,95 @@ package com.micdm.smsgraphs.fragments;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.os.Bundle;
+import android.support.v13.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseExpandableListAdapter;
-import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 import com.micdm.smsgraphs.R;
-import com.micdm.smsgraphs.data.Category;
-import com.micdm.smsgraphs.data.CategoryStat;
-import com.micdm.smsgraphs.data.MonthOperationList;
-import com.micdm.smsgraphs.data.Operation;
-import com.micdm.smsgraphs.data.Target;
-import com.micdm.smsgraphs.data.TargetStat;
-import com.micdm.smsgraphs.handlers.OperationHandler;
+import com.micdm.smsgraphs.data.OperationReport;
+import com.micdm.smsgraphs.handlers.OperationReportHandler;
 import com.micdm.smsgraphs.misc.DateUtils;
-import com.micdm.smsgraphs.misc.PercentageView;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import org.joda.time.DateTime;
+
+import java.util.Hashtable;
+import java.util.Map;
 
 public class StatsFragment extends Fragment {
 
-    private class CategoryStatsListAdapter extends BaseExpandableListAdapter {
+    private class MonthStatsPagerAdapter extends FragmentPagerAdapter {
 
-        private List<CategoryStat> stats;
+        private final Map<Integer, Fragment> fragments = new Hashtable<Integer, Fragment>();
+        private final DateTime last;
+        private final int count;
 
-        public void setStats(List<CategoryStat> stats) {
-            this.stats = stats;
+        public MonthStatsPagerAdapter(FragmentManager fm, DateTime last, int count) {
+            super(fm);
+            this.last = last;
+            this.count = count;
         }
 
         @Override
-        public int getGroupCount() {
-            return (stats == null) ? 0 : stats.size();
+        public int getCount() {
+            return count;
         }
 
         @Override
-        public int getChildrenCount(int position) {
-            return getGroup(position).stats.size();
-        }
-
-        @Override
-        public CategoryStat getGroup(int position) {
-            return stats.get(position);
-        }
-
-        @Override
-        public TargetStat getChild(int groupPosition, int childPosition) {
-            return getGroup(groupPosition).stats.get(childPosition);
-        }
-
-        @Override
-        public long getGroupId(int position) {
-            return getGroup(position).category.id;
-        }
-
-        @Override
-        public long getChildId(int groupPosition, int childPosition) {
-            return getChild(groupPosition, childPosition).target.id;
-        }
-
-        @Override
-        public boolean hasStableIds() {
-            return true;
-        }
-
-        @Override
-        public View getGroupView(int position, boolean isExpanded, View view, ViewGroup parent) {
-            if (view == null) {
-                view = View.inflate(getActivity(), R.layout.v__stats__list_item_category, null);
+        public Fragment getItem(int position) {
+            Fragment fragment = fragments.get(position);
+            if (fragment == null) {
+                fragment = new MonthStatsFragment();
+                fragment.setArguments(getFragmentArgs(position));
+                fragments.put(position, fragment);
             }
-            CategoryStat stat = getGroup(position);
-            ((PercentageView) view).setPercentage(stat.percentage);
-            TextView nameView = (TextView) view.findViewById(R.id.v__stats__list_item_category__name);
-            nameView.setText(stat.category.name);
-            TextView amountView = (TextView) view.findViewById(R.id.v__stats__list_item_category__amount);
-            amountView.setText(String.valueOf(stat.amount));
-            return view;
+            return fragment;
         }
 
-        @Override
-        public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View view, ViewGroup parent) {
-            if (view == null) {
-                view = View.inflate(getActivity(), R.layout.v__stats__list_item_target, null);
-            }
-            TargetStat stat = getChild(groupPosition, childPosition);
-            ((PercentageView) view).setPercentage(stat.percentage);
-            TextView nameView = (TextView) view.findViewById(R.id.v__stats__list_item_target__name);
-            nameView.setText(stat.target.name);
-            TextView amountView = (TextView) view.findViewById(R.id.v__stats__list_item_target__amount);
-            amountView.setText(String.valueOf(stat.amount));
-            return view;
+        private Bundle getFragmentArgs(int position) {
+            Bundle args = new Bundle();
+            DateTime date = getDate(position);
+            args.putInt(MonthStatsFragment.INIT_ARG_YEAR, date.getYear());
+            args.putInt(MonthStatsFragment.INIT_ARG_MONTH, date.getMonthOfYear());
+            return args;
         }
 
-        @Override
-        public boolean isChildSelectable(int groupPosition, int childPosition) {
-            return false;
+        public DateTime getDate(int position) {
+            return last.minusMonths(count - position - 1);
+        }
+
+        public boolean hasPrevious(int position) {
+            return position > 0;
+        }
+
+        public boolean hasNext(int position) {
+            return position < count - 1;
         }
     }
 
-    private OperationHandler operationHandler;
-    private final OperationHandler.OnLoadOperationsListener onLoadOperationsListener = new OperationHandler.OnLoadOperationsListener() {
+    private OperationReportHandler operationReportHandler;
+    private final OperationReportHandler.OnLoadOperationReportListener onLoadOperationReportListener = new OperationReportHandler.OnLoadOperationReportListener() {
         @Override
-        public void onStartLoadOperations(Calendar month) {
-            if (month == null) {
-                return;
-            }
-            loadingOperationsView.setText(getString(R.string.fragment_stats_loading_operations, DateUtils.formatMonthForHuman(month).toLowerCase()));
-            loadingOperationsView.setVisibility(View.VISIBLE);
-        }
-        @Override
-        public void onFinishLoadOperations() {
-            loadingOperationsView.setVisibility(View.GONE);
-        }
-        @Override
-        public void onLoadOperations(MonthOperationList operations, boolean previous, boolean next) {
-            previousView.setVisibility(previous ? View.VISIBLE : View.INVISIBLE);
-            monthView.setText(DateUtils.formatMonthForHuman(operations.month));
-            nextView.setVisibility(next ? View.VISIBLE : View.INVISIBLE);
-            List<CategoryStat> stats = getCategoryStats(operations.operations);
-            if (stats.size() == 0) {
-                noCategoryStatsView.setVisibility(View.VISIBLE);
-            } else {
-                CategoryStatsListAdapter adapter = (CategoryStatsListAdapter) categoriesView.getExpandableListAdapter();
-                if (adapter == null) {
-                    adapter = new CategoryStatsListAdapter();
-                    categoriesView.setAdapter(adapter);
-                }
-                adapter.setStats(stats);
-                adapter.notifyDataSetChanged();
-                totalView.setText(String.valueOf(getTotalSum(stats)));
-                noCategoryStatsView.setVisibility(View.GONE);
-            }
+        public void onLoadOperationReport(OperationReport report) {
+            int count = report.getMonthCount();
+            pager.setAdapter(new MonthStatsPagerAdapter(getFragmentManager(), report.last, count));
+            pager.setCurrentItem(count - 1, false);
         }
     };
 
     private View previousView;
     private TextView monthView;
     private View nextView;
-    private ExpandableListView categoriesView;
-    private TextView totalView;
-    private View noCategoryStatsView;
-    private TextView loadingOperationsView;
+    private ViewPager pager;
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        operationHandler = (OperationHandler) activity;
+        operationReportHandler = (OperationReportHandler) activity;
     }
 
     @Override
@@ -163,7 +100,7 @@ public class StatsFragment extends Fragment {
         previousView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                operationHandler.loadPreviousMonthOperations();
+                pager.setCurrentItem(pager.getCurrentItem() - 1);
             }
         });
         monthView = (TextView) view.findViewById(R.id.f__stats__month);
@@ -171,111 +108,35 @@ public class StatsFragment extends Fragment {
         nextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                operationHandler.loadNextMonthOperations();
+                pager.setCurrentItem(pager.getCurrentItem() + 1);
             }
         });
-        categoriesView = (ExpandableListView) view.findViewById(R.id.f__stats__categories);
-        totalView = (TextView) view.findViewById(R.id.f__stats__total);
-        noCategoryStatsView = view.findViewById(R.id.f__stats__no_category_stats);
-        loadingOperationsView = (TextView) view.findViewById(R.id.f__stats__loading_operations);
+        pager = (ViewPager) view.findViewById(R.id.f__stats__pager);
+        pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                MonthStatsPagerAdapter adapter = (MonthStatsPagerAdapter) pager.getAdapter();
+                previousView.setVisibility(adapter.hasPrevious(position) ? View.VISIBLE : View.INVISIBLE);
+                nextView.setVisibility(adapter.hasNext(position) ? View.VISIBLE : View.INVISIBLE);
+                monthView.setText(DateUtils.formatMonthForHuman(adapter.getDate(position)));
+            }
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+            @Override
+            public void onPageScrollStateChanged(int state) {}
+        });
         return view;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        operationHandler.addOnLoadOperationsListener(onLoadOperationsListener);
-    }
-
-    private List<CategoryStat> getCategoryStats(List<Operation> operations) {
-        List<CategoryStat> stats = new ArrayList<CategoryStat>();
-        Category noCategory = new Category(0, getString(R.string.no_category));
-        for (Operation operation: operations) {
-            Category category = operation.target.category;
-            CategoryStat stat = updateCategoryStat(stats, (category == null) ? noCategory : category, operation.amount);
-            updateTargetStat(stat.stats, operation.target, operation.amount);
-        }
-        addPercentages(stats);
-        sortByName(stats);
-        return stats;
-    }
-
-    private CategoryStat updateCategoryStat(List<CategoryStat> stats, Category category, int amount) {
-        CategoryStat stat = getCategoryStat(stats, category);
-        if (stat == null) {
-            stat = new CategoryStat(category);
-            stats.add(stat);
-        }
-        stat.amount += amount;
-        return stat;
-    }
-
-    private CategoryStat getCategoryStat(List<CategoryStat> stats, Category category) {
-        for (CategoryStat stat: stats) {
-            if (stat.category == category) {
-                return stat;
-            }
-        }
-        return null;
-    }
-
-    private void updateTargetStat(List<TargetStat> stats, Target target, int amount) {
-        TargetStat targetStat = getTargetStat(stats, target);
-        if (targetStat == null) {
-            targetStat = new TargetStat(target);
-            stats.add(targetStat);
-        }
-        targetStat.amount += amount;
-    }
-
-
-    public TargetStat getTargetStat(List<TargetStat> stats, Target target) {
-        for (TargetStat stat: stats) {
-            if (stat.target == target) {
-                return stat;
-            }
-        }
-        return null;
-    }
-
-    private void addPercentages(List<CategoryStat> stats) {
-        int total = getTotalSum(stats);
-        for (CategoryStat categoryStat: stats) {
-            categoryStat.percentage = (double) categoryStat.amount / total;
-            for (TargetStat targetStat: categoryStat.stats) {
-                targetStat.percentage = (double) targetStat.amount / categoryStat.amount;
-            }
-        }
-    }
-
-    private int getTotalSum(List<CategoryStat> stats) {
-        int total = 0;
-        for (CategoryStat stat: stats) {
-            total += stat.amount;
-        }
-        return total;
-    }
-
-    private void sortByName(List<CategoryStat> stats) {
-        Collections.sort(stats, new Comparator<CategoryStat>() {
-            @Override
-            public int compare(CategoryStat a, CategoryStat b) {
-                return a.category.name.compareTo(b.category.name);
-            }
-        });
-        for (CategoryStat stat: stats) {
-            Collections.sort(stat.stats, new Comparator<TargetStat>() {
-                @Override
-                public int compare(TargetStat a, TargetStat b) {
-                    return a.target.name.compareTo(b.target.name);
-                }
-            });
-        }
+        operationReportHandler.addOnLoadOperationReportListener(onLoadOperationReportListener);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        operationHandler.removeOnLoadOperationsListener(onLoadOperationsListener);
+        operationReportHandler.removeOnLoadOperationReportListener(onLoadOperationReportListener);
     }
 }

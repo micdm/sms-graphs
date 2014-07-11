@@ -2,7 +2,8 @@ package com.micdm.smsgraphs.messages;
 
 import com.micdm.smsgraphs.data.Message;
 
-import java.util.Calendar;
+import org.joda.time.DateTime;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,15 +55,8 @@ public class MessageParser {
         return Integer.valueOf(m.group(GROUP_MINUTE));
     }
 
-    private Calendar getCreated(Matcher m) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, getYear(m));
-        calendar.set(Calendar.MONTH, getMonth(m) - 1);
-        calendar.set(Calendar.DAY_OF_MONTH, getDay(m));
-        calendar.set(Calendar.HOUR_OF_DAY, getHour(m));
-        calendar.set(Calendar.MINUTE, getMinute(m));
-        calendar.set(Calendar.SECOND, 0);
-        return calendar;
+    private DateTime getCreated(Matcher m) {
+        return new DateTime(getYear(m), getMonth(m), getDay(m), getHour(m), getMinute(m), 0);
     }
 
     private boolean isOperation(Matcher m) {
