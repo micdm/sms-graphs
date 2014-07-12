@@ -24,10 +24,11 @@ import com.micdm.smsgraphs.handlers.CategoryHandler;
 import com.micdm.smsgraphs.handlers.OperationHandler;
 import com.micdm.smsgraphs.handlers.OperationReportHandler;
 import com.micdm.smsgraphs.handlers.TargetHandler;
-import com.micdm.smsgraphs.loaders.DataLoader;
-import com.micdm.smsgraphs.loaders.LoaderResult;
+import com.micdm.smsgraphs.loaders.CategoryLoader;
 import com.micdm.smsgraphs.loaders.MessageLoader;
-import com.micdm.smsgraphs.misc.DateUtils;
+import com.micdm.smsgraphs.loaders.OperationLoader;
+import com.micdm.smsgraphs.loaders.OperationReportLoader;
+import com.micdm.smsgraphs.loaders.TargetLoader;
 import com.micdm.utils.events.EventListener;
 import com.micdm.utils.events.EventListenerManager;
 import com.micdm.utils.pager.PagerActivity;
@@ -35,15 +36,19 @@ import com.micdm.utils.pager.PagerAdapter;
 
 import org.joda.time.DateTime;
 
+import java.util.Hashtable;
+import java.util.Map;
+
 // TODO: при первом запуске показать обучение
 // TODO: добавить пролистывание месяцев свайпом
 // TODO: вынести анализатор сообщений в отдельный сервис
 public class MainActivity extends PagerActivity implements OperationReportHandler, OperationHandler, CategoryHandler, TargetHandler {
 
     private static final int MESSAGE_LOADER_ID = 0;
-    private static final int DATA_LOADER_ID = 1;
+    private static final int OPERATION_REPORT_LOADER_ID = 1;
+    private static final int CATEGORY_LOADER_ID = 2;
+    private static final int TARGET_LOADER_ID = 3;
 
-    private static final String STATE_KEY_MONTH = "month";
     private static final String STATE_KEY_TARGET = "target";
 
     private static final String FRAGMENT_TARGET_TAG = "target";
@@ -60,10 +65,11 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
     private OperationReport report;
     private CategoryList categories;
     private TargetList targets;
-    private MonthOperationList operations;
+    private final Map<DateTime, MonthOperationList> _operations = new Hashtable<DateTime, MonthOperationList>();
 
-    private DateTime currentMonth;
     private int currentTarget;
+
+    private final Map<Integer, DateTime> operationLoaders = new Hashtable<Integer, DateTime>();
 
     private View loadingMessagesView;
     private ProgressBar loadingMessagesProgressView;
@@ -74,30 +80,27 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         restoreCurrentValues(savedInstanceState);
-        restartLoaders();
+        initLoaders();
         setupView();
         setupActionBar();
         setupPager((ViewPager) findViewById(R.id.a__main__pager));
     }
 
     private void restoreCurrentValues(Bundle state) {
-        if (state == null) {
-            return;
+        if (state != null) {
+            currentTarget = state.getInt(STATE_KEY_TARGET);
         }
-        String month = state.getString(STATE_KEY_MONTH);
-        if (month != null) {
-            currentMonth = DateUtils.parseForBundle(month);
-        }
-        currentTarget = state.getInt(STATE_KEY_TARGET);
     }
 
-    private void restartLoaders() {
+    private void initLoaders() {
         LoaderManager manager = getLoaderManager();
-        manager.restartLoader(MESSAGE_LOADER_ID, null, getMessageLoaderCallbacks());
-        manager.restartLoader(DATA_LOADER_ID, null, getDataLoaderCallbacks());
+        manager.initLoader(MESSAGE_LOADER_ID, null, getMessageLoaderCallbacks());
+        manager.initLoader(OPERATION_REPORT_LOADER_ID, null, getOperationReportLoaderCallbacks());
+        manager.initLoader(CATEGORY_LOADER_ID, null, getCategoryLoaderCallbacks());
+        manager.initLoader(TARGET_LOADER_ID, null, getTargetLoaderCallbacks());
     }
 
-    private LoaderManager.LoaderCallbacks getMessageLoaderCallbacks() {
+    private LoaderManager.LoaderCallbacks<Void> getMessageLoaderCallbacks() {
         return new LoaderManager.LoaderCallbacks<Void>() {
             @Override
             public Loader<Void> onCreateLoader(int id, Bundle params) {
@@ -118,98 +121,124 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
                 });
             }
             @Override
-            public void onLoadFinished(Loader<Void> loader, Void result) {
-                DataLoader dataLoader = (DataLoader) (Loader<?>) getLoaderManager().getLoader(DATA_LOADER_ID);
-                dataLoader.reloadAll();
+            public void onLoadFinished(Loader<Void> loader, Void data) {
+                LoaderManager manager = getLoaderManager();
+                manager.getLoader(OPERATION_REPORT_LOADER_ID).onContentChanged();
+                manager.getLoader(TARGET_LOADER_ID).onContentChanged();
             }
             @Override
             public void onLoaderReset(Loader<Void> loader) {}
         };
     }
 
-    private LoaderManager.LoaderCallbacks getDataLoaderCallbacks() {
-        return new LoaderManager.LoaderCallbacks<LoaderResult>() {
+    private LoaderManager.LoaderCallbacks<OperationReport> getOperationReportLoaderCallbacks() {
+        return new LoaderManager.LoaderCallbacks<OperationReport>() {
             @Override
-            public Loader<LoaderResult> onCreateLoader(int id, Bundle params) {
-                return new DataLoader(getApplicationContext(), ((CustomApplication) getApplication()).getDbHelper(), new DataLoader.OnLoadListener() {
+            public Loader<OperationReport> onCreateLoader(int id, Bundle params) {
+                return new OperationReportLoader(getApplicationContext(), ((CustomApplication) getApplication()).getDbHelper());
+            }
+            @Override
+            public void onLoadFinished(Loader<OperationReport> loader, OperationReport data) {
+                if (data == null) {
+                    return;
+                }
+                report = data;
+                noOperationsView.setVisibility((report.last == null) ? View.VISIBLE : View.GONE);
+                hideLoadingDataView();
+                events.notify(EVENT_LISTENER_KEY_ON_LOAD_OPERATION_REPORT, new EventListenerManager.OnIterateListener() {
                     @Override
-                    public void onStartLoadAll() {
-                        loadingDataView.setVisibility(View.VISIBLE);
-                    }
-                    @Override
-                    public void onFinishLoadAll() {
-                        loadingDataView.setVisibility(View.GONE);
+                    public void onIterate(EventListener listener) {
+                        ((OnLoadOperationReportListener) listener).onLoadOperationReport(report);
                     }
                 });
             }
             @Override
-            public void onLoadFinished(Loader<LoaderResult> loader, LoaderResult loaded) {
-                switch (loaded.task) {
-                    case LOAD_ALL:
-                        if (loaded.report != report) {
-                            report = loaded.report;
-                            noOperationsView.setVisibility((report.last == null) ? View.VISIBLE : View.GONE);
-                            events.notify(EVENT_LISTENER_KEY_ON_LOAD_OPERATION_REPORT, new EventListenerManager.OnIterateListener() {
-                                @Override
-                                public void onIterate(EventListener listener) {
-                                    ((OnLoadOperationReportListener) listener).onLoadOperationReport(report);
-                                }
-                            });
+            public void onLoaderReset(Loader<OperationReport> loader) {}
+        };
+    }
+
+    private LoaderManager.LoaderCallbacks<CategoryList> getCategoryLoaderCallbacks() {
+        return new LoaderManager.LoaderCallbacks<CategoryList>() {
+            @Override
+            public Loader<CategoryList> onCreateLoader(int id, Bundle params) {
+                return new CategoryLoader(getApplicationContext(), ((CustomApplication) getApplication()).getDbHelper());
+            }
+            @Override
+            public void onLoadFinished(Loader<CategoryList> loader, CategoryList data) {
+                if (data == null) {
+                    return;
+                }
+                categories = data;
+                getLoaderManager().restartLoader(TARGET_LOADER_ID, null, getTargetLoaderCallbacks());
+                events.notify(EVENT_LISTENER_KEY_ON_LOAD_CATEGORIES, new EventListenerManager.OnIterateListener() {
+                    @Override
+                    public void onIterate(EventListener listener) {
+                        ((OnLoadCategoriesListener) listener).onLoadCategories(categories);
+                    }
+                });
+            }
+            @Override
+            public void onLoaderReset(Loader<CategoryList> loader) {}
+        };
+    }
+
+    private LoaderManager.LoaderCallbacks<TargetList> getTargetLoaderCallbacks() {
+        return new LoaderManager.LoaderCallbacks<TargetList>() {
+            @Override
+            public Loader<TargetList> onCreateLoader(int id, Bundle params) {
+                return new TargetLoader(getApplicationContext(), ((CustomApplication) getApplication()).getDbHelper(), categories);
+            }
+            @Override
+            public void onLoadFinished(Loader<TargetList> loader, TargetList data) {
+                if (data == null) {
+                    return;
+                }
+                targets = data;
+                updateWithNoCategoryCount();
+                hideLoadingDataView();
+                events.notify(EVENT_LISTENER_KEY_ON_LOAD_TARGETS, new EventListenerManager.OnIterateListener() {
+                    @Override
+                    public void onIterate(EventListener listener) {
+                        ((OnLoadTargetsListener) listener).onLoadTargets(targets);
+                    }
+                });
+                if (currentTarget != 0) {
+                    events.notify(EVENT_LISTENER_KEY_ON_START_EDIT_TARGET, new EventListenerManager.OnIterateListener() {
+                        @Override
+                        public void onIterate(EventListener listener) {
+                            ((OnStartEditTargetListener) listener).onStartEditTarget(targets.getById(currentTarget));
                         }
-                        if (loaded.categories != categories) {
-                            categories = loaded.categories;
-                            events.notify(EVENT_LISTENER_KEY_ON_LOAD_CATEGORIES, new EventListenerManager.OnIterateListener() {
-                                @Override
-                                public void onIterate(EventListener listener) {
-                                    ((OnLoadCategoriesListener) listener).onLoadCategories(categories);
-                                }
-                            });
-                        }
-                        if (loaded.targets != targets) {
-                            targets = loaded.targets;
-                            updateWithNoCategoryCount();
-                            events.notify(EVENT_LISTENER_KEY_ON_LOAD_TARGETS, new EventListenerManager.OnIterateListener() {
-                                @Override
-                                public void onIterate(EventListener listener) {
-                                    ((OnLoadTargetsListener) listener).onLoadTargets(targets);
-                                }
-                            });
-                            if (currentTarget != 0) {
-                                events.notify(EVENT_LISTENER_KEY_ON_START_EDIT_TARGET, new EventListenerManager.OnIterateListener() {
-                                    @Override
-                                    public void onIterate(EventListener listener) {
-                                        ((OnStartEditTargetListener) listener).onStartEditTarget(targets.getById(currentTarget));
-                                    }
-                                });
-                            }
-                        }
-                        if (report != null && targets != null && operations == null) {
-                            DateTime month = currentMonth;
-                            if (month == null) {
-                                month = getLastMonth(report);
-                            }
-                            if (month != null) {
-                                DataLoader dataLoader = (DataLoader) (Loader<?>) getLoaderManager().getLoader(DATA_LOADER_ID);
-                                dataLoader.reloadOperations(month);
-                            }
-                        }
-                        break;
-                    case LOAD_OPERATIONS:
-                        if (loaded.operations != operations) {
-                            operations = loaded.operations;
-                            currentMonth = operations.month;
-                            events.notify(EVENT_LISTENER_KEY_ON_LOAD_OPERATIONS, new EventListenerManager.OnIterateListener() {
-                                @Override
-                                public void onIterate(EventListener listener) {
-                                    ((OnLoadOperationsListener) listener).onLoadOperations(operations);
-                                }
-                            });
-                        }
-                        break;
+                    });
+                }
+                for (Map.Entry<Integer, DateTime> item: operationLoaders.entrySet()) {
+                    getLoaderManager().restartLoader(item.getKey(), null, getOperationLoaderCallbacks(item.getValue()));
                 }
             }
             @Override
-            public void onLoaderReset(Loader<LoaderResult> loader) {}
+            public void onLoaderReset(Loader<TargetList> loader) {}
+        };
+    }
+
+    private LoaderManager.LoaderCallbacks<MonthOperationList> getOperationLoaderCallbacks(final DateTime date) {
+        return new LoaderManager.LoaderCallbacks<MonthOperationList>() {
+            @Override
+            public Loader<MonthOperationList> onCreateLoader(int id, Bundle args) {
+                return new OperationLoader(getApplicationContext(), ((CustomApplication) getApplication()).getDbHelper(), targets, date);
+            }
+            @Override
+            public void onLoadFinished(Loader<MonthOperationList> loader, final MonthOperationList data) {
+                if (data != null) {
+                    _operations.put(data.month, data);
+                    events.notify(EVENT_LISTENER_KEY_ON_LOAD_OPERATIONS, new EventListenerManager.OnIterateListener() {
+                        @Override
+                        public void onIterate(EventListener listener) {
+                            ((OnLoadOperationsListener) listener).onLoadOperations(data);
+                        }
+                    });
+                }
+            }
+            @Override
+            public void onLoaderReset(Loader<MonthOperationList> loader) {}
         };
     }
 
@@ -219,6 +248,12 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
         loadingMessagesProgressView = (ProgressBar) findViewById(R.id.a__main__loading_messages_progress);
         loadingDataView = findViewById(R.id.a__main__loading_data);
         noOperationsView = findViewById(R.id.a__main__no_operations);
+    }
+
+    private void hideLoadingDataView() {
+        if (report != null && targets != null) {
+            loadingDataView.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -269,20 +304,10 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle state) {
-        super.onSaveInstanceState(state);
-        if (currentMonth != null) {
-            state.putString(STATE_KEY_MONTH, DateUtils.formatForBundle(currentMonth));
-        }
         if (currentTarget != 0) {
             state.putInt(STATE_KEY_TARGET, currentTarget);
         }
-    }
-
-    private DateTime getLastMonth(OperationReport report) {
-        if (report.last == null) {
-            return null;
-        }
-        return report.last.withDayOfMonth(1);
+        super.onSaveInstanceState(state);
     }
 
     @Override
@@ -300,15 +325,22 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
 
     @Override
     public void loadOperations(DateTime date) {
-        this.currentMonth = date;
-        DataLoader dataLoader = (DataLoader) (Loader<?>) getLoaderManager().getLoader(DATA_LOADER_ID);
-        dataLoader.reloadOperations(date);
+        int id = getOperationLoaderId(date);
+        Loader loader = getLoaderManager().getLoader(id);
+        if (loader == null) {
+            getLoaderManager().initLoader(id, null, getOperationLoaderCallbacks(date));
+            operationLoaders.put(id, date);
+        }
+    }
+
+    private int getOperationLoaderId(DateTime date) {
+        return date.getYear() * 100 + date.getMonthOfYear();
     }
 
     @Override
     public void addOnLoadOperationsListener(OnLoadOperationsListener listener) {
         events.add(EVENT_LISTENER_KEY_ON_LOAD_OPERATIONS, listener);
-        if (operations != null) {
+        for (MonthOperationList operations: _operations.values()) {
             listener.onLoadOperations(operations);
         }
     }
@@ -356,7 +388,9 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
                 ((OnEditTargetListener) listener).onEditTarget();
             }
         });
-        loadOperations(currentMonth);
+        for (int loaderId: operationLoaders.keySet()) {
+            getLoaderManager().getLoader(loaderId).onContentChanged();
+        }
         DbTargetWriter writer = new DbTargetWriter(((CustomApplication) getApplication()).getDbHelper());
         writer.write(target);
         currentTarget = 0;
