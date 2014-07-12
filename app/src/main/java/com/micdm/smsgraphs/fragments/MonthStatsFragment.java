@@ -117,19 +117,14 @@ public class MonthStatsFragment extends Fragment {
                 return;
             }
             List<CategoryStat> stats = getCategoryStats(operations.operations);
-            if (stats.size() == 0) {
-                noCategoryStatsView.setVisibility(View.VISIBLE);
-            } else {
-                CategoryStatsListAdapter adapter = (CategoryStatsListAdapter) categoriesView.getExpandableListAdapter();
-                if (adapter == null) {
-                    adapter = new CategoryStatsListAdapter();
-                    categoriesView.setAdapter(adapter);
-                }
-                adapter.setStats(stats);
-                adapter.notifyDataSetChanged();
-                totalView.setText(String.valueOf(getTotalSum(stats)));
-                noCategoryStatsView.setVisibility(View.GONE);
+            CategoryStatsListAdapter adapter = (CategoryStatsListAdapter) categoriesView.getExpandableListAdapter();
+            if (adapter == null) {
+                adapter = new CategoryStatsListAdapter();
+                categoriesView.setAdapter(adapter);
             }
+            adapter.setStats(stats);
+            adapter.notifyDataSetChanged();
+            totalView.setText(String.valueOf(getTotalSum(stats)));
         }
     };
 
@@ -137,7 +132,6 @@ public class MonthStatsFragment extends Fragment {
 
     private ExpandableListView categoriesView;
     private TextView totalView;
-    private View noCategoryStatsView;
 
     @Override
     public void onAttach(Activity activity) {
@@ -156,7 +150,6 @@ public class MonthStatsFragment extends Fragment {
         View view = inflater.inflate(R.layout.f__month_stats, null);
         categoriesView = (ExpandableListView) view.findViewById(R.id.f__month_stats__categories);
         totalView = (TextView) view.findViewById(R.id.f__month_stats__total);
-        noCategoryStatsView = view.findViewById(R.id.f__month_stats__no_category_stats);
         return view;
     }
 
@@ -207,7 +200,6 @@ public class MonthStatsFragment extends Fragment {
         }
         targetStat.amount += amount;
     }
-
 
     public TargetStat getTargetStat(List<TargetStat> stats, Target target) {
         for (TargetStat stat: stats) {
