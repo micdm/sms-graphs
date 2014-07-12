@@ -72,15 +72,39 @@ public class StatsFragment extends Fragment {
         }
     }
 
+    private static final String STATE_ITEM_CURRENT_ITEM = "current_item";
+
     private OperationReportHandler operationReportHandler;
     private final OperationReportHandler.OnLoadOperationReportListener onLoadOperationReportListener = new OperationReportHandler.OnLoadOperationReportListener() {
         @Override
         public void onLoadOperationReport(OperationReport report) {
             int count = report.getMonthCount();
-            pager.setAdapter(new MonthStatsPagerAdapter(getFragmentManager(), report.last, count));
-            pager.setCurrentItem(count - 1, false);
+            pager.setAdapter(new MonthStatsPagerAdapter(getChildFragmentManager(), report.last, count));
+            int currentItem = (_currentItem == -1) ? (count - 1) : _currentItem;
+            pager.setCurrentItem(currentItem, false);
+            // ViewPager молчит, если выбрана нулевая страница. Исправляем это:
+            if (currentItem == 0) {
+                onPageChangeListener.onPageSelected(0);
+            }
         }
     };
+
+    private final ViewPager.OnPageChangeListener onPageChangeListener = new ViewPager.OnPageChangeListener() {
+        @Override
+        public void onPageSelected(int position) {
+            MonthStatsPagerAdapter adapter = (MonthStatsPagerAdapter) pager.getAdapter();
+            previousView.setVisibility(adapter.hasPrevious(position) ? View.VISIBLE : View.INVISIBLE);
+            nextView.setVisibility(adapter.hasNext(position) ? View.VISIBLE : View.INVISIBLE);
+            monthView.setText(DateUtils.formatMonthForHuman(adapter.getDate(position)));
+            _currentItem = position;
+        }
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+        @Override
+        public void onPageScrollStateChanged(int state) {}
+    };
+
+    private int _currentItem = -1;
 
     private View previousView;
     private TextView monthView;
@@ -91,6 +115,14 @@ public class StatsFragment extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         operationReportHandler = (OperationReportHandler) activity;
+    }
+
+    @Override
+    public void onCreate(Bundle state) {
+        super.onCreate(state);
+        if (state != null) {
+            _currentItem = state.getInt(STATE_ITEM_CURRENT_ITEM, -1);
+        }
     }
 
     @Override
@@ -112,19 +144,7 @@ public class StatsFragment extends Fragment {
             }
         });
         pager = (ViewPager) view.findViewById(R.id.f__stats__pager);
-        pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                MonthStatsPagerAdapter adapter = (MonthStatsPagerAdapter) pager.getAdapter();
-                previousView.setVisibility(adapter.hasPrevious(position) ? View.VISIBLE : View.INVISIBLE);
-                nextView.setVisibility(adapter.hasNext(position) ? View.VISIBLE : View.INVISIBLE);
-                monthView.setText(DateUtils.formatMonthForHuman(adapter.getDate(position)));
-            }
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
-            @Override
-            public void onPageScrollStateChanged(int state) {}
-        });
+        pager.setOnPageChangeListener(onPageChangeListener);
         return view;
     }
 
@@ -138,5 +158,11 @@ public class StatsFragment extends Fragment {
     public void onStop() {
         super.onStop();
         operationReportHandler.removeOnLoadOperationReportListener(onLoadOperationReportListener);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle state) {
+        state.putInt(STATE_ITEM_CURRENT_ITEM, pager.getCurrentItem());
+        super.onSaveInstanceState(state);
     }
 }

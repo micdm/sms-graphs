@@ -326,11 +326,8 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
     @Override
     public void loadOperations(DateTime date) {
         int id = getOperationLoaderId(date);
-        Loader loader = getLoaderManager().getLoader(id);
-        if (loader == null) {
-            getLoaderManager().initLoader(id, null, getOperationLoaderCallbacks(date));
-            operationLoaders.put(id, date);
-        }
+        getLoaderManager().initLoader(id, null, getOperationLoaderCallbacks(date));
+        operationLoaders.put(id, date);
     }
 
     private int getOperationLoaderId(DateTime date) {
