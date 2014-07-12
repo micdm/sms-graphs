@@ -125,6 +125,7 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
                 LoaderManager manager = getLoaderManager();
                 manager.getLoader(OPERATION_REPORT_LOADER_ID).onContentChanged();
                 manager.getLoader(TARGET_LOADER_ID).onContentChanged();
+                loadingMessagesView.setVisibility(View.GONE);
             }
             @Override
             public void onLoaderReset(Loader<Void> loader) {}

@@ -18,6 +18,7 @@ import com.micdm.smsgraphs.data.Operation;
 import com.micdm.smsgraphs.data.Target;
 import com.micdm.smsgraphs.data.TargetStat;
 import com.micdm.smsgraphs.handlers.OperationHandler;
+import com.micdm.smsgraphs.misc.DateUtils;
 import com.micdm.smsgraphs.misc.PercentageView;
 
 import org.joda.time.DateTime;
@@ -106,8 +107,9 @@ public class MonthStatsFragment extends Fragment {
         }
     }
 
-    public static final String INIT_ARG_YEAR = "year";
-    public static final String INIT_ARG_MONTH = "month";
+    public static final String INIT_ARG_IS_FIRST = "is_first";
+    public static final String INIT_ARG_IS_LAST = "is_last";
+    public static final String INIT_ARG_DATE = "date";
 
     private OperationHandler operationHandler;
     private final OperationHandler.OnLoadOperationsListener onLoadOperationsListener = new OperationHandler.OnLoadOperationsListener() {
@@ -128,6 +130,8 @@ public class MonthStatsFragment extends Fragment {
         }
     };
 
+    private boolean isFirst;
+    private boolean isLast;
     private DateTime date;
 
     private ExpandableListView categoriesView;
@@ -137,17 +141,25 @@ public class MonthStatsFragment extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         operationHandler = (OperationHandler) activity;
-        date = getDateFromArguments();
+        handleInitArguments();
     }
 
-    private DateTime getDateFromArguments() {
+    private void handleInitArguments() {
         Bundle args = getArguments();
-        return new DateTime(args.getInt(INIT_ARG_YEAR), args.getInt(INIT_ARG_MONTH), 1, 0, 0);
+        isFirst = args.getBoolean(INIT_ARG_IS_FIRST);
+        isLast = args.getBoolean(INIT_ARG_IS_LAST);
+        date = DateUtils.parseForBundle(args.getString(INIT_ARG_DATE));
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.f__month_stats, null);
+        View previousView = view.findViewById(R.id.f__month_stats__previous);
+        previousView.setVisibility(isFirst ? View.INVISIBLE : View.VISIBLE);
+        View nextView = view.findViewById(R.id.f__month_stats__next);
+        nextView.setVisibility(isLast ? View.INVISIBLE : View.VISIBLE);
+        TextView monthView = (TextView) view.findViewById(R.id.f__month_stats__month);
+        monthView.setText(DateUtils.formatMonthForHuman(date));
         categoriesView = (ExpandableListView) view.findViewById(R.id.f__month_stats__categories);
         totalView = (TextView) view.findViewById(R.id.f__month_stats__total);
         return view;

@@ -39,9 +39,9 @@
     <string name="activity_main_no_operations">Похоже, у вас пока нет сообщений из банка.</string>
     <string name="activity_main_loading_data">Загружаем данные…</string>
     <!-- Фрагмент со статистикой -->
-    <string name="fragment_stats_previous">Раньше</string>
-    <string name="fragment_stats_next">Позже</string>
-    <string name="fragment_stats_total">Итого</string>
+    <string name="fragment_month_stats_previous">←</string>
+    <string name="fragment_month_stats_next">→</string>
+    <string name="fragment_month_stats_total">Итого</string>
     <!-- Фрагмент со списком продавцов -->
     <string name="fragment_target_list_no_category">Новый</string>
     <string name="fragment_target_list_last_operation">%1$s — %2$s %3$s</string>
