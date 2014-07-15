@@ -8,9 +8,14 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.micdm.smsgraphs.CustomApplication;
 import com.micdm.smsgraphs.R;
 import com.micdm.smsgraphs.data.Target;
 import com.micdm.smsgraphs.data.TargetList;
+import com.micdm.smsgraphs.events.EventManager;
+import com.micdm.smsgraphs.events.EventType;
+import com.micdm.smsgraphs.events.events.EditTargetEvent;
+import com.micdm.smsgraphs.events.events.LoadTargetsEvent;
 import com.micdm.smsgraphs.handlers.TargetHandler;
 import com.micdm.smsgraphs.misc.DateUtils;
 
@@ -72,49 +77,51 @@ public class TargetListFragment extends ListFragment {
         }
     }
 
-    private TargetHandler handler;
-    private final TargetHandler.OnLoadTargetsListener onLoadTargetsListener = new TargetHandler.OnLoadTargetsListener() {
-        @Override
-        public void onLoadTargets(TargetList targets) {
-            TargetListAdapter adapter = (TargetListAdapter) getListAdapter();
-            if (adapter == null) {
-                adapter = new TargetListAdapter();
-                setListAdapter(adapter);
-            }
-            adapter.setTargets(targets);
-            adapter.notifyDataSetChanged();
-        }
-    };
-    private final TargetHandler.OnEditTargetListener onEditTargetListener = new TargetHandler.OnEditTargetListener() {
-        @Override
-        public void onEditTarget() {
-            ((TargetListAdapter) getListView().getAdapter()).notifyDataSetChanged();
-        }
-    };
+    private TargetHandler targetHandler;
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        handler = (TargetHandler) activity;
+        targetHandler = (TargetHandler) activity;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        handler.addOnLoadTargetsListener(onLoadTargetsListener);
-        handler.addOnEditTargetListener(onEditTargetListener);
+        getEventManager().subscribe(this, EventType.LOAD_TARGETS, new EventManager.OnEventListener<LoadTargetsEvent>() {
+            @Override
+            public void onEvent(LoadTargetsEvent event) {
+                TargetListAdapter adapter = (TargetListAdapter) getListAdapter();
+                if (adapter == null) {
+                    adapter = new TargetListAdapter();
+                    setListAdapter(adapter);
+                }
+                adapter.setTargets(event.getTargets());
+                adapter.notifyDataSetChanged();
+            }
+        });
+        targetHandler.loadTargets();
+        getEventManager().subscribe(this, EventType.EDIT_TARGET, new EventManager.OnEventListener<EditTargetEvent>() {
+            @Override
+            public void onEvent(EditTargetEvent event) {
+                ((TargetListAdapter) getListView().getAdapter()).notifyDataSetChanged();
+            }
+        });
+    }
+
+    private EventManager getEventManager() {
+        return ((CustomApplication) getActivity().getApplication()).getEventManager();
     }
 
     @Override
     public void onListItemClick(ListView listView, View view, int position, long id) {
         Target target = ((TargetListAdapter) listView.getAdapter()).getItem(position);
-        handler.startEditTarget(target);
+        targetHandler.requestEditTarget(target);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        handler.removeOnLoadTargetsListener(onLoadTargetsListener);
-        handler.removeOnEditTargetListener(onEditTargetListener);
+        getEventManager().unsubscribeAll(this);
     }
 }

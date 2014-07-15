@@ -10,6 +10,7 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
+import com.micdm.smsgraphs.CustomApplication;
 import com.micdm.smsgraphs.R;
 import com.micdm.smsgraphs.data.Category;
 import com.micdm.smsgraphs.data.CategoryStat;
@@ -17,6 +18,9 @@ import com.micdm.smsgraphs.data.MonthOperationList;
 import com.micdm.smsgraphs.data.Operation;
 import com.micdm.smsgraphs.data.Target;
 import com.micdm.smsgraphs.data.TargetStat;
+import com.micdm.smsgraphs.events.EventManager;
+import com.micdm.smsgraphs.events.EventType;
+import com.micdm.smsgraphs.events.events.LoadOperationsEvent;
 import com.micdm.smsgraphs.handlers.OperationHandler;
 import com.micdm.smsgraphs.misc.DateUtils;
 import com.micdm.smsgraphs.misc.PercentageView;
@@ -95,7 +99,7 @@ public class MonthStatsFragment extends Fragment {
             TargetStat stat = getChild(groupPosition, childPosition);
             ((PercentageView) view).setPercentage(stat.percentage);
             TextView nameView = (TextView) view.findViewById(R.id.v__stats__list_item_target__name);
-            nameView.setText(stat.target.name);
+            nameView.setText(stat.target.title == null ? stat.target.name : stat.target.title);
             TextView amountView = (TextView) view.findViewById(R.id.v__stats__list_item_target__amount);
             amountView.setText(String.valueOf(stat.amount));
             return view;
@@ -112,23 +116,6 @@ public class MonthStatsFragment extends Fragment {
     public static final String INIT_ARG_DATE = "date";
 
     private OperationHandler operationHandler;
-    private final OperationHandler.OnLoadOperationsListener onLoadOperationsListener = new OperationHandler.OnLoadOperationsListener() {
-        @Override
-        public void onLoadOperations(MonthOperationList operations) {
-            if (!operations.month.equals(date)) {
-                return;
-            }
-            List<CategoryStat> stats = getCategoryStats(operations.operations);
-            CategoryStatsListAdapter adapter = (CategoryStatsListAdapter) categoriesView.getExpandableListAdapter();
-            if (adapter == null) {
-                adapter = new CategoryStatsListAdapter();
-                categoriesView.setAdapter(adapter);
-            }
-            adapter.setStats(stats);
-            adapter.notifyDataSetChanged();
-            totalView.setText(String.valueOf(getTotalSum(stats)));
-        }
-    };
 
     private boolean isFirst;
     private boolean isLast;
@@ -168,8 +155,29 @@ public class MonthStatsFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        operationHandler.addOnLoadOperationsListener(onLoadOperationsListener);
+        getEventManager().subscribe(this, EventType.LOAD_OPERATIONS, new EventManager.OnEventListener<LoadOperationsEvent>() {
+            @Override
+            public void onEvent(LoadOperationsEvent event) {
+                MonthOperationList operations = event.getOperations();
+                if (!operations.month.equals(date)) {
+                    return;
+                }
+                List<CategoryStat> stats = getCategoryStats(operations.operations);
+                CategoryStatsListAdapter adapter = (CategoryStatsListAdapter) categoriesView.getExpandableListAdapter();
+                if (adapter == null) {
+                    adapter = new CategoryStatsListAdapter();
+                    categoriesView.setAdapter(adapter);
+                }
+                adapter.setStats(stats);
+                adapter.notifyDataSetChanged();
+                totalView.setText(String.valueOf(getTotalSum(stats)));
+            }
+        });
         operationHandler.loadOperations(date);
+    }
+
+    private EventManager getEventManager() {
+        return ((CustomApplication) getActivity().getApplication()).getEventManager();
     }
 
     private List<CategoryStat> getCategoryStats(List<Operation> operations) {
@@ -197,7 +205,7 @@ public class MonthStatsFragment extends Fragment {
 
     private CategoryStat getCategoryStat(List<CategoryStat> stats, Category category) {
         for (CategoryStat stat: stats) {
-            if (stat.category == category) {
+            if (stat.category.id == category.id) {
                 return stat;
             }
         }
@@ -215,7 +223,7 @@ public class MonthStatsFragment extends Fragment {
 
     public TargetStat getTargetStat(List<TargetStat> stats, Target target) {
         for (TargetStat stat: stats) {
-            if (stat.target == target) {
+            if (stat.target.id == target.id) {
                 return stat;
             }
         }
@@ -260,6 +268,6 @@ public class MonthStatsFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        operationHandler.removeOnLoadOperationsListener(onLoadOperationsListener);
+        getEventManager().unsubscribeAll(this);
     }
 }

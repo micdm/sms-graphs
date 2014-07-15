@@ -1,4 +1,4 @@
-package com.micdm.smsgraphs.events.intent;
+package com.micdm.smsgraphs.events.intents;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

@@ -3,5 +3,10 @@ package com.micdm.smsgraphs.events;
 public enum EventType {
     START_LOAD_MESSAGES,
     PROGRESS_LOAD_MESSAGES,
-    FINISH_LOAD_MESSAGES
+    FINISH_LOAD_MESSAGES,
+    LOAD_OPERATION_REPORT,
+    LOAD_CATEGORIES,
+    LOAD_TARGETS,
+    LOAD_OPERATIONS,
+    EDIT_TARGET
 }

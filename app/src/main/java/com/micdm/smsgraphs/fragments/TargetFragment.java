@@ -13,13 +13,18 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.micdm.smsgraphs.CustomApplication;
 import com.micdm.smsgraphs.R;
 import com.micdm.smsgraphs.data.Category;
 import com.micdm.smsgraphs.data.CategoryList;
 import com.micdm.smsgraphs.data.Target;
+import com.micdm.smsgraphs.events.EventManager;
+import com.micdm.smsgraphs.events.EventType;
+import com.micdm.smsgraphs.events.events.LoadCategoriesEvent;
 import com.micdm.smsgraphs.handlers.CategoryHandler;
 import com.micdm.smsgraphs.handlers.TargetHandler;
 import com.micdm.smsgraphs.misc.DateUtils;
+import com.micdm.smsgraphs.parcels.TargetParcel;
 
 public class TargetFragment extends DialogFragment {
 
@@ -61,38 +66,10 @@ public class TargetFragment extends DialogFragment {
         }
     }
 
-    private CategoryHandler categoryHandler;
-    private final CategoryHandler.OnLoadCategoriesListener onLoadCategoriesListener = new CategoryHandler.OnLoadCategoriesListener() {
-        @Override
-        public void onLoadCategories(CategoryList categories) {
-            Spinner view = (Spinner) getDialog().findViewById(R.id.f__target__categories);
-            CategoryListAdapter adapter = (CategoryListAdapter) view.getAdapter();
-            if (adapter == null) {
-                adapter = new CategoryListAdapter();
-                view.setAdapter(adapter);
-            }
-            adapter.setCategories(categories);
-            adapter.notifyDataSetChanged();
-        }
-    };
+    public static final String INIT_ARG_TARGET = "target";
 
+    private CategoryHandler categoryHandler;
     private TargetHandler targetHandler;
-    private final TargetHandler.OnStartEditTargetListener onStartEditTargetListener = new TargetHandler.OnStartEditTargetListener() {
-        @Override
-        public void onStartEditTarget(Target editable) {
-            target = editable;
-            lastOperationView.setText(getString(R.string.fragment_target_last_operation,
-                    DateUtils.formatForHuman(target.lastPaid), target.lastAmount, getResources().getQuantityString(R.plurals.rubles, target.lastAmount)));
-            titleView.setHint(target.name);
-            if (target.title != null) {
-                titleView.setText(target.title);
-            }
-            if (target.category != null) {
-                CategoryListAdapter adapter = (CategoryListAdapter) categoriesView.getAdapter();
-                categoriesView.setSelection(adapter.getItemPosition(target.category));
-            }
-        }
-    };
 
     private Target target;
 
@@ -107,6 +84,12 @@ public class TargetFragment extends DialogFragment {
         super.onAttach(activity);
         categoryHandler = (CategoryHandler) activity;
         targetHandler = (TargetHandler) activity;
+        handleInitArguments();
+    }
+
+    private void handleInitArguments() {
+        Bundle args = getArguments();
+        target = ((TargetParcel) args.getParcelable(INIT_ARG_TARGET)).getTarget();
     }
 
     @Override
@@ -115,15 +98,25 @@ public class TargetFragment extends DialogFragment {
         builder.setTitle(R.string.fragment_target_title);
         View view = View.inflate(getActivity(), R.layout.f__target, null);
         lastOperationView = (TextView) view.findViewById(R.id.f__target__last_operation);
+        lastOperationView.setText(getString(R.string.fragment_target_last_operation,
+                DateUtils.formatForHuman(target.lastPaid), target.lastAmount, getResources().getQuantityString(R.plurals.rubles, target.lastAmount)));
         titleView = (EditText) view.findViewById(R.id.f__target__title);
+        titleView.setHint(target.name);
+        if (target.title != null) {
+            titleView.setText(target.title);
+        }
         categoriesView = (Spinner) view.findViewById(R.id.f__target__categories);
+        if (target.category != null) {
+            CategoryListAdapter adapter = (CategoryListAdapter) categoriesView.getAdapter();
+            categoriesView.setSelection(adapter.getItemPosition(target.category));
+        }
         builder.setView(view);
         builder.setNeutralButton(R.string.fragment_target_save_button, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 isDismissing = true;
                 updateTarget();
-                targetHandler.finishEditTarget(target, false);
+                targetHandler.editTarget(target, false);
             }
         });
         builder.setPositiveButton(R.string.fragment_target_next_button, new DialogInterface.OnClickListener() {
@@ -131,7 +124,7 @@ public class TargetFragment extends DialogFragment {
             public void onClick(DialogInterface dialog, int which) {
                 isDismissing = true;
                 updateTarget();
-                targetHandler.finishEditTarget(target, true);
+                targetHandler.editTarget(target, true);
             }
         });
         return builder.create();
@@ -146,8 +139,24 @@ public class TargetFragment extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-        categoryHandler.addOnLoadCategoriesListener(onLoadCategoriesListener);
-        targetHandler.addOnStartEditTargetListener(onStartEditTargetListener);
+        getEventManager().subscribe(this, EventType.LOAD_CATEGORIES, new EventManager.OnEventListener<LoadCategoriesEvent>() {
+            @Override
+            public void onEvent(LoadCategoriesEvent event) {
+                Spinner view = (Spinner) getDialog().findViewById(R.id.f__target__categories);
+                CategoryListAdapter adapter = (CategoryListAdapter) view.getAdapter();
+                if (adapter == null) {
+                    adapter = new CategoryListAdapter();
+                    view.setAdapter(adapter);
+                }
+                adapter.setCategories(event.getCategories());
+                adapter.notifyDataSetChanged();
+            }
+        });
+        categoryHandler.loadCategories();
+    }
+
+    private EventManager getEventManager() {
+        return ((CustomApplication) getActivity().getApplication()).getEventManager();
     }
 
     public boolean isDismissing() {
@@ -157,7 +166,6 @@ public class TargetFragment extends DialogFragment {
     @Override
     public void onStop() {
         super.onStop();
-        categoryHandler.removeOnLoadCategoriesListener(onLoadCategoriesListener);
-        targetHandler.removeOnStartEditTargetListener(onStartEditTargetListener);
+        getEventManager().unsubscribeAll(this);
     }
 }

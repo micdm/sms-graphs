@@ -6,7 +6,6 @@ import android.app.LoaderManager;
 import android.content.Intent;
 import android.content.Loader;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -20,7 +19,12 @@ import com.micdm.smsgraphs.data.TargetList;
 import com.micdm.smsgraphs.db.writers.DbTargetWriter;
 import com.micdm.smsgraphs.events.EventManager;
 import com.micdm.smsgraphs.events.EventType;
+import com.micdm.smsgraphs.events.events.EditTargetEvent;
 import com.micdm.smsgraphs.events.events.FinishLoadMessagesEvent;
+import com.micdm.smsgraphs.events.events.LoadCategoriesEvent;
+import com.micdm.smsgraphs.events.events.LoadOperationReportEvent;
+import com.micdm.smsgraphs.events.events.LoadOperationsEvent;
+import com.micdm.smsgraphs.events.events.LoadTargetsEvent;
 import com.micdm.smsgraphs.events.events.ProgressLoadMessagesEvent;
 import com.micdm.smsgraphs.events.events.StartLoadMessagesEvent;
 import com.micdm.smsgraphs.fragments.StatsFragment;
@@ -35,8 +39,7 @@ import com.micdm.smsgraphs.loaders.OperationLoader;
 import com.micdm.smsgraphs.loaders.OperationReportLoader;
 import com.micdm.smsgraphs.loaders.TargetLoader;
 import com.micdm.smsgraphs.messages.MessageService;
-import com.micdm.utils.events.EventListener;
-import com.micdm.utils.events.EventListenerManager;
+import com.micdm.smsgraphs.parcels.TargetParcel;
 import com.micdm.utils.pager.PagerActivity;
 import com.micdm.utils.pager.PagerAdapter;
 
@@ -46,31 +49,17 @@ import java.util.Hashtable;
 import java.util.Map;
 
 // TODO: при первом запуске показать обучение
-public class MainActivity extends PagerActivity implements OperationReportHandler, OperationHandler, CategoryHandler, TargetHandler {
+public class MainActivity extends PagerActivity implements OperationReportHandler, CategoryHandler, TargetHandler, OperationHandler {
 
     private static final int OPERATION_REPORT_LOADER_ID = 0;
     private static final int CATEGORY_LOADER_ID = 1;
     private static final int TARGET_LOADER_ID = 2;
 
-    private static final String STATE_KEY_TARGET = "target";
-
     private static final String FRAGMENT_TARGET_TAG = "target";
-
-    private static final String EVENT_LISTENER_KEY_ON_LOAD_OPERATION_REPORT = "OnLoadOperationReport";
-    private static final String EVENT_LISTENER_KEY_ON_LOAD_OPERATIONS = "OnLoadOperations";
-    private static final String EVENT_LISTENER_KEY_ON_LOAD_CATEGORIES = "OnLoadCategories";
-    private static final String EVENT_LISTENER_KEY_ON_LOAD_TARGETS = "OnLoadTargets";
-    private static final String EVENT_LISTENER_KEY_ON_START_EDIT_TARGET = "OnStartEditTarget";
-    private static final String EVENT_LISTENER_KEY_ON_EDIT_TARGET = "OnEditTarget";
-
-    private final EventListenerManager events = new EventListenerManager();
 
     private OperationReport report;
     private CategoryList categories;
     private TargetList targets;
-    private final Map<DateTime, MonthOperationList> _operations = new Hashtable<DateTime, MonthOperationList>();
-
-    private int currentTarget;
 
     private final Map<Integer, DateTime> operationLoaders = new Hashtable<Integer, DateTime>();
 
@@ -83,7 +72,6 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         startMessageService();
-        restoreCurrentValues(savedInstanceState);
         initLoaders();
         setupView();
         setupActionBar();
@@ -93,12 +81,6 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
     private void startMessageService() {
         Intent intent = new Intent(this, MessageService.class);
         startService(intent);
-    }
-
-    private void restoreCurrentValues(Bundle state) {
-        if (state != null) {
-            currentTarget = state.getInt(STATE_KEY_TARGET);
-        }
     }
 
     private void initLoaders() {
@@ -122,12 +104,7 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
                 report = data;
                 noOperationsView.setVisibility((report.last == null) ? View.VISIBLE : View.GONE);
                 hideLoadingDataView();
-                events.notify(EVENT_LISTENER_KEY_ON_LOAD_OPERATION_REPORT, new EventListenerManager.OnIterateListener() {
-                    @Override
-                    public void onIterate(EventListener listener) {
-                        ((OnLoadOperationReportListener) listener).onLoadOperationReport(report);
-                    }
-                });
+                ((CustomApplication) getApplication()).getEventManager().publish(new LoadOperationReportEvent(data));
             }
             @Override
             public void onLoaderReset(Loader<OperationReport> loader) {}
@@ -147,12 +124,7 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
                 }
                 categories = data;
                 getLoaderManager().restartLoader(TARGET_LOADER_ID, null, getTargetLoaderCallbacks());
-                events.notify(EVENT_LISTENER_KEY_ON_LOAD_CATEGORIES, new EventListenerManager.OnIterateListener() {
-                    @Override
-                    public void onIterate(EventListener listener) {
-                        ((OnLoadCategoriesListener) listener).onLoadCategories(categories);
-                    }
-                });
+                ((CustomApplication) getApplication()).getEventManager().publish(new LoadCategoriesEvent(data));
             }
             @Override
             public void onLoaderReset(Loader<CategoryList> loader) {}
@@ -173,20 +145,7 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
                 targets = data;
                 updateWithNoCategoryCount();
                 hideLoadingDataView();
-                events.notify(EVENT_LISTENER_KEY_ON_LOAD_TARGETS, new EventListenerManager.OnIterateListener() {
-                    @Override
-                    public void onIterate(EventListener listener) {
-                        ((OnLoadTargetsListener) listener).onLoadTargets(targets);
-                    }
-                });
-                if (currentTarget != 0) {
-                    events.notify(EVENT_LISTENER_KEY_ON_START_EDIT_TARGET, new EventListenerManager.OnIterateListener() {
-                        @Override
-                        public void onIterate(EventListener listener) {
-                            ((OnStartEditTargetListener) listener).onStartEditTarget(targets.getById(currentTarget));
-                        }
-                    });
-                }
+                ((CustomApplication) getApplication()).getEventManager().publish(new LoadTargetsEvent(data));
                 for (Map.Entry<Integer, DateTime> item: operationLoaders.entrySet()) {
                     getLoaderManager().restartLoader(item.getKey(), null, getOperationLoaderCallbacks(item.getValue()));
                 }
@@ -205,13 +164,7 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
             @Override
             public void onLoadFinished(Loader<MonthOperationList> loader, final MonthOperationList data) {
                 if (data != null) {
-                    _operations.put(data.month, data);
-                    events.notify(EVENT_LISTENER_KEY_ON_LOAD_OPERATIONS, new EventListenerManager.OnIterateListener() {
-                        @Override
-                        public void onIterate(EventListener listener) {
-                            ((OnLoadOperationsListener) listener).onLoadOperations(data);
-                        }
-                    });
+                    ((CustomApplication) getApplication()).getEventManager().publish(new LoadOperationsEvent(data));
                 }
             }
             @Override
@@ -306,104 +259,64 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
     }
 
     @Override
-    protected void onSaveInstanceState(@NonNull Bundle state) {
-        if (currentTarget != 0) {
-            state.putInt(STATE_KEY_TARGET, currentTarget);
-        }
-        super.onSaveInstanceState(state);
-    }
-
-    @Override
     public void onStop() {
         super.onStop();
         ((CustomApplication) getApplication()).getEventManager().unsubscribeAll(this);
     }
 
     @Override
-    public void addOnLoadOperationReportListener(OnLoadOperationReportListener listener) {
-        events.add(EVENT_LISTENER_KEY_ON_LOAD_OPERATION_REPORT, listener);
-        if (report != null) {
-            listener.onLoadOperationReport(report);
-        }
+    public void loadOperationReport() {
+        getLoaderManager().initLoader(OPERATION_REPORT_LOADER_ID, null, getOperationReportLoaderCallbacks());
     }
 
     @Override
-    public void removeOnLoadOperationReportListener(OnLoadOperationReportListener listener) {
-        events.remove(EVENT_LISTENER_KEY_ON_LOAD_OPERATION_REPORT, listener);
+    public void loadCategories() {
+        getLoaderManager().initLoader(CATEGORY_LOADER_ID, null, getCategoryLoaderCallbacks());
     }
 
     @Override
-    public void loadOperations(DateTime date) {
-        int id = getOperationLoaderId(date);
-        getLoaderManager().initLoader(id, null, getOperationLoaderCallbacks(date));
-        operationLoaders.put(id, date);
-    }
-
-    private int getOperationLoaderId(DateTime date) {
-        return date.getYear() * 100 + date.getMonthOfYear();
+    public void loadTargets() {
+        getLoaderManager().initLoader(TARGET_LOADER_ID, null, getTargetLoaderCallbacks());
     }
 
     @Override
-    public void addOnLoadOperationsListener(OnLoadOperationsListener listener) {
-        events.add(EVENT_LISTENER_KEY_ON_LOAD_OPERATIONS, listener);
-        for (MonthOperationList operations: _operations.values()) {
-            listener.onLoadOperations(operations);
-        }
-    }
-
-    @Override
-    public void removeOnLoadOperationsListener(OnLoadOperationsListener listener) {
-        events.remove(EVENT_LISTENER_KEY_ON_LOAD_OPERATIONS, listener);
-    }
-
-    @Override
-    public void addOnLoadCategoriesListener(OnLoadCategoriesListener listener) {
-        events.add(EVENT_LISTENER_KEY_ON_LOAD_CATEGORIES, listener);
-        if (categories != null) {
-            listener.onLoadCategories(categories);
-        }
-    }
-
-    @Override
-    public void removeOnLoadCategoriesListener(OnLoadCategoriesListener listener) {
-        events.remove(EVENT_LISTENER_KEY_ON_LOAD_CATEGORIES, listener);
-    }
-
-    @Override
-    public void startEditTarget(final Target target) {
-        currentTarget = target.id;
-        events.notify(EVENT_LISTENER_KEY_ON_START_EDIT_TARGET, new EventListenerManager.OnIterateListener() {
-            @Override
-            public void onIterate(EventListener listener) {
-                ((OnStartEditTargetListener) listener).onStartEditTarget(target);
-            }
-        });
+    public void requestEditTarget(Target target) {
         FragmentManager manager = getFragmentManager();
         TargetFragment fragment = (TargetFragment) manager.findFragmentByTag(FRAGMENT_TARGET_TAG);
         if (fragment == null || fragment.isDismissing()) {
-            (new TargetFragment()).show(manager, FRAGMENT_TARGET_TAG);
+            fragment = new TargetFragment();
+            fragment.setArguments(getTargetFragmentArguments(target));
+            fragment.show(manager, FRAGMENT_TARGET_TAG);
         }
     }
 
+    private Bundle getTargetFragmentArguments(Target target) {
+        Bundle arguments = new Bundle();
+        arguments.putParcelable(TargetFragment.INIT_ARG_TARGET, new TargetParcel(target));
+        return arguments;
+    }
+
     @Override
-    public void finishEditTarget(Target target, boolean editNext) {
+    public void editTarget(Target edited, boolean editNext) {
+        Target target = updateTarget(edited);
         updateWithNoCategoryCount();
-        events.notify(EVENT_LISTENER_KEY_ON_EDIT_TARGET, new EventListenerManager.OnIterateListener() {
-            @Override
-            public void onIterate(EventListener listener) {
-                ((OnEditTargetListener) listener).onEditTarget();
-            }
-        });
+        ((CustomApplication) getApplication()).getEventManager().publish(new EditTargetEvent());
         for (int loaderId: operationLoaders.keySet()) {
             getLoaderManager().getLoader(loaderId).onContentChanged();
         }
         DbTargetWriter writer = new DbTargetWriter(((CustomApplication) getApplication()).getDbHelper());
         writer.write(target);
-        currentTarget = 0;
         if (editNext) {
             Target nextTarget = getNextTargetToEdit(targets, target);
-            startEditTarget(nextTarget);
+            requestEditTarget(nextTarget);
         }
+    }
+
+    private Target updateTarget(Target edited) {
+        Target target = targets.getById(edited.id);
+        target.category = edited.category;
+        target.title = edited.title;
+        return target;
     }
 
     private Target getNextTargetToEdit(TargetList targets, Target current) {
@@ -426,38 +339,13 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
     }
 
     @Override
-    public void addOnLoadTargetsListener(OnLoadTargetsListener listener) {
-        events.add(EVENT_LISTENER_KEY_ON_LOAD_TARGETS, listener);
-        if (targets != null) {
-            listener.onLoadTargets(targets);
-        }
+    public void loadOperations(DateTime date) {
+        int id = getOperationLoaderId(date);
+        getLoaderManager().initLoader(id, null, getOperationLoaderCallbacks(date));
+        operationLoaders.put(id, date);
     }
 
-    @Override
-    public void removeOnLoadTargetsListener(OnLoadTargetsListener listener) {
-        events.remove(EVENT_LISTENER_KEY_ON_LOAD_TARGETS, listener);
-    }
-
-    @Override
-    public void addOnStartEditTargetListener(OnStartEditTargetListener listener) {
-        events.add(EVENT_LISTENER_KEY_ON_START_EDIT_TARGET, listener);
-        if (targets != null && currentTarget != 0) {
-            listener.onStartEditTarget(targets.getById(currentTarget));
-        }
-    }
-
-    @Override
-    public void removeOnStartEditTargetListener(OnStartEditTargetListener listener) {
-        events.remove(EVENT_LISTENER_KEY_ON_START_EDIT_TARGET, listener);
-    }
-
-    @Override
-    public void addOnEditTargetListener(OnEditTargetListener listener) {
-        events.add(EVENT_LISTENER_KEY_ON_EDIT_TARGET, listener);
-    }
-
-    @Override
-    public void removeOnEditTargetListener(OnEditTargetListener listener) {
-        events.remove(EVENT_LISTENER_KEY_ON_EDIT_TARGET, listener);
+    private int getOperationLoaderId(DateTime date) {
+        return date.getYear() * 100 + date.getMonthOfYear();
     }
 }

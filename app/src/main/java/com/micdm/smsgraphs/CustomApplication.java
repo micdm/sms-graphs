@@ -4,7 +4,7 @@ import android.app.Application;
 
 import com.micdm.smsgraphs.db.DbHelper;
 import com.micdm.smsgraphs.events.EventManager;
-import com.micdm.smsgraphs.events.intent.IntentBasedEventManager;
+import com.micdm.smsgraphs.events.intents.IntentBasedEventManager;
 
 public class CustomApplication extends Application {
 

@@ -10,8 +10,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.micdm.smsgraphs.CustomApplication;
 import com.micdm.smsgraphs.R;
 import com.micdm.smsgraphs.data.OperationReport;
+import com.micdm.smsgraphs.events.EventManager;
+import com.micdm.smsgraphs.events.EventType;
+import com.micdm.smsgraphs.events.events.LoadOperationReportEvent;
 import com.micdm.smsgraphs.handlers.OperationReportHandler;
 import com.micdm.smsgraphs.misc.DateUtils;
 
@@ -55,14 +59,6 @@ public class StatsFragment extends Fragment {
     private static final String STATE_ITEM_CURRENT_ITEM = "current_item";
 
     private OperationReportHandler operationReportHandler;
-    private final OperationReportHandler.OnLoadOperationReportListener onLoadOperationReportListener = new OperationReportHandler.OnLoadOperationReportListener() {
-        @Override
-        public void onLoadOperationReport(OperationReport report) {
-            int count = report.getMonthCount();
-            pager.setAdapter(new MonthStatsPagerAdapter(getChildFragmentManager(), report.last, count));
-            pager.setCurrentItem((_currentItem == -1) ? (count - 1) : _currentItem, false);
-        }
-    };
 
     private int _currentItem = -1;
 
@@ -102,13 +98,26 @@ public class StatsFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        operationReportHandler.addOnLoadOperationReportListener(onLoadOperationReportListener);
+        getEventManager().subscribe(this, EventType.LOAD_OPERATION_REPORT, new EventManager.OnEventListener<LoadOperationReportEvent>() {
+            @Override
+            public void onEvent(LoadOperationReportEvent event) {
+                OperationReport report = event.getReport();
+                int count = report.getMonthCount();
+                pager.setAdapter(new MonthStatsPagerAdapter(getChildFragmentManager(), report.last, count));
+                pager.setCurrentItem((_currentItem == -1) ? (count - 1) : _currentItem, false);
+            }
+        });
+        operationReportHandler.loadOperationReport();
+    }
+
+    private EventManager getEventManager() {
+        return ((CustomApplication) getActivity().getApplication()).getEventManager();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        operationReportHandler.removeOnLoadOperationReportListener(onLoadOperationReportListener);
+        getEventManager().unsubscribeAll(this);
     }
 
     @Override
