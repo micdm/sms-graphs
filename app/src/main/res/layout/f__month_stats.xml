@@ -40,7 +40,10 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:id="@+id/f__month_stats__categories"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        android:divider="@color/stats_category_divider_background"
+        android:dividerHeight="1dp"
+        android:childDivider="@color/stats_target_divider_background"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
 
@@ -11,6 +12,7 @@ import com.micdm.smsgraphs.R;
 
 public class PercentageView extends LinearLayout {
 
+    private final RectF coords = new RectF();
     private double percentage;
     private final Paint paint;
 
@@ -42,6 +44,10 @@ public class PercentageView extends LinearLayout {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        canvas.drawRect(0, 0, (int) (canvas.getWidth() * percentage), canvas.getHeight(), paint);
+        float radius = getResources().getDimension(R.dimen.stats_percentage_corner_radius);
+        coords.left = -radius;
+        coords.right = (float) (canvas.getWidth() * percentage);
+        coords.bottom = canvas.getHeight();
+        canvas.drawRoundRect(coords, radius, radius, paint);
     }
 }
