@@ -22,6 +22,7 @@ import com.micdm.smsgraphs.events.EventManager;
 import com.micdm.smsgraphs.events.EventType;
 import com.micdm.smsgraphs.events.events.LoadOperationsEvent;
 import com.micdm.smsgraphs.handlers.OperationHandler;
+import com.micdm.smsgraphs.handlers.TargetHandler;
 import com.micdm.smsgraphs.misc.DateUtils;
 import com.micdm.smsgraphs.misc.PercentageView;
 
@@ -32,6 +33,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+// TODO: при клике по стрелкам слать событие, что надо прокрутить
 public class MonthStatsFragment extends Fragment {
 
     private class CategoryStatsListAdapter extends BaseExpandableListAdapter {
@@ -107,7 +109,7 @@ public class MonthStatsFragment extends Fragment {
 
         @Override
         public boolean isChildSelectable(int groupPosition, int childPosition) {
-            return false;
+            return true;
         }
     }
 
@@ -115,6 +117,7 @@ public class MonthStatsFragment extends Fragment {
     public static final String INIT_ARG_IS_LAST = "is_last";
     public static final String INIT_ARG_DATE = "date";
 
+    private TargetHandler targetHandler;
     private OperationHandler operationHandler;
 
     private boolean isFirst;
@@ -127,6 +130,7 @@ public class MonthStatsFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        targetHandler = (TargetHandler) activity;
         operationHandler = (OperationHandler) activity;
         handleInitArguments();
     }
@@ -148,6 +152,15 @@ public class MonthStatsFragment extends Fragment {
         TextView monthView = (TextView) view.findViewById(R.id.f__month_stats__month);
         monthView.setText(DateUtils.formatMonthForHuman(date));
         categoriesView = (ExpandableListView) view.findViewById(R.id.f__month_stats__categories);
+        categoriesView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                CategoryStatsListAdapter adapter = (CategoryStatsListAdapter) parent.getExpandableListAdapter();
+                TargetStat stat = adapter.getChild(groupPosition, childPosition);
+                targetHandler.requestEditTarget(stat.target);
+                return true;
+            }
+        });
         totalView = (TextView) view.findViewById(R.id.f__month_stats__total);
         return view;
     }
