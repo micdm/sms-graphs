@@ -4,10 +4,15 @@ import com.micdm.smsgraphs.data.Message;
 
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MessageParser {
+
+    private static final String PATTERN_V1 = "^(VISA\\d+): (\\d{2})\\.(\\d{2})\\.(\\d{2}) (\\d{2}):(\\d{2}) (.+?) на сумму ([\\d\\.]+) руб\\. (.+?) выполнена успешно";
+    private static final String PATTERN_V2 = "^(VISA\\d+): (\\d{2})\\.(\\d{2})\\.(\\d{2}) (\\d{2}):(\\d{2}) (.+?) на сумму ([\\d\\.]+) р\\. (.+?) Баланс";
 
     private static final int GROUP_CARD = 1;
     private static final int GROUP_DAY = 2;
@@ -19,16 +24,31 @@ public class MessageParser {
     private static final int GROUP_AMOUNT = 8;
     private static final int GROUP_TARGET = 9;
 
+    private final List<Pattern> patterns = new ArrayList<Pattern>();
+
+    public MessageParser() {
+        patterns.add(Pattern.compile(PATTERN_V1));
+        patterns.add(Pattern.compile(PATTERN_V2));
+    }
+
     public Message parse(String message) {
-        Pattern pattern = Pattern.compile("^(VISA\\d+): (\\d{2})\\.(\\d{2})\\.(\\d{2}) (\\d{2}):(\\d{2}) (.+?) на сумму ([\\d\\.]+) руб\\. (.+?) выполнена успешно");
-        Matcher m = pattern.matcher(message);
-        if (!m.find()) {
-            return null;
-        }
-        if (isOperation(m)) {
-            return new Message(getCard(m), getCreated(m), getTarget(m), getAmount(m));
+        for (Pattern pattern: patterns) {
+            Message result = parse(message, pattern);
+            if (result != null) {
+                return result;
+            }
         }
         return null;
+    }
+
+    private Message parse(String message, Pattern pattern) {
+        Matcher m = pattern.matcher(message);
+        return (m.find() && isOperation(m)) ? new Message(getCard(m), getCreated(m), getTarget(m), getAmount(m)) : null;
+    }
+
+    private boolean isOperation(Matcher m) {
+        String type = m.group(GROUP_TYPE);
+        return type.equals("оплата услуг") || type.equals("покупка") || type.equals("оплата обслуживания банковской карты");
     }
 
     private String getCard(Matcher m) {
@@ -57,11 +77,6 @@ public class MessageParser {
 
     private DateTime getCreated(Matcher m) {
         return new DateTime(getYear(m), getMonth(m), getDay(m), getHour(m), getMinute(m), 0);
-    }
-
-    private boolean isOperation(Matcher m) {
-        String type = m.group(GROUP_TYPE);
-        return type.equals("оплата услуг") || type.equals("покупка") || type.equals("оплата обслуживания банковской карты");
     }
 
     private String getTarget(Matcher m) {
