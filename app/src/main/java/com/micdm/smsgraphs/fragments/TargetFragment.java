@@ -73,7 +73,6 @@ public class TargetFragment extends DialogFragment {
 
     private Target target;
 
-    private TextView lastOperationView;
     private EditText titleView;
     private Spinner categoriesView;
 
@@ -97,7 +96,7 @@ public class TargetFragment extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.fragment_target_title);
         View view = View.inflate(getActivity(), R.layout.f__target, null);
-        lastOperationView = (TextView) view.findViewById(R.id.f__target__last_operation);
+        TextView lastOperationView = (TextView) view.findViewById(R.id.f__target__last_operation);
         lastOperationView.setText(getString(R.string.fragment_target_last_operation,
                 DateUtils.formatForHuman(target.lastPaid), target.lastAmount, getResources().getQuantityString(R.plurals.rubles, target.lastAmount)));
         titleView = (EditText) view.findViewById(R.id.f__target__title);
@@ -106,10 +105,6 @@ public class TargetFragment extends DialogFragment {
             titleView.setText(target.title);
         }
         categoriesView = (Spinner) view.findViewById(R.id.f__target__categories);
-        if (target.category != null) {
-            CategoryListAdapter adapter = (CategoryListAdapter) categoriesView.getAdapter();
-            categoriesView.setSelection(adapter.getItemPosition(target.category));
-        }
         builder.setView(view);
         builder.setNeutralButton(R.string.fragment_target_save_button, new DialogInterface.OnClickListener() {
             @Override
@@ -142,13 +137,15 @@ public class TargetFragment extends DialogFragment {
         getEventManager().subscribe(this, EventType.LOAD_CATEGORIES, new EventManager.OnEventListener<LoadCategoriesEvent>() {
             @Override
             public void onEvent(LoadCategoriesEvent event) {
-                Spinner view = (Spinner) getDialog().findViewById(R.id.f__target__categories);
-                CategoryListAdapter adapter = (CategoryListAdapter) view.getAdapter();
+                CategoryListAdapter adapter = (CategoryListAdapter) categoriesView.getAdapter();
                 if (adapter == null) {
                     adapter = new CategoryListAdapter();
-                    view.setAdapter(adapter);
+                    categoriesView.setAdapter(adapter);
                 }
                 adapter.setCategories(event.getCategories());
+                if (target.category != null) {
+                    categoriesView.setSelection(adapter.getItemPosition(target.category));
+                }
                 adapter.notifyDataSetChanged();
             }
         });
