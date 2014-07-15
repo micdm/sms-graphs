@@ -3,6 +3,7 @@ package com.micdm.smsgraphs;
 import android.app.ActionBar;
 import android.app.FragmentManager;
 import android.app.LoaderManager;
+import android.content.Intent;
 import android.content.Loader;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -17,6 +18,11 @@ import com.micdm.smsgraphs.data.OperationReport;
 import com.micdm.smsgraphs.data.Target;
 import com.micdm.smsgraphs.data.TargetList;
 import com.micdm.smsgraphs.db.writers.DbTargetWriter;
+import com.micdm.smsgraphs.events.EventManager;
+import com.micdm.smsgraphs.events.EventType;
+import com.micdm.smsgraphs.events.events.FinishLoadMessagesEvent;
+import com.micdm.smsgraphs.events.events.ProgressLoadMessagesEvent;
+import com.micdm.smsgraphs.events.events.StartLoadMessagesEvent;
 import com.micdm.smsgraphs.fragments.StatsFragment;
 import com.micdm.smsgraphs.fragments.TargetFragment;
 import com.micdm.smsgraphs.fragments.TargetListFragment;
@@ -25,10 +31,10 @@ import com.micdm.smsgraphs.handlers.OperationHandler;
 import com.micdm.smsgraphs.handlers.OperationReportHandler;
 import com.micdm.smsgraphs.handlers.TargetHandler;
 import com.micdm.smsgraphs.loaders.CategoryLoader;
-import com.micdm.smsgraphs.loaders.MessageLoader;
 import com.micdm.smsgraphs.loaders.OperationLoader;
 import com.micdm.smsgraphs.loaders.OperationReportLoader;
 import com.micdm.smsgraphs.loaders.TargetLoader;
+import com.micdm.smsgraphs.messages.MessageService;
 import com.micdm.utils.events.EventListener;
 import com.micdm.utils.events.EventListenerManager;
 import com.micdm.utils.pager.PagerActivity;
@@ -40,14 +46,11 @@ import java.util.Hashtable;
 import java.util.Map;
 
 // TODO: при первом запуске показать обучение
-// TODO: добавить пролистывание месяцев свайпом
-// TODO: вынести анализатор сообщений в отдельный сервис
 public class MainActivity extends PagerActivity implements OperationReportHandler, OperationHandler, CategoryHandler, TargetHandler {
 
-    private static final int MESSAGE_LOADER_ID = 0;
-    private static final int OPERATION_REPORT_LOADER_ID = 1;
-    private static final int CATEGORY_LOADER_ID = 2;
-    private static final int TARGET_LOADER_ID = 3;
+    private static final int OPERATION_REPORT_LOADER_ID = 0;
+    private static final int CATEGORY_LOADER_ID = 1;
+    private static final int TARGET_LOADER_ID = 2;
 
     private static final String STATE_KEY_TARGET = "target";
 
@@ -79,11 +82,17 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        startMessageService();
         restoreCurrentValues(savedInstanceState);
         initLoaders();
         setupView();
         setupActionBar();
         setupPager((ViewPager) findViewById(R.id.a__main__pager));
+    }
+
+    private void startMessageService() {
+        Intent intent = new Intent(this, MessageService.class);
+        startService(intent);
     }
 
     private void restoreCurrentValues(Bundle state) {
@@ -94,42 +103,9 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
 
     private void initLoaders() {
         LoaderManager manager = getLoaderManager();
-        manager.initLoader(MESSAGE_LOADER_ID, null, getMessageLoaderCallbacks());
         manager.initLoader(OPERATION_REPORT_LOADER_ID, null, getOperationReportLoaderCallbacks());
         manager.initLoader(CATEGORY_LOADER_ID, null, getCategoryLoaderCallbacks());
         manager.initLoader(TARGET_LOADER_ID, null, getTargetLoaderCallbacks());
-    }
-
-    private LoaderManager.LoaderCallbacks<Void> getMessageLoaderCallbacks() {
-        return new LoaderManager.LoaderCallbacks<Void>() {
-            @Override
-            public Loader<Void> onCreateLoader(int id, Bundle params) {
-                return new MessageLoader(getApplicationContext(), ((CustomApplication) getApplication()).getDbHelper(), new MessageLoader.OnLoadListener() {
-                    @Override
-                    public void onStartLoad() {
-                        loadingMessagesView.setVisibility(View.VISIBLE);
-                    }
-                    @Override
-                    public void onProgress(int total, int current) {
-                        loadingMessagesProgressView.setMax(total);
-                        loadingMessagesProgressView.setProgress(current);
-                    }
-                    @Override
-                    public void onFinishLoad() {
-                        loadingMessagesView.setVisibility(View.GONE);
-                    }
-                });
-            }
-            @Override
-            public void onLoadFinished(Loader<Void> loader, Void data) {
-                LoaderManager manager = getLoaderManager();
-                manager.getLoader(OPERATION_REPORT_LOADER_ID).onContentChanged();
-                manager.getLoader(TARGET_LOADER_ID).onContentChanged();
-                loadingMessagesView.setVisibility(View.GONE);
-            }
-            @Override
-            public void onLoaderReset(Loader<Void> loader) {}
-        };
     }
 
     private LoaderManager.LoaderCallbacks<OperationReport> getOperationReportLoaderCallbacks() {
@@ -300,7 +276,33 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
     @Override
     public void onStart() {
         super.onStart();
-        getLoaderManager().getLoader(MESSAGE_LOADER_ID).forceLoad();
+        subscribeForEvents();
+    }
+
+    private void subscribeForEvents() {
+        EventManager manager = ((CustomApplication) getApplication()).getEventManager();
+        manager.subscribe(this, EventType.START_LOAD_MESSAGES, new EventManager.OnEventListener<StartLoadMessagesEvent>() {
+            @Override
+            public void onEvent(StartLoadMessagesEvent event) {
+                loadingMessagesView.setVisibility(View.VISIBLE);
+            }
+        });
+        manager.subscribe(this, EventType.PROGRESS_LOAD_MESSAGES, new EventManager.OnEventListener<ProgressLoadMessagesEvent>() {
+            @Override
+            public void onEvent(ProgressLoadMessagesEvent event) {
+                loadingMessagesProgressView.setMax(event.getTotal());
+                loadingMessagesProgressView.setProgress(event.getCurrent());
+            }
+        });
+        manager.subscribe(this, EventType.FINISH_LOAD_MESSAGES, new EventManager.OnEventListener<FinishLoadMessagesEvent>() {
+            @Override
+            public void onEvent(FinishLoadMessagesEvent event) {
+                LoaderManager manager = getLoaderManager();
+                manager.getLoader(OPERATION_REPORT_LOADER_ID).onContentChanged();
+                manager.getLoader(TARGET_LOADER_ID).onContentChanged();
+                loadingMessagesView.setVisibility(View.GONE);
+            }
+        });
     }
 
     @Override
@@ -309,6 +311,12 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
             state.putInt(STATE_KEY_TARGET, currentTarget);
         }
         super.onSaveInstanceState(state);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        ((CustomApplication) getApplication()).getEventManager().unsubscribeAll(this);
     }
 
     @Override

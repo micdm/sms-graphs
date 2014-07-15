@@ -1,14 +1,12 @@
-package com.micdm.smsgraphs.loaders;
+package com.micdm.smsgraphs.messages;
 
-import android.content.AsyncTaskLoader;
 import android.content.Context;
 
 import com.micdm.smsgraphs.data.Message;
 import com.micdm.smsgraphs.db.DbHelper;
 import com.micdm.smsgraphs.db.writers.DbOperationWriter;
-import com.micdm.smsgraphs.messages.MessageReader;
 
-public class MessageLoader extends AsyncTaskLoader<Void> {
+class MessageLoader {
 
     public static interface OnLoadListener {
         public void onStartLoad();
@@ -16,14 +14,11 @@ public class MessageLoader extends AsyncTaskLoader<Void> {
         public void onFinishLoad();
     }
 
-    private final OnLoadListener listener;
-
     private final MessageReader reader;
     private final DbOperationWriter writer;
+    private final OnLoadListener listener;
 
     public MessageLoader(Context context, DbHelper dbHelper, final OnLoadListener listener) {
-        super(context);
-        this.listener = listener;
         reader = new MessageReader(context, new MessageReader.OnMessageListener() {
             @Override
             public void onProgress(int total, int current) {
@@ -35,23 +30,12 @@ public class MessageLoader extends AsyncTaskLoader<Void> {
             }
         });
         writer = new DbOperationWriter(dbHelper);
+        this.listener = listener;
     }
 
-    @Override
-    protected void onForceLoad() {
+    public void load() {
         listener.onStartLoad();
-        super.onForceLoad();
-    }
-
-    @Override
-    public Void loadInBackground() {
         reader.read();
-        return null;
-    }
-
-    @Override
-    public void deliverResult(Void data) {
         listener.onFinishLoad();
-        super.deliverResult(data);
     }
 }
