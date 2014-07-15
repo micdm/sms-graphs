@@ -5,20 +5,20 @@ import com.micdm.smsgraphs.events.EventType;
 
 public class ProgressLoadMessagesEvent extends Event {
 
-    private final int total;
-    private final int current;
+    private final int _total;
+    private final int _current;
 
     public ProgressLoadMessagesEvent(int total, int current) {
         super(EventType.PROGRESS_LOAD_MESSAGES);
-        this.total = total;
-        this.current = current;
+        _total = total;
+        _current = current;
     }
 
     public int getTotal() {
-        return total;
+        return _total;
     }
 
     public int getCurrent() {
-        return current;
+        return _current;
     }
 }

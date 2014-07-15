@@ -2,13 +2,13 @@ package com.micdm.smsgraphs.events;
 
 public abstract class Event {
 
-    private final EventType type;
+    private final EventType _type;
 
     public Event(EventType type) {
-        this.type = type;
+        _type = type;
     }
 
     public EventType getType() {
-        return type;
+        return _type;
     }
 }

@@ -6,14 +6,14 @@ import com.micdm.smsgraphs.events.EventType;
 
 public class LoadOperationReportEvent extends Event {
 
-    private final OperationReport report;
+    private final OperationReport _report;
 
     public LoadOperationReportEvent(OperationReport report) {
         super(EventType.LOAD_OPERATION_REPORT);
-        this.report = report;
+        _report = report;
     }
 
     public OperationReport getReport() {
-        return report;
+        return _report;
     }
 }

@@ -20,14 +20,14 @@ public class MessageReader {
     private static final Uri INBOX_URI = Uri.parse("content://sms/inbox");
     private static final String PREF_KEY = "last_parsed_message_id";
 
-    private final MessageParser parser = new MessageParser();
+    private final MessageParser _parser = new MessageParser();
 
-    private final Context context;
-    private final OnMessageListener listener;
+    private final Context _context;
+    private final OnMessageListener _listener;
 
     public MessageReader(Context context, OnMessageListener listener) {
-        this.context = context;
-        this.listener = listener;
+        _context = context;
+        _listener = listener;
     }
 
     public void read() {
@@ -38,12 +38,12 @@ public class MessageReader {
         int current = 1;
         while (!cursor.isAfterLast()) {
             id = cursor.getInt(0);
-            Message message = parser.parse(cursor.getString(1));
+            Message message = _parser.parse(cursor.getString(1));
             if (message != null) {
-                listener.onMessage(message);
+                _listener.onMessage(message);
             }
             cursor.moveToNext();
-            listener.onProgress(total, current);
+            _listener.onProgress(total, current);
             current += 1;
         }
         if (id != 0) {
@@ -55,7 +55,7 @@ public class MessageReader {
     private Cursor getCursor() {
         String[] fields = new String[] {"_id", "body"};
         String[] where = new String[] {String.valueOf(getLastParsedMessageId()), SERVICE_NUMBER};
-        Cursor cursor = context.getContentResolver().query(INBOX_URI, fields, "_id > ? AND address = ?", where, "_id");
+        Cursor cursor = _context.getContentResolver().query(INBOX_URI, fields, "_id > ? AND address = ?", where, "_id");
         if (cursor == null) {
             throw new RuntimeException("can not access to messages");
         }
@@ -63,12 +63,12 @@ public class MessageReader {
     }
 
     private int getLastParsedMessageId() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(_context);
         return prefs.getInt(PREF_KEY, 0);
     }
 
     private void setLastParsedMessageId(int id) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(_context);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putInt(PREF_KEY, id).apply();
     }

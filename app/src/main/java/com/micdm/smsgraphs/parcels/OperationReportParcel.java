@@ -30,10 +30,10 @@ public class OperationReportParcel implements Parcelable {
         }
     };
 
-    private final OperationReport report;
+    private final OperationReport _report;
 
     public OperationReportParcel(OperationReport report) {
-        this.report = report;
+        _report = report;
     }
 
     @Override
@@ -43,11 +43,11 @@ public class OperationReportParcel implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
-        out.writeString(DateUtils.formatForBundle(report.first));
-        out.writeString(DateUtils.formatForBundle(report.last));
+        out.writeString(DateUtils.formatForBundle(_report.getFirst()));
+        out.writeString(DateUtils.formatForBundle(_report.getLast()));
     }
 
     public OperationReport getReport() {
-        return report;
+        return _report;
     }
 }

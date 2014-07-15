@@ -12,13 +12,13 @@ import com.micdm.smsgraphs.R;
 
 public class PercentageView extends LinearLayout {
 
-    private final RectF coords = new RectF();
-    private double percentage;
-    private final Paint paint;
+    private final RectF _coords = new RectF();
+    private double _percentage;
+    private final Paint _paint;
 
     public PercentageView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        paint = getPaint(getColor(context, attrs));
+        _paint = getPaint(getColor(context, attrs));
         setWillNotDraw(false);
     }
 
@@ -38,16 +38,16 @@ public class PercentageView extends LinearLayout {
     }
 
     public void setPercentage(double percentage) {
-        this.percentage = percentage;
+        _percentage = percentage;
         invalidate();
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         float radius = getResources().getDimension(R.dimen.stats_percentage_corner_radius);
-        coords.left = -radius;
-        coords.right = (float) (canvas.getWidth() * percentage);
-        coords.bottom = canvas.getHeight();
-        canvas.drawRoundRect(coords, radius, radius, paint);
+        _coords.left = -radius;
+        _coords.right = (float) (canvas.getWidth() * _percentage);
+        _coords.bottom = canvas.getHeight();
+        canvas.drawRoundRect(_coords, radius, radius, _paint);
     }
 }

@@ -13,16 +13,16 @@ import org.joda.time.DateTime;
 
 public class DbTargetReader extends DbReader<TargetList> {
 
-    private final CategoryList categories;
+    private final CategoryList _categories;
 
     public DbTargetReader(DbHelper dbHelper, CategoryList categories) {
         super(dbHelper);
-        this.categories = categories;
+        _categories = categories;
     }
 
     @Override
     public TargetList read() {
-        if (categories == null) {
+        if (_categories == null) {
             return null;
         }
         SQLiteDatabase db = getDb();
@@ -42,7 +42,7 @@ public class DbTargetReader extends DbReader<TargetList> {
             String title = cursor.getString(3);
             DateTime lastPaid = DateUtils.parseForDb(cursor.getString(4));
             int lastAmount = cursor.getInt(5);
-            Target target = new Target(id, categoryId == 0 ? null : categories.getById(categoryId), name, title, lastPaid, lastAmount);
+            Target target = new Target(id, categoryId == 0 ? null : _categories.getById(categoryId), name, title, lastPaid, lastAmount);
             targets.add(target);
             cursor.moveToNext();
         }

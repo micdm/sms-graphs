@@ -24,10 +24,10 @@ public class TargetListParcel implements Parcelable {
         }
     };
 
-    private final TargetList targets;
+    private final TargetList _targets;
 
     public TargetListParcel(TargetList targets) {
-        this.targets = targets;
+        _targets = targets;
     }
 
     @Override
@@ -37,13 +37,13 @@ public class TargetListParcel implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
-        out.writeInt(targets.size());
-        for (Target target: targets) {
+        out.writeInt(_targets.size());
+        for (Target target: _targets) {
             out.writeParcelable(new TargetParcel(target), flags);
         }
     }
 
     public TargetList getTargets() {
-        return targets;
+        return _targets;
     }
 }

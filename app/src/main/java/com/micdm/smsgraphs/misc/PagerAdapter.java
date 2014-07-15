@@ -11,12 +11,20 @@ public class PagerAdapter extends FragmentPagerAdapter {
 
     public static class Page {
 
-        public final String title;
-        public final Fragment fragment;
+        public final String _title;
+        public final Fragment _fragment;
 
         public Page(String title, Fragment fragment) {
-            this.title = title;
-            this.fragment = fragment;
+            _title = title;
+            _fragment = fragment;
+        }
+
+        public String getTitle() {
+            return _title;
+        }
+
+        public Fragment getFragment() {
+            return _fragment;
         }
     }
 
@@ -33,7 +41,7 @@ public class PagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int i) {
-        return pages.get(i).fragment;
+        return pages.get(i).getFragment();
     }
 
     @Override
@@ -43,6 +51,6 @@ public class PagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public CharSequence getPageTitle(int i) {
-        return pages.get(i).title;
+        return pages.get(i).getTitle();
     }
 }

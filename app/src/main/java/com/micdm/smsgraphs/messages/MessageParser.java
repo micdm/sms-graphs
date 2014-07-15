@@ -24,15 +24,15 @@ public class MessageParser {
     private static final int GROUP_AMOUNT = 8;
     private static final int GROUP_TARGET = 9;
 
-    private final List<Pattern> patterns = new ArrayList<Pattern>();
+    private final List<Pattern> _patterns = new ArrayList<Pattern>();
 
     public MessageParser() {
-        patterns.add(Pattern.compile(PATTERN_V1));
-        patterns.add(Pattern.compile(PATTERN_V2));
+        _patterns.add(Pattern.compile(PATTERN_V1));
+        _patterns.add(Pattern.compile(PATTERN_V2));
     }
 
     public Message parse(String message) {
-        for (Pattern pattern: patterns) {
+        for (Pattern pattern: _patterns) {
             Message result = parse(message, pattern);
             if (result != null) {
                 return result;

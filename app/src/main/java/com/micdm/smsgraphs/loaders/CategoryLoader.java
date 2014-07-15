@@ -9,32 +9,32 @@ import com.micdm.smsgraphs.db.readers.DbCategoryReader;
 
 public class CategoryLoader extends AsyncTaskLoader<CategoryList> {
 
-    private final DbHelper dbHelper;
+    private final DbHelper _dbHelper;
 
-    private CategoryList categories;
+    private CategoryList _categories;
 
     public CategoryLoader(Context context, DbHelper dbHelper) {
         super(context);
-        this.dbHelper = dbHelper;
+        _dbHelper = dbHelper;
     }
 
     @Override
     protected void onStartLoading() {
-        if (categories == null) {
+        if (_categories == null) {
             forceLoad();
         } else {
-            deliverResult(categories);
+            deliverResult(_categories);
         }
     }
 
     @Override
     public CategoryList loadInBackground() {
-        return (new DbCategoryReader(dbHelper)).read();
+        return (new DbCategoryReader(_dbHelper)).read();
     }
 
     @Override
     public void deliverResult(CategoryList data) {
-        categories = data;
+        _categories = data;
         super.deliverResult(data);
     }
 }

@@ -8,32 +8,32 @@ import java.text.SimpleDateFormat;
 
 public class DateUtils {
 
-    private static final DateFormat bundleFormat = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");
-    private static final DateFormat dbFormat = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");
-    private static final DateFormat humanFormat = new SimpleDateFormat("d MMMM");
-    private static final DateFormat humanAnotherYearFormat = new SimpleDateFormat("d MMMM yyyy");
-    private static final DateFormat humanMonthFormat = new SimpleDateFormat("LLLL");
-    private static final DateFormat humanAnotherYearMonthFormat = new SimpleDateFormat("LLLL yyyy");
+    private static final DateFormat BUNDLE_FORMAT = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");
+    private static final DateFormat DB_FORMAT = new SimpleDateFormat("yyyy-MM-dd kk:mm:ss");
+    private static final DateFormat HUMAN_FORMAT = new SimpleDateFormat("d MMMM");
+    private static final DateFormat HUMAN_ANOTHER_YEAR_FORMAT = new SimpleDateFormat("d MMMM yyyy");
+    private static final DateFormat HUMAN_MONTH_FORMAT = new SimpleDateFormat("LLLL");
+    private static final DateFormat HUMAN_ANOTHER_YEAR_MONTH_FORMAT = new SimpleDateFormat("LLLL yyyy");
 
     public synchronized static String formatForBundle(DateTime date) {
-        return bundleFormat.format(date.toDate());
+        return BUNDLE_FORMAT.format(date.toDate());
     }
 
     public synchronized static DateTime parseForBundle(String string) {
         try {
-            return new DateTime(bundleFormat.parse(string).getTime());
+            return new DateTime(BUNDLE_FORMAT.parse(string).getTime());
         } catch (ParseException e) {
             throw new RuntimeException(String.format("cannot parse date %s", string));
         }
     }
 
     public synchronized static String formatForDb(DateTime date) {
-        return dbFormat.format(date.toDate());
+        return DB_FORMAT.format(date.toDate());
     }
 
     public synchronized static DateTime parseForDb(String string) {
         try {
-            return new DateTime(dbFormat.parse(string).getTime());
+            return new DateTime(DB_FORMAT.parse(string).getTime());
         } catch (ParseException e) {
             throw new RuntimeException(String.format("cannot parse date %s", string));
         }
@@ -42,16 +42,16 @@ public class DateUtils {
     public synchronized static String formatForHuman(DateTime date) {
         DateTime now = new DateTime();
         if (date.getYear() == now.getYear()) {
-            return humanFormat.format(date.toDate());
+            return HUMAN_FORMAT.format(date.toDate());
         }
-        return humanAnotherYearFormat.format(date.toDate());
+        return HUMAN_ANOTHER_YEAR_FORMAT.format(date.toDate());
     }
 
     public synchronized static String formatMonthForHuman(DateTime date) {
         DateTime now = new DateTime();
         if (date.getYear() == now.getYear()) {
-            return humanMonthFormat.format(date.toDate());
+            return HUMAN_MONTH_FORMAT.format(date.toDate());
         }
-        return humanAnotherYearMonthFormat.format(date.toDate());
+        return HUMAN_ANOTHER_YEAR_MONTH_FORMAT.format(date.toDate());
     }
 }

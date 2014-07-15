@@ -14,7 +14,7 @@ public class CategoryList extends ArrayList<Category> {
 
     public Category getById(int id) {
         for (Category category: this) {
-            if (category.id == id) {
+            if (category.getId() == id) {
                 return category;
             }
         }

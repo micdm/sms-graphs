@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.micdm.smsgraphs.CustomApplication;
 import com.micdm.smsgraphs.R;
+import com.micdm.smsgraphs.data.Category;
 import com.micdm.smsgraphs.data.Target;
 import com.micdm.smsgraphs.data.TargetList;
 import com.micdm.smsgraphs.events.EventManager;
@@ -23,25 +24,25 @@ public class TargetListFragment extends ListFragment {
 
     private class TargetListAdapter extends BaseAdapter {
 
-        private TargetList targets;
+        private TargetList _targets;
 
         public void setTargets(TargetList targets) {
-            this.targets = targets;
+            _targets = targets;
         }
 
         @Override
         public int getCount() {
-            return (targets == null) ? 0 : targets.size();
+            return (_targets == null) ? 0 : _targets.size();
         }
 
         @Override
         public Target getItem(int position) {
-            return targets.get(position);
+            return _targets.get(position);
         }
 
         @Override
         public long getItemId(int position) {
-            return getItem(position).id;
+            return getItem(position).getId();
         }
 
         @Override
@@ -52,37 +53,40 @@ public class TargetListFragment extends ListFragment {
             Target target = getItem(position);
             TextView titleView = (TextView) view.findViewById(R.id.v__target_list__list_item__title);
             TextView nameView = (TextView) view.findViewById(R.id.v__target_list__list_item__name);
-            if (target.title == null) {
-                titleView.setText(target.name);
+            String title = target.getTitle();
+            if (title == null) {
+                titleView.setText(target.getName());
                 nameView.setVisibility(View.GONE);
             } else {
-                titleView.setText(target.title);
+                titleView.setText(title);
                 nameView.setVisibility(View.VISIBLE);
-                nameView.setText(target.name);
+                nameView.setText(target.getName());
             }
             TextView lastOperationView = (TextView) view.findViewById(R.id.v__target_list__list_item__last_operation);
+            int lastAmount = target.getLastAmount();
             lastOperationView.setText(getString(R.string.fragment_target_list_last_operation,
-                    DateUtils.formatForHuman(target.lastPaid), target.lastAmount, getResources().getQuantityString(R.plurals.rubles, target.lastAmount)));
+                    DateUtils.formatForHuman(target.getLastPaid()), lastAmount, getResources().getQuantityString(R.plurals.rubles, lastAmount)));
             TextView categoryView = (TextView) view.findViewById(R.id.v__target_list__list_item__category);
             View noCategoryView = view.findViewById(R.id.v__target_list__list_item__no_category);
-            if (target.category == null) {
+            Category category = target.getCategory();
+            if (category == null) {
                 categoryView.setVisibility(View.GONE);
                 noCategoryView.setVisibility(View.VISIBLE);
             } else {
                 categoryView.setVisibility(View.VISIBLE);
-                categoryView.setText(target.category.name);
+                categoryView.setText(category.getName());
                 noCategoryView.setVisibility(View.GONE);
             }
             return view;
         }
     }
 
-    private TargetHandler targetHandler;
+    private TargetHandler _targetHandler;
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        targetHandler = (TargetHandler) activity;
+        _targetHandler = (TargetHandler) activity;
     }
 
     @Override
@@ -100,7 +104,7 @@ public class TargetListFragment extends ListFragment {
                 adapter.notifyDataSetChanged();
             }
         });
-        targetHandler.loadTargets();
+        _targetHandler.loadTargets();
         getEventManager().subscribe(this, EventType.EDIT_TARGET, new EventManager.OnEventListener<EditTargetEvent>() {
             @Override
             public void onEvent(EditTargetEvent event) {
@@ -116,7 +120,7 @@ public class TargetListFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView listView, View view, int position, long id) {
         Target target = ((TargetListAdapter) listView.getAdapter()).getItem(position);
-        targetHandler.requestEditTarget(target);
+        _targetHandler.requestEditTarget(target);
     }
 
     @Override

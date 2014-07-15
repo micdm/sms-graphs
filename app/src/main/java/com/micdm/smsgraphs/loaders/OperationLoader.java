@@ -12,41 +12,41 @@ import org.joda.time.DateTime;
 
 public class OperationLoader extends AsyncTaskLoader<MonthOperationList> {
 
-    private final DbHelper dbHelper;
+    private final DbHelper _dbHelper;
 
-    private final TargetList targets;
-    private final DateTime month;
-    private MonthOperationList operations;
+    private final TargetList _targets;
+    private final DateTime _month;
+    private MonthOperationList _operations;
 
     public OperationLoader(Context context, DbHelper dbHelper, TargetList targets, DateTime month) {
         super(context);
-        this.dbHelper = dbHelper;
-        this.targets = targets;
-        this.month = month;
+        _dbHelper = dbHelper;
+        _targets = targets;
+        _month = month;
     }
 
     @Override
     protected void onStartLoading() {
-        if (operations == null) {
+        if (_operations == null) {
             forceLoad();
         } else if (takeContentChanged()) {
             forceLoad();
         } else {
-            deliverResult(operations);
+            deliverResult(_operations);
         }
     }
 
     @Override
     public MonthOperationList loadInBackground() {
-        if (targets == null || month == null) {
+        if (_targets == null || _month == null) {
             return null;
         }
-        return (new DbOperationReader(dbHelper, targets, month)).read();
+        return (new DbOperationReader(_dbHelper, _targets, _month)).read();
     }
 
     @Override
     public void deliverResult(MonthOperationList data) {
-        operations = data;
+        _operations = data;
         super.deliverResult(data);
     }
 }

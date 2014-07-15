@@ -15,7 +15,7 @@ public class TargetList extends ArrayList<Target> {
     public int getWithNoCategoryCount() {
         int count = 0;
         for (Target target: this) {
-            if (target.category == null) {
+            if (target.getCategory() == null) {
                 count += 1;
             }
         }
@@ -24,7 +24,7 @@ public class TargetList extends ArrayList<Target> {
 
     public Target getById(int id) {
         for (Target target: this) {
-            if (target.id == id) {
+            if (target.getId() == id) {
                 return target;
             }
         }

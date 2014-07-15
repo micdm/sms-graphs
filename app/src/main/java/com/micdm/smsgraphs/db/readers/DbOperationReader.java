@@ -16,18 +16,18 @@ import java.util.List;
 
 public class DbOperationReader extends DbReader<MonthOperationList> {
 
-    private final TargetList targets;
-    private final DateTime month;
+    private final TargetList _targets;
+    private final DateTime _month;
 
     public DbOperationReader(DbHelper dbHelper, TargetList targets, DateTime month) {
         super(dbHelper);
-        this.targets = targets;
-        this.month = month;
+        _targets = targets;
+        _month = month;
     }
 
     @Override
     public MonthOperationList read() {
-        if (targets == null || month == null) {
+        if (_targets == null || _month == null) {
             return null;
         }
         SQLiteDatabase db = getDb();
@@ -35,18 +35,18 @@ public class DbOperationReader extends DbReader<MonthOperationList> {
             "SELECT target_id, amount " +
             "FROM operations " +
             "WHERE STRFTIME('%m %Y', created) = ? " +
-            "ORDER BY id", new String[] {String.format("%02d %d", month.getMonthOfYear(), month.getYear())}
+            "ORDER BY id", new String[] {String.format("%02d %d", _month.getMonthOfYear(), _month.getYear())}
         );
         cursor.moveToFirst();
         List<Operation> operations = new ArrayList<Operation>();
         while (!cursor.isAfterLast()) {
-            Target target = targets.getById(cursor.getInt(0));
+            Target target = _targets.getById(cursor.getInt(0));
             int amount = cursor.getInt(1);
             Operation operation = new Operation(target, amount);
             operations.add(operation);
             cursor.moveToNext();
         }
         cursor.close();
-        return new MonthOperationList(month, operations);
+        return new MonthOperationList(_month, operations);
     }
 }

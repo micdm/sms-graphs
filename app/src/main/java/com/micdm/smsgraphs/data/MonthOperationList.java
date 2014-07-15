@@ -6,11 +6,19 @@ import java.util.List;
 
 public class MonthOperationList {
 
-    public final DateTime month;
-    public final List<Operation> operations;
+    private final DateTime _month;
+    private final List<Operation> _operations;
 
     public MonthOperationList(DateTime month, List<Operation> operations) {
-        this.month = month;
-        this.operations = operations;
+        _month = month;
+        _operations = operations;
+    }
+
+    public DateTime getMonth() {
+        return _month;
+    }
+
+    public List<Operation> getOperations() {
+        return _operations;
     }
 }

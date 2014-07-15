@@ -6,14 +6,14 @@ import com.micdm.smsgraphs.events.EventType;
 
 public class LoadCategoriesEvent extends Event {
 
-    private final CategoryList categories;
+    private final CategoryList _categories;
 
     public LoadCategoriesEvent(CategoryList categories) {
         super(EventType.LOAD_CATEGORIES);
-        this.categories = categories;
+        _categories = categories;
     }
 
     public CategoryList getCategories() {
-        return categories;
+        return _categories;
     }
 }

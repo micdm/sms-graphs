@@ -10,39 +10,39 @@ import com.micdm.smsgraphs.db.readers.DbTargetReader;
 
 public class TargetLoader extends AsyncTaskLoader<TargetList> {
 
-    private final DbHelper dbHelper;
+    private final DbHelper _dbHelper;
 
-    private final CategoryList categories;
-    private TargetList targets;
+    private final CategoryList _categories;
+    private TargetList _targets;
 
     public TargetLoader(Context context, DbHelper dbHelper, CategoryList categories) {
         super(context);
-        this.dbHelper = dbHelper;
-        this.categories = categories;
+        _dbHelper = dbHelper;
+        _categories = categories;
     }
 
     @Override
     protected void onStartLoading() {
-        if (targets == null) {
+        if (_targets == null) {
             forceLoad();
         } else if (takeContentChanged()) {
             forceLoad();
         } else {
-            deliverResult(targets);
+            deliverResult(_targets);
         }
     }
 
     @Override
     public TargetList loadInBackground() {
-        if (categories == null) {
+        if (_categories == null) {
             return null;
         }
-        return (new DbTargetReader(dbHelper, categories)).read();
+        return (new DbTargetReader(_dbHelper, _categories)).read();
     }
 
     @Override
     public void deliverResult(TargetList data) {
-        targets = data;
+        _targets = data;
         super.deliverResult(data);
     }
 }

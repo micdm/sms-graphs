@@ -6,14 +6,14 @@ import com.micdm.smsgraphs.db.DbHelper;
 
 public abstract class DbReader<Entity> {
 
-    private final DbHelper dbHelper;
+    private final DbHelper _dbHelper;
 
     public DbReader(DbHelper dbHelper) {
-        this.dbHelper = dbHelper;
+        _dbHelper = dbHelper;
     }
 
     protected SQLiteDatabase getDb() {
-        return dbHelper.getReadableDatabase();
+        return _dbHelper.getReadableDatabase();
     }
 
     public abstract Entity read();

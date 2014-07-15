@@ -17,10 +17,10 @@ import com.micdm.smsgraphs.parcels.TargetListParcel;
 
 public class EventConverter {
 
-    private final Context context;
+    private final Context _context;
 
     public EventConverter(Context context) {
-        this.context = context;
+        _context = context;
     }
 
     public Intent convert(Event event) {
@@ -47,6 +47,6 @@ public class EventConverter {
     }
 
     public String getIntentAction(EventType type) {
-        return String.format("%s.event.%s", context.getPackageName(), type);
+        return String.format("%s.event.%s", _context.getPackageName(), type);
     }
 }

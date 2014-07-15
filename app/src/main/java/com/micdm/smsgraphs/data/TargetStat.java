@@ -2,11 +2,31 @@ package com.micdm.smsgraphs.data;
 
 public class TargetStat {
 
-    public final Target target;
-    public int amount;
-    public double percentage;
+    private final Target _target;
+    private int _amount;
+    private double _percentage;
 
     public TargetStat(Target target) {
-        this.target = target;
+        _target = target;
+    }
+
+    public Target getTarget() {
+        return _target;
+    }
+
+    public int getAmount() {
+        return _amount;
+    }
+
+    public void setAmount(int amount) {
+        _amount = amount;
+    }
+
+    public double getPercentage() {
+        return _percentage;
+    }
+
+    public void setPercentage(double percentage) {
+        _percentage = percentage;
     }
 }

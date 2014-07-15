@@ -39,10 +39,10 @@ public class MonthOperationListParcel implements Parcelable {
         }
     };
 
-    private final MonthOperationList operations;
+    private final MonthOperationList _operations;
 
     public MonthOperationListParcel(MonthOperationList operations) {
-        this.operations = operations;
+        _operations = operations;
     }
 
     @Override
@@ -52,14 +52,15 @@ public class MonthOperationListParcel implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
-        out.writeString(DateUtils.formatForBundle(operations.month));
-        out.writeInt(operations.operations.size());
-        for (Operation operation: operations.operations) {
+        out.writeString(DateUtils.formatForBundle(_operations.getMonth()));
+        List<Operation> operations = _operations.getOperations();
+        out.writeInt(operations.size());
+        for (Operation operation: operations) {
             out.writeParcelable(new OperationParcel(operation), flags);
         }
     }
 
     public MonthOperationList getOperations() {
-        return operations;
+        return _operations;
     }
 }

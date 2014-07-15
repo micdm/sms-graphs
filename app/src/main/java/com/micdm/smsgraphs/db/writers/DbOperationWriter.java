@@ -38,7 +38,7 @@ public class DbOperationWriter extends DbWriter<Message> {
 
     private ContentValues getCardValues(Message message) {
         ContentValues result = new ContentValues();
-        result.put("name", message.card);
+        result.put("name", message.getCard());
         return result;
     }
 
@@ -58,7 +58,7 @@ public class DbOperationWriter extends DbWriter<Message> {
     private ContentValues getTargetValues(Message message) {
         ContentValues result = new ContentValues();
         result.putNull("category_id");
-        result.put("name", message.target);
+        result.put("name", message.getTarget());
         return result;
     }
 
@@ -70,8 +70,8 @@ public class DbOperationWriter extends DbWriter<Message> {
         ContentValues result = new ContentValues();
         result.put("card_id", cardRowId);
         result.put("target_id", targetRowId);
-        result.put("created", DateUtils.formatForDb(message.created));
-        result.put("amount", message.amount);
+        result.put("created", DateUtils.formatForDb(message.getCreated()));
+        result.put("amount", message.getAmount());
         return result;
     }
 }

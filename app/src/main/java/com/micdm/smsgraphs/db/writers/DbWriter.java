@@ -6,14 +6,14 @@ import com.micdm.smsgraphs.db.DbHelper;
 
 public abstract class DbWriter<Entity> {
 
-    private final DbHelper dbHelper;
+    private final DbHelper _dbHelper;
 
     public DbWriter(DbHelper dbHelper) {
-        this.dbHelper = dbHelper;
+        _dbHelper = dbHelper;
     }
 
     protected SQLiteDatabase getDb() {
-        return dbHelper.getWritableDatabase();
+        return _dbHelper.getWritableDatabase();
     }
 
     public abstract void write(Entity entity);

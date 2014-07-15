@@ -39,40 +39,40 @@ public class MonthStatsFragment extends Fragment {
 
     private class CategoryStatsListAdapter extends BaseExpandableListAdapter {
 
-        private List<CategoryStat> stats;
+        private List<CategoryStat> _stats;
 
         public void setStats(List<CategoryStat> stats) {
-            this.stats = stats;
+            _stats = stats;
         }
 
         @Override
         public int getGroupCount() {
-            return (stats == null) ? 0 : stats.size();
+            return (_stats == null) ? 0 : _stats.size();
         }
 
         @Override
         public int getChildrenCount(int position) {
-            return getGroup(position).stats.size();
+            return getGroup(position).getStats().size();
         }
 
         @Override
         public CategoryStat getGroup(int position) {
-            return stats.get(position);
+            return _stats.get(position);
         }
 
         @Override
         public TargetStat getChild(int groupPosition, int childPosition) {
-            return getGroup(groupPosition).stats.get(childPosition);
+            return getGroup(groupPosition).getStats().get(childPosition);
         }
 
         @Override
         public long getGroupId(int position) {
-            return getGroup(position).category.id;
+            return getGroup(position).getCategory().getId();
         }
 
         @Override
         public long getChildId(int groupPosition, int childPosition) {
-            return getChild(groupPosition, childPosition).target.id;
+            return getChild(groupPosition, childPosition).getTarget().getId();
         }
 
         @Override
@@ -86,11 +86,11 @@ public class MonthStatsFragment extends Fragment {
                 view = View.inflate(getActivity(), R.layout.v__stats__list_item_category, null);
             }
             CategoryStat stat = getGroup(position);
-            ((PercentageView) view).setPercentage(stat.percentage);
+            ((PercentageView) view).setPercentage(stat.getPercentage());
             TextView nameView = (TextView) view.findViewById(R.id.v__stats__list_item_category__name);
-            nameView.setText(stat.category.name);
+            nameView.setText(stat.getCategory().getName());
             TextView amountView = (TextView) view.findViewById(R.id.v__stats__list_item_category__amount);
-            amountView.setText(String.valueOf(stat.amount));
+            amountView.setText(String.valueOf(stat.getAmount()));
             return view;
         }
 
@@ -100,11 +100,12 @@ public class MonthStatsFragment extends Fragment {
                 view = View.inflate(getActivity(), R.layout.v__stats__list_item_target, null);
             }
             TargetStat stat = getChild(groupPosition, childPosition);
-            ((PercentageView) view).setPercentage(stat.percentage);
+            ((PercentageView) view).setPercentage(stat.getPercentage());
             TextView nameView = (TextView) view.findViewById(R.id.v__stats__list_item_target__name);
-            nameView.setText(stat.target.title == null ? stat.target.name : stat.target.title);
+            Target target = stat.getTarget();
+            nameView.setText((target.getTitle() == null) ? target.getName() : target.getTitle());
             TextView amountView = (TextView) view.findViewById(R.id.v__stats__list_item_target__amount);
-            amountView.setText(String.valueOf(stat.amount));
+            amountView.setText(String.valueOf(stat.getAmount()));
             return view;
         }
 
@@ -118,51 +119,51 @@ public class MonthStatsFragment extends Fragment {
     public static final String INIT_ARG_IS_LAST = "is_last";
     public static final String INIT_ARG_DATE = "date";
 
-    private TargetHandler targetHandler;
-    private OperationHandler operationHandler;
+    private TargetHandler _targetHandler;
+    private OperationHandler _operationHandler;
 
-    private boolean isFirst;
-    private boolean isLast;
-    private DateTime date;
+    private boolean _isFirst;
+    private boolean _isLast;
+    private DateTime _date;
 
-    private ExpandableListView categoriesView;
-    private TextView totalView;
+    private ExpandableListView _categoriesView;
+    private TextView _totalView;
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        targetHandler = (TargetHandler) activity;
-        operationHandler = (OperationHandler) activity;
+        _targetHandler = (TargetHandler) activity;
+        _operationHandler = (OperationHandler) activity;
         handleInitArguments();
     }
 
     private void handleInitArguments() {
         Bundle args = getArguments();
-        isFirst = args.getBoolean(INIT_ARG_IS_FIRST);
-        isLast = args.getBoolean(INIT_ARG_IS_LAST);
-        date = DateUtils.parseForBundle(args.getString(INIT_ARG_DATE));
+        _isFirst = args.getBoolean(INIT_ARG_IS_FIRST);
+        _isLast = args.getBoolean(INIT_ARG_IS_LAST);
+        _date = DateUtils.parseForBundle(args.getString(INIT_ARG_DATE));
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.f__month_stats, null);
         View previousView = view.findViewById(R.id.f__month_stats__previous);
-        previousView.setVisibility(isFirst ? View.INVISIBLE : View.VISIBLE);
+        previousView.setVisibility(_isFirst ? View.INVISIBLE : View.VISIBLE);
         View nextView = view.findViewById(R.id.f__month_stats__next);
-        nextView.setVisibility(isLast ? View.INVISIBLE : View.VISIBLE);
+        nextView.setVisibility(_isLast ? View.INVISIBLE : View.VISIBLE);
         TextView monthView = (TextView) view.findViewById(R.id.f__month_stats__month);
-        monthView.setText(DateUtils.formatMonthForHuman(date));
-        categoriesView = (ExpandableListView) view.findViewById(R.id.f__month_stats__categories);
-        categoriesView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+        monthView.setText(DateUtils.formatMonthForHuman(_date));
+        _categoriesView = (ExpandableListView) view.findViewById(R.id.f__month_stats__categories);
+        _categoriesView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
                 CategoryStatsListAdapter adapter = (CategoryStatsListAdapter) parent.getExpandableListAdapter();
                 TargetStat stat = adapter.getChild(groupPosition, childPosition);
-                targetHandler.requestEditTarget(stat.target);
+                _targetHandler.requestEditTarget(stat.getTarget());
                 return true;
             }
         });
-        totalView = (TextView) view.findViewById(R.id.f__month_stats__total);
+        _totalView = (TextView) view.findViewById(R.id.f__month_stats__total);
         return view;
     }
 
@@ -173,21 +174,21 @@ public class MonthStatsFragment extends Fragment {
             @Override
             public void onEvent(LoadOperationsEvent event) {
                 MonthOperationList operations = event.getOperations();
-                if (!operations.month.equals(date)) {
+                if (!operations.getMonth().equals(_date)) {
                     return;
                 }
-                List<CategoryStat> stats = getCategoryStats(operations.operations);
-                CategoryStatsListAdapter adapter = (CategoryStatsListAdapter) categoriesView.getExpandableListAdapter();
+                List<CategoryStat> stats = getCategoryStats(operations.getOperations());
+                CategoryStatsListAdapter adapter = (CategoryStatsListAdapter) _categoriesView.getExpandableListAdapter();
                 if (adapter == null) {
                     adapter = new CategoryStatsListAdapter();
-                    categoriesView.setAdapter(adapter);
+                    _categoriesView.setAdapter(adapter);
                 }
                 adapter.setStats(stats);
                 adapter.notifyDataSetChanged();
-                totalView.setText(String.valueOf(getTotalSum(stats)));
+                _totalView.setText(String.valueOf(getTotalSum(stats)));
             }
         });
-        operationHandler.loadOperations(date);
+        _operationHandler.loadOperations(_date);
     }
 
     private EventManager getEventManager() {
@@ -198,9 +199,10 @@ public class MonthStatsFragment extends Fragment {
         List<CategoryStat> stats = new ArrayList<CategoryStat>();
         Category noCategory = new Category(0, getString(R.string.no_category));
         for (Operation operation: operations) {
-            Category category = operation.target.category;
-            CategoryStat stat = updateCategoryStat(stats, (category == null) ? noCategory : category, operation.amount);
-            updateTargetStat(stat.stats, operation.target, operation.amount);
+            Target target = operation.getTarget();
+            Category category = target.getCategory();
+            CategoryStat stat = updateCategoryStat(stats, (category == null) ? noCategory : category, operation.getAmount());
+            updateTargetStat(stat.getStats(), target, operation.getAmount());
         }
         addPercentages(stats);
         sortByName(stats);
@@ -213,13 +215,13 @@ public class MonthStatsFragment extends Fragment {
             stat = new CategoryStat(category);
             stats.add(stat);
         }
-        stat.amount += amount;
+        stat.setAmount(stat.getAmount() + amount);
         return stat;
     }
 
     private CategoryStat getCategoryStat(List<CategoryStat> stats, Category category) {
         for (CategoryStat stat: stats) {
-            if (stat.category.id == category.id) {
+            if (stat.getCategory().getId() == category.getId()) {
                 return stat;
             }
         }
@@ -232,12 +234,12 @@ public class MonthStatsFragment extends Fragment {
             targetStat = new TargetStat(target);
             stats.add(targetStat);
         }
-        targetStat.amount += amount;
+        targetStat.setAmount(targetStat.getAmount() + amount);
     }
 
     public TargetStat getTargetStat(List<TargetStat> stats, Target target) {
         for (TargetStat stat: stats) {
-            if (stat.target.id == target.id) {
+            if (stat.getTarget().getId() == target.getId()) {
                 return stat;
             }
         }
@@ -247,9 +249,10 @@ public class MonthStatsFragment extends Fragment {
     private void addPercentages(List<CategoryStat> stats) {
         int total = getTotalSum(stats);
         for (CategoryStat categoryStat: stats) {
-            categoryStat.percentage = (double) categoryStat.amount / total;
-            for (TargetStat targetStat: categoryStat.stats) {
-                targetStat.percentage = (double) targetStat.amount / categoryStat.amount;
+            int amount = categoryStat.getAmount();
+            categoryStat.setPercentage((double) amount / total);
+            for (TargetStat targetStat: categoryStat.getStats()) {
+                targetStat.setPercentage((double) targetStat.getAmount() / amount);
             }
         }
     }
@@ -257,7 +260,7 @@ public class MonthStatsFragment extends Fragment {
     private int getTotalSum(List<CategoryStat> stats) {
         int total = 0;
         for (CategoryStat stat: stats) {
-            total += stat.amount;
+            total += stat.getAmount();
         }
         return total;
     }
@@ -266,14 +269,14 @@ public class MonthStatsFragment extends Fragment {
         Collections.sort(stats, new Comparator<CategoryStat>() {
             @Override
             public int compare(CategoryStat a, CategoryStat b) {
-                return a.category.name.compareTo(b.category.name);
+                return a.getCategory().getName().compareTo(b.getCategory().getName());
             }
         });
         for (CategoryStat stat: stats) {
-            Collections.sort(stat.stats, new Comparator<TargetStat>() {
+            Collections.sort(stat.getStats(), new Comparator<TargetStat>() {
                 @Override
                 public int compare(TargetStat a, TargetStat b) {
-                    return a.target.name.compareTo(b.target.name);
+                    return a.getTarget().getName().compareTo(b.getTarget().getName());
                 }
             });
         }

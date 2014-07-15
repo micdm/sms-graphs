@@ -9,34 +9,34 @@ import com.micdm.smsgraphs.db.readers.DbOperationReportReader;
 
 public class OperationReportLoader extends AsyncTaskLoader<OperationReport> {
 
-    private final DbHelper dbHelper;
+    private final DbHelper _dbHelper;
 
-    private OperationReport report;
+    private OperationReport _report;
 
     public OperationReportLoader(Context context, DbHelper dbHelper) {
         super(context);
-        this.dbHelper = dbHelper;
+        _dbHelper = dbHelper;
     }
 
     @Override
     protected void onStartLoading() {
-        if (report == null) {
+        if (_report == null) {
             forceLoad();
         } else if (takeContentChanged()) {
             forceLoad();
         } else {
-            deliverResult(report);
+            deliverResult(_report);
         }
     }
 
     @Override
     public OperationReport loadInBackground() {
-        return (new DbOperationReportReader(dbHelper)).read();
+        return (new DbOperationReportReader(_dbHelper)).read();
     }
 
     @Override
     public void deliverResult(OperationReport data) {
-        report = data;
+        _report = data;
         super.deliverResult(data);
     }
 }

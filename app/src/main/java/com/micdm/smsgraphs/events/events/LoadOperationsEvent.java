@@ -6,14 +6,14 @@ import com.micdm.smsgraphs.events.EventType;
 
 public class LoadOperationsEvent extends Event {
 
-    private final MonthOperationList operations;
+    private final MonthOperationList _operations;
 
     public LoadOperationsEvent(MonthOperationList operations) {
         super(EventType.LOAD_OPERATIONS);
-        this.operations = operations;
+        _operations = operations;
     }
 
     public MonthOperationList getOperations() {
-        return operations;
+        return _operations;
     }
 }

@@ -12,11 +12,11 @@ public class DbHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "main";
     private static final int DB_VERSION = 1;
 
-    private final Context context;
+    private final Context _context;
 
     public DbHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
-        this.context = context;
+        _context = context;
     }
 
     @Override
@@ -71,7 +71,7 @@ public class DbHelper extends SQLiteOpenHelper {
     }
 
     private void addCategories(SQLiteDatabase db) {
-        String[] names = context.getResources().getStringArray(R.array.categories);
+        String[] names = _context.getResources().getStringArray(R.array.categories);
         for (String name: names) {
             ContentValues values = new ContentValues();
             values.put("name", name);

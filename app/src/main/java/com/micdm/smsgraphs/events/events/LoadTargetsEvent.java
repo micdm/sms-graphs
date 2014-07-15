@@ -6,14 +6,14 @@ import com.micdm.smsgraphs.events.EventType;
 
 public class LoadTargetsEvent extends Event {
 
-    private final TargetList targets;
+    private final TargetList _targets;
 
     public LoadTargetsEvent(TargetList targets) {
         super(EventType.LOAD_TARGETS);
-        this.targets = targets;
+        _targets = targets;
     }
 
     public TargetList getTargets() {
-        return targets;
+        return _targets;
     }
 }

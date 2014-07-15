@@ -30,29 +30,29 @@ public class TargetFragment extends DialogFragment {
 
     private class CategoryListAdapter extends BaseAdapter {
 
-        private CategoryList categories;
+        private CategoryList _categories;
 
         public void setCategories(CategoryList categories) {
-            this.categories = categories;
+            _categories = categories;
         }
 
         @Override
         public int getCount() {
-            return (categories == null) ? 0 : categories.size() + 1;
+            return (_categories == null) ? 0 : _categories.size() + 1;
         }
 
         @Override
         public Category getItem(int position) {
-            return (position == 0) ? null : categories.get(position - 1);
+            return (position == 0) ? null : _categories.get(position - 1);
         }
 
         @Override
         public long getItemId(int position) {
-            return (position == 0) ? 0 : getItem(position).id;
+            return (position == 0) ? 0 : getItem(position).getId();
         }
 
         public int getItemPosition(Category category) {
-            return categories.indexOf(category) + 1;
+            return _categories.indexOf(category) + 1;
         }
 
         @Override
@@ -60,35 +60,35 @@ public class TargetFragment extends DialogFragment {
             if (view == null) {
                 view = View.inflate(getActivity(), R.layout.v__target__category_list_item, null);
             }
-            String text = (position == 0) ? getString(R.string.fragment_target_no_category) : getItem(position).name;
+            String text = (position == 0) ? getString(R.string.fragment_target_no_category) : getItem(position).getName();
             ((TextView) view).setText(text);
             return view;
         }
     }
 
-    public static final String INIT_ARG_TARGET = "target";
+    public static final String INIT_ARG_TARGET = "_target";
 
-    private CategoryHandler categoryHandler;
-    private TargetHandler targetHandler;
+    private CategoryHandler _categoryHandler;
+    private TargetHandler _targetHandler;
 
-    private Target target;
+    private Target _target;
 
-    private EditText titleView;
-    private Spinner categoriesView;
+    private EditText _titleView;
+    private Spinner _categoriesView;
 
-    private boolean isDismissing;
+    private boolean _isDismissing;
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        categoryHandler = (CategoryHandler) activity;
-        targetHandler = (TargetHandler) activity;
+        _categoryHandler = (CategoryHandler) activity;
+        _targetHandler = (TargetHandler) activity;
         handleInitArguments();
     }
 
     private void handleInitArguments() {
         Bundle args = getArguments();
-        target = ((TargetParcel) args.getParcelable(INIT_ARG_TARGET)).getTarget();
+        _target = ((TargetParcel) args.getParcelable(INIT_ARG_TARGET)).getTarget();
     }
 
     @Override
@@ -97,38 +97,40 @@ public class TargetFragment extends DialogFragment {
         builder.setTitle(R.string.fragment_target_title);
         View view = View.inflate(getActivity(), R.layout.f__target, null);
         TextView lastOperationView = (TextView) view.findViewById(R.id.f__target__last_operation);
+        int lastAmount = _target.getLastAmount();
         lastOperationView.setText(getString(R.string.fragment_target_last_operation,
-                DateUtils.formatForHuman(target.lastPaid), target.lastAmount, getResources().getQuantityString(R.plurals.rubles, target.lastAmount)));
-        titleView = (EditText) view.findViewById(R.id.f__target__title);
-        titleView.setHint(target.name);
-        if (target.title != null) {
-            titleView.setText(target.title);
+                DateUtils.formatForHuman(_target.getLastPaid()), lastAmount, getResources().getQuantityString(R.plurals.rubles, lastAmount)));
+        _titleView = (EditText) view.findViewById(R.id.f__target__title);
+        _titleView.setHint(_target.getName());
+        String title = _target.getTitle();
+        if (title != null) {
+            _titleView.setText(title);
         }
-        categoriesView = (Spinner) view.findViewById(R.id.f__target__categories);
+        _categoriesView = (Spinner) view.findViewById(R.id.f__target__categories);
         builder.setView(view);
         builder.setNeutralButton(R.string.fragment_target_save_button, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                isDismissing = true;
+                _isDismissing = true;
                 updateTarget();
-                targetHandler.editTarget(target, false);
+                _targetHandler.editTarget(_target, false);
             }
         });
         builder.setPositiveButton(R.string.fragment_target_next_button, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                isDismissing = true;
+                _isDismissing = true;
                 updateTarget();
-                targetHandler.editTarget(target, true);
+                _targetHandler.editTarget(_target, true);
             }
         });
         return builder.create();
     }
 
     private void updateTarget() {
-        String title = titleView.getText().toString();
-        target.title = (title.length() == 0) ? null : title;
-        target.category = (Category) categoriesView.getSelectedItem();
+        String title = _titleView.getText().toString();
+        _target.setTitle((title.length() == 0) ? null : title);
+        _target.setCategory((Category) _categoriesView.getSelectedItem());
     }
 
     @Override
@@ -137,19 +139,20 @@ public class TargetFragment extends DialogFragment {
         getEventManager().subscribe(this, EventType.LOAD_CATEGORIES, new EventManager.OnEventListener<LoadCategoriesEvent>() {
             @Override
             public void onEvent(LoadCategoriesEvent event) {
-                CategoryListAdapter adapter = (CategoryListAdapter) categoriesView.getAdapter();
+                CategoryListAdapter adapter = (CategoryListAdapter) _categoriesView.getAdapter();
                 if (adapter == null) {
                     adapter = new CategoryListAdapter();
-                    categoriesView.setAdapter(adapter);
+                    _categoriesView.setAdapter(adapter);
                 }
                 adapter.setCategories(event.getCategories());
-                if (target.category != null) {
-                    categoriesView.setSelection(adapter.getItemPosition(target.category));
+                Category category = _target.getCategory();
+                if (category != null) {
+                    _categoriesView.setSelection(adapter.getItemPosition(category));
                 }
                 adapter.notifyDataSetChanged();
             }
         });
-        categoryHandler.loadCategories();
+        _categoryHandler.loadCategories();
     }
 
     private EventManager getEventManager() {
@@ -157,7 +160,7 @@ public class TargetFragment extends DialogFragment {
     }
 
     public boolean isDismissing() {
-        return isDismissing;
+        return _isDismissing;
     }
 
     @Override

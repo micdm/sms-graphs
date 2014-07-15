@@ -57,16 +57,16 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
 
     private static final String FRAGMENT_TARGET_TAG = "target";
 
-    private OperationReport report;
-    private CategoryList categories;
-    private TargetList targets;
+    private OperationReport _report;
+    private CategoryList _categories;
+    private TargetList _targets;
 
-    private final Map<Integer, DateTime> operationLoaders = new Hashtable<Integer, DateTime>();
+    private final Map<Integer, DateTime> _operationLoaders = new Hashtable<Integer, DateTime>();
 
-    private View loadingMessagesView;
-    private ProgressBar loadingMessagesProgressView;
-    private View loadingDataView;
-    private View noOperationsView;
+    private View _loadingMessagesView;
+    private ProgressBar _loadingMessagesProgressView;
+    private View _loadingDataView;
+    private View _noOperationsView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,8 +101,8 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
                 if (data == null) {
                     return;
                 }
-                report = data;
-                noOperationsView.setVisibility((report.last == null) ? View.VISIBLE : View.GONE);
+                _report = data;
+                _noOperationsView.setVisibility((_report.getLast() == null) ? View.VISIBLE : View.GONE);
                 hideLoadingDataView();
                 ((CustomApplication) getApplication()).getEventManager().publish(new LoadOperationReportEvent(data));
             }
@@ -122,7 +122,7 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
                 if (data == null) {
                     return;
                 }
-                categories = data;
+                _categories = data;
                 getLoaderManager().restartLoader(TARGET_LOADER_ID, null, getTargetLoaderCallbacks());
                 ((CustomApplication) getApplication()).getEventManager().publish(new LoadCategoriesEvent(data));
             }
@@ -135,18 +135,18 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
         return new LoaderManager.LoaderCallbacks<TargetList>() {
             @Override
             public Loader<TargetList> onCreateLoader(int id, Bundle params) {
-                return new TargetLoader(getApplicationContext(), ((CustomApplication) getApplication()).getDbHelper(), categories);
+                return new TargetLoader(getApplicationContext(), ((CustomApplication) getApplication()).getDbHelper(), _categories);
             }
             @Override
             public void onLoadFinished(Loader<TargetList> loader, TargetList data) {
                 if (data == null) {
                     return;
                 }
-                targets = data;
+                _targets = data;
                 updateWithNoCategoryCount();
                 hideLoadingDataView();
                 ((CustomApplication) getApplication()).getEventManager().publish(new LoadTargetsEvent(data));
-                for (Map.Entry<Integer, DateTime> item: operationLoaders.entrySet()) {
+                for (Map.Entry<Integer, DateTime> item: _operationLoaders.entrySet()) {
                     getLoaderManager().restartLoader(item.getKey(), null, getOperationLoaderCallbacks(item.getValue()));
                 }
             }
@@ -159,7 +159,7 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
         return new LoaderManager.LoaderCallbacks<MonthOperationList>() {
             @Override
             public Loader<MonthOperationList> onCreateLoader(int id, Bundle args) {
-                return new OperationLoader(getApplicationContext(), ((CustomApplication) getApplication()).getDbHelper(), targets, date);
+                return new OperationLoader(getApplicationContext(), ((CustomApplication) getApplication()).getDbHelper(), _targets, date);
             }
             @Override
             public void onLoadFinished(Loader<MonthOperationList> loader, final MonthOperationList data) {
@@ -174,15 +174,15 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
 
     private void setupView() {
         setContentView(R.layout.a__main);
-        loadingMessagesView = findViewById(R.id.a__main__loading_messages);
-        loadingMessagesProgressView = (ProgressBar) findViewById(R.id.a__main__loading_messages_progress);
-        loadingDataView = findViewById(R.id.a__main__loading_data);
-        noOperationsView = findViewById(R.id.a__main__no_operations);
+        _loadingMessagesView = findViewById(R.id.a__main__loading_messages);
+        _loadingMessagesProgressView = (ProgressBar) findViewById(R.id.a__main__loading_messages_progress);
+        _loadingDataView = findViewById(R.id.a__main__loading_data);
+        _noOperationsView = findViewById(R.id.a__main__no_operations);
     }
 
     private void hideLoadingDataView() {
-        if (report != null && targets != null) {
-            loadingDataView.setVisibility(View.GONE);
+        if (_report != null && _targets != null) {
+            _loadingDataView.setVisibility(View.GONE);
         }
     }
 
@@ -217,7 +217,7 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
         }
         View view = actionBar.getTabAt(1).getCustomView();
         TextView countView = (TextView) view.findViewById(R.id.v__actionbar__target_list_tab__count);
-        int count = targets.getWithNoCategoryCount();
+        int count = _targets.getWithNoCategoryCount();
         if (count == 0) {
             countView.setVisibility(View.GONE);
         } else {
@@ -237,14 +237,14 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
         manager.subscribe(this, EventType.START_LOAD_MESSAGES, new EventManager.OnEventListener<StartLoadMessagesEvent>() {
             @Override
             public void onEvent(StartLoadMessagesEvent event) {
-                loadingMessagesView.setVisibility(View.VISIBLE);
+                _loadingMessagesView.setVisibility(View.VISIBLE);
             }
         });
         manager.subscribe(this, EventType.PROGRESS_LOAD_MESSAGES, new EventManager.OnEventListener<ProgressLoadMessagesEvent>() {
             @Override
             public void onEvent(ProgressLoadMessagesEvent event) {
-                loadingMessagesProgressView.setMax(event.getTotal());
-                loadingMessagesProgressView.setProgress(event.getCurrent());
+                _loadingMessagesProgressView.setMax(event.getTotal());
+                _loadingMessagesProgressView.setProgress(event.getCurrent());
             }
         });
         manager.subscribe(this, EventType.FINISH_LOAD_MESSAGES, new EventManager.OnEventListener<FinishLoadMessagesEvent>() {
@@ -253,7 +253,7 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
                 LoaderManager manager = getLoaderManager();
                 manager.getLoader(OPERATION_REPORT_LOADER_ID).onContentChanged();
                 manager.getLoader(TARGET_LOADER_ID).onContentChanged();
-                loadingMessagesView.setVisibility(View.GONE);
+                _loadingMessagesView.setVisibility(View.GONE);
             }
         });
     }
@@ -301,21 +301,21 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
         Target target = updateTarget(edited);
         updateWithNoCategoryCount();
         ((CustomApplication) getApplication()).getEventManager().publish(new EditTargetEvent());
-        for (int loaderId: operationLoaders.keySet()) {
+        for (int loaderId: _operationLoaders.keySet()) {
             getLoaderManager().getLoader(loaderId).onContentChanged();
         }
         DbTargetWriter writer = new DbTargetWriter(((CustomApplication) getApplication()).getDbHelper());
         writer.write(target);
         if (editNext) {
-            Target nextTarget = getNextTargetToEdit(targets, target);
+            Target nextTarget = getNextTargetToEdit(_targets, target);
             requestEditTarget(nextTarget);
         }
     }
 
     private Target updateTarget(Target edited) {
-        Target target = targets.getById(edited.id);
-        target.category = edited.category;
-        target.title = edited.title;
+        Target target = _targets.getById(edited.getId());
+        target.setCategory(edited.getCategory());
+        target.setTitle(edited.getTitle());
         return target;
     }
 
@@ -330,7 +330,7 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
                 i = 0;
             }
             Target next = targets.get(i);
-            if (next.category == null) {
+            if (next.getCategory() == null) {
                 return next;
             }
             i += 1;
@@ -342,7 +342,7 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
     public void loadOperations(DateTime date) {
         int id = getOperationLoaderId(date);
         getLoaderManager().initLoader(id, null, getOperationLoaderCallbacks(date));
-        operationLoaders.put(id, date);
+        _operationLoaders.put(id, date);
     }
 
     private int getOperationLoaderId(DateTime date) {

@@ -19,10 +19,10 @@ public class CategoryParcel implements Parcelable {
         }
     };
 
-    private final Category category;
+    private final Category _category;
 
     public CategoryParcel(Category category) {
-        this.category = category;
+        _category = category;
     }
 
     @Override
@@ -32,11 +32,11 @@ public class CategoryParcel implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
-        out.writeInt(category.id);
-        out.writeString(category.name);
+        out.writeInt(_category.getId());
+        out.writeString(_category.getName());
     }
 
     public Category getCategory() {
-        return category;
+        return _category;
     }
 }

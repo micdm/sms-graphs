@@ -31,10 +31,10 @@ public class TargetParcel implements Parcelable {
         }
     };
 
-    private final Target target;
+    private final Target _target;
 
     public TargetParcel(Target target) {
-        this.target = target;
+        _target = target;
     }
 
     @Override
@@ -44,15 +44,15 @@ public class TargetParcel implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
-        out.writeInt(target.id);
-        out.writeParcelable(new CategoryParcel(target.category), flags);
-        out.writeString(target.name);
-        out.writeString(target.title);
-        out.writeString(DateUtils.formatForBundle(target.lastPaid));
-        out.writeInt(target.lastAmount);
+        out.writeInt(_target.getId());
+        out.writeParcelable(new CategoryParcel(_target.getCategory()), flags);
+        out.writeString(_target.getName());
+        out.writeString(_target.getTitle());
+        out.writeString(DateUtils.formatForBundle(_target.getLastPaid()));
+        out.writeInt(_target.getLastAmount());
     }
 
     public Target getTarget() {
-        return target;
+        return _target;
     }
 }

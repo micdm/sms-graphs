@@ -24,10 +24,10 @@ public class CategoryListParcel implements Parcelable {
         }
     };
 
-    private final CategoryList categories;
+    private final CategoryList _categories;
 
     public CategoryListParcel(CategoryList categories) {
-        this.categories = categories;
+        _categories = categories;
     }
 
     @Override
@@ -37,13 +37,13 @@ public class CategoryListParcel implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
-        out.writeInt(categories.size());
-        for (Category category: categories) {
+        out.writeInt(_categories.size());
+        for (Category category: _categories) {
             out.writeParcelable(new CategoryParcel(category), flags);
         }
     }
 
     public CategoryList getCategories() {
-        return categories;
+        return _categories;
     }
 }

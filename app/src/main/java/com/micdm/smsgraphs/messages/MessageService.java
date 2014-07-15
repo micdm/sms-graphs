@@ -18,14 +18,14 @@ public class MessageService extends Service {
 
     private static final String THREAD_NAME = "MessageService";
 
-    private final HandlerThread thread = new HandlerThread(THREAD_NAME, Process.THREAD_PRIORITY_BACKGROUND);
-    private Handler handler;
+    private final HandlerThread _thread = new HandlerThread(THREAD_NAME, Process.THREAD_PRIORITY_BACKGROUND);
+    private Handler _handler;
 
     @Override
     public void onCreate() {
-        thread.start();
+        _thread.start();
         final MessageLoader loader = getLoader();
-        handler = new Handler(thread.getLooper()) {
+        _handler = new Handler(_thread.getLooper()) {
             @Override
             public void handleMessage(Message message) {
                 loader.load();
@@ -53,7 +53,7 @@ public class MessageService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        handler.sendEmptyMessage(0);
+        _handler.sendEmptyMessage(0);
         return START_STICKY;
     }
 
@@ -64,6 +64,6 @@ public class MessageService extends Service {
 
     @Override
     public void onDestroy() {
-        thread.quit();
+        _thread.quit();
     }
 }

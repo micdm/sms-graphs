@@ -8,20 +8,20 @@ import com.micdm.smsgraphs.events.intents.IntentBasedEventManager;
 
 public class CustomApplication extends Application {
 
-    private DbHelper dbHelper;
-    private EventManager eventManager;
+    private DbHelper _dbHelper;
+    private EventManager _eventManager;
 
     public DbHelper getDbHelper() {
-        if (dbHelper == null) {
-            dbHelper = new DbHelper(this);
+        if (_dbHelper == null) {
+            _dbHelper = new DbHelper(this);
         }
-        return dbHelper;
+        return _dbHelper;
     }
 
     public EventManager getEventManager() {
-        if (eventManager == null) {
-            eventManager = new IntentBasedEventManager(this);
+        if (_eventManager == null) {
+            _eventManager = new IntentBasedEventManager(this);
         }
-        return eventManager;
+        return _eventManager;
     }
 }

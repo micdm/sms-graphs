@@ -24,10 +24,10 @@ public class OperationParcel implements Parcelable {
         }
     };
 
-    private final Operation operation;
+    private final Operation _operation;
 
     public OperationParcel(Operation operation) {
-        this.operation = operation;
+        _operation = operation;
     }
 
     @Override
@@ -37,11 +37,11 @@ public class OperationParcel implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
-        out.writeParcelable(new TargetParcel(operation.target), flags);
-        out.writeInt(operation.amount);
+        out.writeParcelable(new TargetParcel(_operation.getTarget()), flags);
+        out.writeInt(_operation.getAmount());
     }
 
     public Operation getOperation() {
-        return operation;
+        return _operation;
     }
 }
