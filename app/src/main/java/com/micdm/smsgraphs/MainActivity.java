@@ -39,9 +39,9 @@ import com.micdm.smsgraphs.loaders.OperationLoader;
 import com.micdm.smsgraphs.loaders.OperationReportLoader;
 import com.micdm.smsgraphs.loaders.TargetLoader;
 import com.micdm.smsgraphs.messages.MessageService;
+import com.micdm.smsgraphs.misc.PagerActivity;
+import com.micdm.smsgraphs.misc.PagerAdapter;
 import com.micdm.smsgraphs.parcels.TargetParcel;
-import com.micdm.utils.pager.PagerActivity;
-import com.micdm.utils.pager.PagerAdapter;
 
 import org.joda.time.DateTime;
 
