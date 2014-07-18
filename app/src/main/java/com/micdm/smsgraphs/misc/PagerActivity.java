@@ -1,11 +1,11 @@
 package com.micdm.smsgraphs.misc;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.FragmentTransaction;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 
-public class PagerActivity extends Activity {
+public class PagerActivity extends FragmentActivity {
 
     protected void setupActionBar() {
         ActionBar actionBar = getActionBar();
@@ -17,7 +17,7 @@ public class PagerActivity extends Activity {
     }
 
     protected void setupPager(ViewPager pager) {
-        pager.setAdapter(new PagerAdapter(getFragmentManager()));
+        pager.setAdapter(new PagerAdapter(getSupportFragmentManager()));
         pager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int i) {
