@@ -42,6 +42,9 @@
     <string name="fragment_month_stats_previous">←</string>
     <string name="fragment_month_stats_next">→</string>
     <string name="fragment_month_stats_total">Итого</string>
+    <!-- Фрагмент со списком операций -->
+    <string name="fragment_operations_title">Операции за %1$s\n%2$s</string>
+    <string name="fragment_operations_average">Средний чек</string>
     <!-- Фрагмент со списком продавцов -->
     <string name="fragment_target_list_no_category">Новый</string>
     <string name="fragment_target_list_last_operation">%1$s — %2$s %3$s</string>

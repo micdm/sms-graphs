@@ -5,18 +5,25 @@ import android.os.Parcelable;
 
 import com.micdm.smsgraphs.data.Operation;
 import com.micdm.smsgraphs.data.Target;
+import com.micdm.smsgraphs.misc.DateUtils;
+
+import org.joda.time.DateTime;
 
 public class OperationParcel implements Parcelable {
 
     public static final Creator<OperationParcel> CREATOR = new Creator<OperationParcel>() {
 
         public OperationParcel createFromParcel(Parcel in) {
-            Operation operation = new Operation(getTarget(in), in.readInt());
+            Operation operation = new Operation(in.readInt(), getTarget(in), getCreated(in), in.readInt());
             return new OperationParcel(operation);
         }
 
         private Target getTarget(Parcel in) {
             return ((TargetParcel) in.readParcelable(null)).getTarget();
+        }
+
+        private DateTime getCreated(Parcel in) {
+            return DateUtils.parseForBundle(in.readString());
         }
 
         public OperationParcel[] newArray(int size) {
@@ -37,7 +44,9 @@ public class OperationParcel implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
+        out.writeInt(_operation.getId());
         out.writeParcelable(new TargetParcel(_operation.getTarget()), flags);
+        out.writeString(DateUtils.formatForDb(_operation.getCreated()));
         out.writeInt(_operation.getAmount());
     }
 

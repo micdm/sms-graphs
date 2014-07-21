@@ -66,7 +66,7 @@ public class TargetFragment extends DialogFragment {
         }
     }
 
-    public static final String INIT_ARG_TARGET = "_target";
+    public static final String INIT_ARG_TARGET = "target";
 
     private CategoryHandler _categoryHandler;
     private TargetHandler _targetHandler;

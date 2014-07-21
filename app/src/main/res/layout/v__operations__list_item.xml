@@ -3,17 +3,16 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="5dp"
-    custom:color="@color/stats_target_percentage_background">
+    custom:color="@color/operations_percentage_background">
     <TextView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:id="@+id/v__stats__list_item_target__name"
+        android:id="@+id/v__operations__list_item__created"
         android:layout_weight="1"
-        android:layout_marginLeft="25dp"
-        android:textSize="14sp"/>
+        android:textSize="18sp"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/v__stats__list_item_target__amount"
-        android:textSize="14sp"/>
+        android:id="@+id/v__operations__list_item__amount"
+        android:textSize="18sp"/>
 </com.micdm.smsgraphs.misc.PercentageView>

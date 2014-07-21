@@ -8,6 +8,7 @@ import com.micdm.smsgraphs.data.Operation;
 import com.micdm.smsgraphs.data.Target;
 import com.micdm.smsgraphs.data.TargetList;
 import com.micdm.smsgraphs.db.DbHelper;
+import com.micdm.smsgraphs.misc.DateUtils;
 
 import org.joda.time.DateTime;
 
@@ -32,7 +33,7 @@ public class DbOperationReader extends DbReader<MonthOperationList> {
         }
         SQLiteDatabase db = getDb();
         Cursor cursor = db.rawQuery(
-            "SELECT target_id, amount " +
+            "SELECT id, target_id, created, amount " +
             "FROM operations " +
             "WHERE STRFTIME('%m %Y', created) = ? " +
             "ORDER BY id", new String[] {String.format("%02d %d", _month.getMonthOfYear(), _month.getYear())}
@@ -40,9 +41,11 @@ public class DbOperationReader extends DbReader<MonthOperationList> {
         cursor.moveToFirst();
         List<Operation> operations = new ArrayList<Operation>();
         while (!cursor.isAfterLast()) {
-            Target target = _targets.getById(cursor.getInt(0));
-            int amount = cursor.getInt(1);
-            Operation operation = new Operation(target, amount);
+            int id = cursor.getInt(0);
+            Target target = _targets.getById(cursor.getInt(1));
+            DateTime created = DateUtils.parseForDb(cursor.getString(2));
+            int amount = cursor.getInt(3);
+            Operation operation = new Operation(id, target, created, amount);
             operations.add(operation);
             cursor.moveToNext();
         }

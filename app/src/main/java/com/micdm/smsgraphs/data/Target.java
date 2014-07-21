@@ -44,6 +44,10 @@ public class Target {
         _title = title;
     }
 
+    public String getPrettyTitle() {
+        return (_title == null) ? _name : _title;
+    }
+
     public DateTime getLastPaid() {
         return _lastPaid;
     }

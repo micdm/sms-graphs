@@ -15,6 +15,9 @@
     <item type="color" name="stats_target_percentage_background">#ffc073</item>
     <item type="color" name="stats_total_text">#fff</item>
     <item type="color" name="stats_total_background">#0969a3</item>
+    <item type="color" name="operations_percentage_background">#ff8673</item>
+    <item type="color" name="operations_average_text">#fff</item>
+    <item type="color" name="operations_average_background">#0969a3</item>
     <item type="color" name="target_name_text">#888</item>
     <item type="color" name="target_last_operation_text">#888</item>
 </resources>

@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/v__stats__list_item_category__name"
         android:layout_weight="1"
-        android:paddingLeft="25dp"
+        android:layout_marginLeft="25dp"
         android:textSize="23sp"/>
     <TextView
         android:layout_width="wrap_content"

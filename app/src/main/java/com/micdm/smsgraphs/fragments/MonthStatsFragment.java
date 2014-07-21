@@ -3,6 +3,7 @@ package com.micdm.smsgraphs.fragments;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,9 +23,9 @@ import com.micdm.smsgraphs.events.EventManager;
 import com.micdm.smsgraphs.events.EventType;
 import com.micdm.smsgraphs.events.events.LoadOperationsEvent;
 import com.micdm.smsgraphs.handlers.OperationHandler;
-import com.micdm.smsgraphs.handlers.TargetHandler;
 import com.micdm.smsgraphs.misc.DateUtils;
 import com.micdm.smsgraphs.misc.PercentageView;
+import com.micdm.smsgraphs.parcels.TargetParcel;
 
 import org.joda.time.DateTime;
 
@@ -103,7 +104,7 @@ public class MonthStatsFragment extends Fragment {
             ((PercentageView) view).setPercentage(stat.getPercentage());
             TextView nameView = (TextView) view.findViewById(R.id.v__stats__list_item_target__name);
             Target target = stat.getTarget();
-            nameView.setText((target.getTitle() == null) ? target.getName() : target.getTitle());
+            nameView.setText(target.getPrettyTitle());
             TextView amountView = (TextView) view.findViewById(R.id.v__stats__list_item_target__amount);
             amountView.setText(String.valueOf(stat.getAmount()));
             return view;
@@ -119,7 +120,8 @@ public class MonthStatsFragment extends Fragment {
     public static final String INIT_ARG_IS_LAST = "is_last";
     public static final String INIT_ARG_DATE = "date";
 
-    private TargetHandler _targetHandler;
+    private static final String FRAGMENT_OPERATIONS_TAG = "operations";
+
     private OperationHandler _operationHandler;
 
     private boolean _isFirst;
@@ -132,7 +134,6 @@ public class MonthStatsFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        _targetHandler = (TargetHandler) activity;
         _operationHandler = (OperationHandler) activity;
         handleInitArguments();
     }
@@ -159,12 +160,24 @@ public class MonthStatsFragment extends Fragment {
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
                 CategoryStatsListAdapter adapter = (CategoryStatsListAdapter) parent.getExpandableListAdapter();
                 TargetStat stat = adapter.getChild(groupPosition, childPosition);
-                _targetHandler.requestEditTarget(stat.getTarget());
+                FragmentManager manager = getChildFragmentManager();
+                if (manager.findFragmentByTag(FRAGMENT_OPERATIONS_TAG) == null) {
+                    OperationsFragment fragment = new OperationsFragment();
+                    fragment.setArguments(getOperationsFragmentArguments(stat.getTarget()));
+                    fragment.show(manager, FRAGMENT_OPERATIONS_TAG);
+                }
                 return true;
             }
         });
         _totalView = (TextView) view.findViewById(R.id.f__month_stats__total);
         return view;
+    }
+
+    private Bundle getOperationsFragmentArguments(Target target) {
+        Bundle arguments = new Bundle();
+        arguments.putString(OperationsFragment.INIT_ARG_DATE, DateUtils.formatForBundle(_date));
+        arguments.putParcelable(OperationsFragment.INIT_ARG_TARGET, new TargetParcel(target));
+        return arguments;
     }
 
     @Override
@@ -201,8 +214,8 @@ public class MonthStatsFragment extends Fragment {
         for (Operation operation: operations) {
             Target target = operation.getTarget();
             Category category = target.getCategory();
-            CategoryStat stat = updateCategoryStat(stats, (category == null) ? noCategory : category, operation.getAmount());
-            updateTargetStat(stat.getStats(), target, operation.getAmount());
+            CategoryStat categoryStat = updateCategoryStat(stats, (category == null) ? noCategory : category, operation.getAmount());
+            updateTargetStat(categoryStat.getStats(), target, operation.getAmount());
         }
         addPercentages(stats);
         sortByName(stats);
@@ -249,10 +262,10 @@ public class MonthStatsFragment extends Fragment {
     private void addPercentages(List<CategoryStat> stats) {
         int total = getTotalSum(stats);
         for (CategoryStat categoryStat: stats) {
-            int amount = categoryStat.getAmount();
-            categoryStat.setPercentage((double) amount / total);
+            int categoryAmount = categoryStat.getAmount();
+            categoryStat.setPercentage((double) categoryAmount / total);
             for (TargetStat targetStat: categoryStat.getStats()) {
-                targetStat.setPercentage((double) targetStat.getAmount() / amount);
+                targetStat.setPercentage((double) targetStat.getAmount() / categoryAmount);
             }
         }
     }
@@ -272,8 +285,8 @@ public class MonthStatsFragment extends Fragment {
                 return a.getCategory().getName().compareTo(b.getCategory().getName());
             }
         });
-        for (CategoryStat stat: stats) {
-            Collections.sort(stat.getStats(), new Comparator<TargetStat>() {
+        for (CategoryStat categoryStat: stats) {
+            Collections.sort(categoryStat.getStats(), new Comparator<TargetStat>() {
                 @Override
                 public int compare(TargetStat a, TargetStat b) {
                     return a.getTarget().getName().compareTo(b.getTarget().getName());
