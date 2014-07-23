@@ -23,7 +23,10 @@ import com.micdm.smsgraphs.data.TargetStat;
 import com.micdm.smsgraphs.events.EventManager;
 import com.micdm.smsgraphs.events.EventType;
 import com.micdm.smsgraphs.events.events.LoadOperationsEvent;
-import com.micdm.smsgraphs.handlers.OperationHandler;
+import com.micdm.smsgraphs.events.events.RequestLoadOperationsEvent;
+import com.micdm.smsgraphs.events.events.RequestNextMonthOperationsEvent;
+import com.micdm.smsgraphs.events.events.RequestPreviousMonthOperationsEvent;
+import com.micdm.smsgraphs.events.events.RequestSelectMonthEvent;
 import com.micdm.smsgraphs.misc.DateUtils;
 import com.micdm.smsgraphs.misc.PercentageView;
 import com.micdm.smsgraphs.parcels.TargetParcel;
@@ -147,8 +150,6 @@ public class MonthStatsFragment extends Fragment {
 
     private static final String FRAGMENT_OPERATIONS_TAG = "operations";
 
-    private OperationHandler _operationHandler;
-
     private boolean _isFirst;
     private boolean _isLast;
     private DateTime _date;
@@ -159,7 +160,6 @@ public class MonthStatsFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        _operationHandler = (OperationHandler) activity;
         handleInitArguments();
     }
 
@@ -175,10 +175,28 @@ public class MonthStatsFragment extends Fragment {
         View view = inflater.inflate(R.layout.f__month_stats, null);
         View previousView = view.findViewById(R.id.f__month_stats__previous);
         previousView.setVisibility(_isFirst ? View.INVISIBLE : View.VISIBLE);
+        previousView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getEventManager().publish(new RequestPreviousMonthOperationsEvent());
+            }
+        });
         View nextView = view.findViewById(R.id.f__month_stats__next);
         nextView.setVisibility(_isLast ? View.INVISIBLE : View.VISIBLE);
+        nextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getEventManager().publish(new RequestNextMonthOperationsEvent());
+            }
+        });
         TextView monthView = (TextView) view.findViewById(R.id.f__month_stats__month);
         monthView.setText(DateUtils.formatMonthForHuman(_date));
+        monthView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getEventManager().publish(new RequestSelectMonthEvent(_date));
+            }
+        });
         _categoriesView = (ExpandableListView) view.findViewById(R.id.f__month_stats__categories);
         _categoriesView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
@@ -208,7 +226,13 @@ public class MonthStatsFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        getEventManager().subscribe(this, EventType.LOAD_OPERATIONS, new EventManager.OnEventListener<LoadOperationsEvent>() {
+        subscribeForEvents();
+        getEventManager().publish(new RequestLoadOperationsEvent(_date));
+    }
+
+    private void subscribeForEvents() {
+        EventManager manager = getEventManager();
+        manager.subscribe(this, EventType.LOAD_OPERATIONS, new EventManager.OnEventListener<LoadOperationsEvent>() {
             @Override
             public void onEvent(LoadOperationsEvent event) {
                 MonthOperationList operations = event.getOperations();
@@ -226,7 +250,6 @@ public class MonthStatsFragment extends Fragment {
                 _totalView.setText(String.valueOf(getTotalSum(stats)));
             }
         });
-        _operationHandler.loadOperations(_date);
     }
 
     private EventManager getEventManager() {

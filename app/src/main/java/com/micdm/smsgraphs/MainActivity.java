@@ -19,6 +19,7 @@ import com.micdm.smsgraphs.data.Target;
 import com.micdm.smsgraphs.data.TargetList;
 import com.micdm.smsgraphs.db.writers.DbOperationWriter;
 import com.micdm.smsgraphs.db.writers.DbTargetWriter;
+import com.micdm.smsgraphs.events.Event;
 import com.micdm.smsgraphs.events.EventManager;
 import com.micdm.smsgraphs.events.EventType;
 import com.micdm.smsgraphs.events.events.EditTargetEvent;
@@ -28,14 +29,13 @@ import com.micdm.smsgraphs.events.events.LoadOperationReportEvent;
 import com.micdm.smsgraphs.events.events.LoadOperationsEvent;
 import com.micdm.smsgraphs.events.events.LoadTargetsEvent;
 import com.micdm.smsgraphs.events.events.ProgressLoadMessagesEvent;
+import com.micdm.smsgraphs.events.events.RequestEditTargetEvent;
+import com.micdm.smsgraphs.events.events.RequestLoadOperationsEvent;
+import com.micdm.smsgraphs.events.events.RequestSetOperationIgnoredEvent;
 import com.micdm.smsgraphs.events.events.StartLoadMessagesEvent;
 import com.micdm.smsgraphs.fragments.StatsFragment;
 import com.micdm.smsgraphs.fragments.TargetFragment;
 import com.micdm.smsgraphs.fragments.TargetListFragment;
-import com.micdm.smsgraphs.handlers.CategoryHandler;
-import com.micdm.smsgraphs.handlers.OperationHandler;
-import com.micdm.smsgraphs.handlers.OperationReportHandler;
-import com.micdm.smsgraphs.handlers.TargetHandler;
 import com.micdm.smsgraphs.loaders.CategoryLoader;
 import com.micdm.smsgraphs.loaders.OperationLoader;
 import com.micdm.smsgraphs.loaders.OperationReportLoader;
@@ -51,7 +51,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 // TODO: при первом запуске показать обучение
-public class MainActivity extends PagerActivity implements OperationReportHandler, CategoryHandler, TargetHandler, OperationHandler {
+public class MainActivity extends PagerActivity {
 
     private static final int OPERATION_REPORT_LOADER_ID = 0;
     private static final int CATEGORY_LOADER_ID = 1;
@@ -258,6 +258,57 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
                 _loadingMessagesView.setVisibility(View.GONE);
             }
         });
+        manager.subscribe(this, EventType.REQUEST_LOAD_OPERATION_REPORT, new EventManager.OnEventListener<Event>() {
+            @Override
+            public void onEvent(Event event) {
+                getLoaderManager().initLoader(OPERATION_REPORT_LOADER_ID, null, getOperationReportLoaderCallbacks());
+            }
+        });
+        manager.subscribe(this, EventType.REQUEST_LOAD_CATEGORIES, new EventManager.OnEventListener<Event>() {
+            @Override
+            public void onEvent(Event event) {
+                getLoaderManager().initLoader(CATEGORY_LOADER_ID, null, getCategoryLoaderCallbacks());
+            }
+        });
+        manager.subscribe(this, EventType.REQUEST_LOAD_TARGETS, new EventManager.OnEventListener<Event>() {
+            @Override
+            public void onEvent(Event event) {
+                getLoaderManager().initLoader(TARGET_LOADER_ID, null, getTargetLoaderCallbacks());
+            }
+        });
+        manager.subscribe(this, EventType.REQUEST_LOAD_OPERATIONS, new EventManager.OnEventListener<RequestLoadOperationsEvent>() {
+            @Override
+            public void onEvent(RequestLoadOperationsEvent event) {
+                DateTime date = event.getDate();
+                int id = getOperationLoaderId(date);
+                getLoaderManager().initLoader(id, null, getOperationLoaderCallbacks(date));
+                _operationLoaders.put(id, date);
+            }
+        });
+        manager.subscribe(this, EventType.REQUEST_SET_OPERATION_IGNORED, new EventManager.OnEventListener<RequestSetOperationIgnoredEvent>() {
+            @Override
+            public void onEvent(RequestSetOperationIgnoredEvent event) {
+                Operation operation = event.getOperation();
+                boolean needIgnore = event.needIgnore();
+                operation.setIgnored(needIgnore);
+                DbOperationWriter writer = new DbOperationWriter(((CustomApplication) getApplication()).getDbHelper());
+                writer.write(operation);
+                int loaderId = getOperationLoaderId(operation.getCreated());
+                getLoaderManager().getLoader(loaderId).onContentChanged();
+            }
+        });
+        manager.subscribe(this, EventType.REQUEST_EDIT_TARGET, new EventManager.OnEventListener<RequestEditTargetEvent>() {
+            @Override
+            public void onEvent(RequestEditTargetEvent event) {
+                requestEditTarget(event.getTarget());
+            }
+        });
+        manager.subscribe(this, EventType.EDIT_TARGET, new EventManager.OnEventListener<EditTargetEvent>() {
+            @Override
+            public void onEvent(EditTargetEvent event) {
+                editTarget(event.getTarget(), event.needEditNext());
+            }
+        });
     }
 
     @Override
@@ -266,23 +317,13 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
         ((CustomApplication) getApplication()).getEventManager().unsubscribeAll(this);
     }
 
-    @Override
-    public void loadOperationReport() {
-        getLoaderManager().initLoader(OPERATION_REPORT_LOADER_ID, null, getOperationReportLoaderCallbacks());
+    private Bundle getTargetFragmentArguments(Target target) {
+        Bundle arguments = new Bundle();
+        arguments.putParcelable(TargetFragment.INIT_ARG_TARGET, new TargetParcel(target));
+        return arguments;
     }
 
-    @Override
-    public void loadCategories() {
-        getLoaderManager().initLoader(CATEGORY_LOADER_ID, null, getCategoryLoaderCallbacks());
-    }
-
-    @Override
-    public void loadTargets() {
-        getLoaderManager().initLoader(TARGET_LOADER_ID, null, getTargetLoaderCallbacks());
-    }
-
-    @Override
-    public void requestEditTarget(Target target) {
+    private void requestEditTarget(Target target) {
         FragmentManager manager = getFragmentManager();
         TargetFragment fragment = (TargetFragment) manager.findFragmentByTag(FRAGMENT_TARGET_TAG);
         if (fragment == null || fragment.isDismissing()) {
@@ -292,17 +333,9 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
         }
     }
 
-    private Bundle getTargetFragmentArguments(Target target) {
-        Bundle arguments = new Bundle();
-        arguments.putParcelable(TargetFragment.INIT_ARG_TARGET, new TargetParcel(target));
-        return arguments;
-    }
-
-    @Override
-    public void editTarget(Target edited, boolean editNext) {
+    private void editTarget(Target edited, boolean editNext) {
         Target target = updateTarget(edited);
         updateWithNoCategoryCount();
-        ((CustomApplication) getApplication()).getEventManager().publish(new EditTargetEvent());
         for (int loaderId: _operationLoaders.keySet()) {
             getLoaderManager().getLoader(loaderId).onContentChanged();
         }
@@ -338,22 +371,6 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
             i += 1;
         }
         return (index + 1 == targets.size()) ? targets.get(0) : targets.get(index + 1);
-    }
-
-    @Override
-    public void loadOperations(DateTime date) {
-        int id = getOperationLoaderId(date);
-        getLoaderManager().initLoader(id, null, getOperationLoaderCallbacks(date));
-        _operationLoaders.put(id, date);
-    }
-
-    @Override
-    public void setOperationIgnored(Operation operation, boolean isIgnored) {
-        operation.setIgnored(isIgnored);
-        DbOperationWriter writer = new DbOperationWriter(((CustomApplication) getApplication()).getDbHelper());
-        writer.write(operation);
-        int loaderId = getOperationLoaderId(operation.getCreated());
-        getLoaderManager().getLoader(loaderId).onContentChanged();
     }
 
     private int getOperationLoaderId(DateTime date) {

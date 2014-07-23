@@ -5,15 +5,23 @@ import android.content.Intent;
 
 import com.micdm.smsgraphs.events.Event;
 import com.micdm.smsgraphs.events.EventType;
+import com.micdm.smsgraphs.events.events.EditTargetEvent;
 import com.micdm.smsgraphs.events.events.LoadCategoriesEvent;
 import com.micdm.smsgraphs.events.events.LoadOperationReportEvent;
 import com.micdm.smsgraphs.events.events.LoadOperationsEvent;
 import com.micdm.smsgraphs.events.events.LoadTargetsEvent;
 import com.micdm.smsgraphs.events.events.ProgressLoadMessagesEvent;
+import com.micdm.smsgraphs.events.events.RequestEditTargetEvent;
+import com.micdm.smsgraphs.events.events.RequestLoadOperationsEvent;
+import com.micdm.smsgraphs.events.events.RequestSelectMonthEvent;
+import com.micdm.smsgraphs.events.events.RequestSetOperationIgnoredEvent;
+import com.micdm.smsgraphs.misc.DateUtils;
 import com.micdm.smsgraphs.parcels.CategoryListParcel;
 import com.micdm.smsgraphs.parcels.MonthOperationListParcel;
+import com.micdm.smsgraphs.parcels.OperationParcel;
 import com.micdm.smsgraphs.parcels.OperationReportParcel;
 import com.micdm.smsgraphs.parcels.TargetListParcel;
+import com.micdm.smsgraphs.parcels.TargetParcel;
 
 public class EventConverter {
 
@@ -39,8 +47,25 @@ public class EventConverter {
             case LOAD_TARGETS:
                 intent.putExtra("targets", new TargetListParcel(((LoadTargetsEvent) event).getTargets()));
                 break;
+            case REQUEST_LOAD_OPERATIONS:
+                intent.putExtra("date", DateUtils.formatForBundle(((RequestLoadOperationsEvent) event).getDate()));
+                break;
             case LOAD_OPERATIONS:
                 intent.putExtra("operations", new MonthOperationListParcel(((LoadOperationsEvent) event).getOperations()));
+                break;
+            case REQUEST_SET_OPERATION_IGNORED:
+                intent.putExtra("operation", new OperationParcel(((RequestSetOperationIgnoredEvent) event).getOperation()));
+                intent.putExtra("need_ignore", ((RequestSetOperationIgnoredEvent) event).needIgnore());
+                break;
+            case REQUEST_EDIT_TARGET:
+                intent.putExtra("target", new TargetParcel(((RequestEditTargetEvent) event).getTarget()));
+                break;
+            case EDIT_TARGET:
+                intent.putExtra("target", new TargetParcel(((EditTargetEvent) event).getTarget()));
+                intent.putExtra("need_edit_next", ((EditTargetEvent) event).needEditNext());
+                break;
+            case REQUEST_SELECT_MONTH:
+                intent.putExtra("current", DateUtils.formatForBundle(((RequestSelectMonthEvent) event).getCurrent()));
                 break;
         }
         return intent;

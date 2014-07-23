@@ -24,7 +24,8 @@ import com.micdm.smsgraphs.data.Target;
 import com.micdm.smsgraphs.events.EventManager;
 import com.micdm.smsgraphs.events.EventType;
 import com.micdm.smsgraphs.events.events.LoadOperationsEvent;
-import com.micdm.smsgraphs.handlers.OperationHandler;
+import com.micdm.smsgraphs.events.events.RequestLoadOperationsEvent;
+import com.micdm.smsgraphs.events.events.RequestSetOperationIgnoredEvent;
 import com.micdm.smsgraphs.misc.DateUtils;
 import com.micdm.smsgraphs.misc.PercentageView;
 import com.micdm.smsgraphs.parcels.TargetParcel;
@@ -93,8 +94,6 @@ public class OperationsFragment extends DialogFragment {
     public static final String INIT_ARG_DATE = "date";
     public static final String INIT_ARG_TARGET = "target";
 
-    private OperationHandler _operationHandler;
-
     private DateTime _date;
     private Target _target;
 
@@ -105,7 +104,6 @@ public class OperationsFragment extends DialogFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        _operationHandler = (OperationHandler) activity;
         handleInitArguments();
     }
 
@@ -127,7 +125,7 @@ public class OperationsFragment extends DialogFragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 OperationStat stat = ((OperationListAdapter) parent.getAdapter()).getItem(position);
                 Operation operation = stat.getOperation();
-                _operationHandler.setOperationIgnored(operation, !operation.isIgnored());
+                getEventManager().publish(new RequestSetOperationIgnoredEvent(operation, !operation.isIgnored()));
             }
         });
         _averageView = view.findViewById(R.id.f__operations__average);
@@ -143,7 +141,13 @@ public class OperationsFragment extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-        getEventManager().subscribe(this, EventType.LOAD_OPERATIONS, new EventManager.OnEventListener<LoadOperationsEvent>() {
+        subscribeForEvents();
+        getEventManager().publish(new RequestLoadOperationsEvent(_date));
+    }
+
+    private void subscribeForEvents() {
+        EventManager manager = getEventManager();
+        manager.subscribe(this, EventType.LOAD_OPERATIONS, new EventManager.OnEventListener<LoadOperationsEvent>() {
             @Override
             public void onEvent(LoadOperationsEvent event) {
                 MonthOperationList operations = event.getOperations();
@@ -166,7 +170,6 @@ public class OperationsFragment extends DialogFragment {
                 }
             }
         });
-        _operationHandler.loadOperations(_date);
     }
 
     private EventManager getEventManager() {

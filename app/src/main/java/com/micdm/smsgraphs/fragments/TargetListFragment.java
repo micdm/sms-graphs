@@ -1,6 +1,5 @@
 package com.micdm.smsgraphs.fragments;
 
-import android.app.Activity;
 import android.support.v4.app.ListFragment;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +16,8 @@ import com.micdm.smsgraphs.events.EventManager;
 import com.micdm.smsgraphs.events.EventType;
 import com.micdm.smsgraphs.events.events.EditTargetEvent;
 import com.micdm.smsgraphs.events.events.LoadTargetsEvent;
-import com.micdm.smsgraphs.handlers.TargetHandler;
+import com.micdm.smsgraphs.events.events.RequestEditTargetEvent;
+import com.micdm.smsgraphs.events.events.RequestLoadTargetsEvent;
 import com.micdm.smsgraphs.misc.DateUtils;
 
 public class TargetListFragment extends ListFragment {
@@ -81,18 +81,16 @@ public class TargetListFragment extends ListFragment {
         }
     }
 
-    private TargetHandler _targetHandler;
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        _targetHandler = (TargetHandler) activity;
-    }
-
     @Override
     public void onStart() {
         super.onStart();
-        getEventManager().subscribe(this, EventType.LOAD_TARGETS, new EventManager.OnEventListener<LoadTargetsEvent>() {
+        subscribeForEvents();
+        getEventManager().publish(new RequestLoadTargetsEvent());
+    }
+
+    private void subscribeForEvents() {
+        EventManager manager = getEventManager();
+        manager.subscribe(this, EventType.LOAD_TARGETS, new EventManager.OnEventListener<LoadTargetsEvent>() {
             @Override
             public void onEvent(LoadTargetsEvent event) {
                 TargetListAdapter adapter = (TargetListAdapter) getListAdapter();
@@ -104,8 +102,7 @@ public class TargetListFragment extends ListFragment {
                 adapter.notifyDataSetChanged();
             }
         });
-        _targetHandler.loadTargets();
-        getEventManager().subscribe(this, EventType.EDIT_TARGET, new EventManager.OnEventListener<EditTargetEvent>() {
+        manager.subscribe(this, EventType.EDIT_TARGET, new EventManager.OnEventListener<EditTargetEvent>() {
             @Override
             public void onEvent(EditTargetEvent event) {
                 ((TargetListAdapter) getListView().getAdapter()).notifyDataSetChanged();
@@ -120,7 +117,7 @@ public class TargetListFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView listView, View view, int position, long id) {
         Target target = ((TargetListAdapter) listView.getAdapter()).getItem(position);
-        _targetHandler.requestEditTarget(target);
+        getEventManager().publish(new RequestEditTargetEvent(target));
     }
 
     @Override

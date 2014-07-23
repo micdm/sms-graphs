@@ -20,9 +20,9 @@ import com.micdm.smsgraphs.data.CategoryList;
 import com.micdm.smsgraphs.data.Target;
 import com.micdm.smsgraphs.events.EventManager;
 import com.micdm.smsgraphs.events.EventType;
+import com.micdm.smsgraphs.events.events.EditTargetEvent;
 import com.micdm.smsgraphs.events.events.LoadCategoriesEvent;
-import com.micdm.smsgraphs.handlers.CategoryHandler;
-import com.micdm.smsgraphs.handlers.TargetHandler;
+import com.micdm.smsgraphs.events.events.RequestLoadCategoriesEvent;
 import com.micdm.smsgraphs.misc.DateUtils;
 import com.micdm.smsgraphs.parcels.TargetParcel;
 
@@ -68,9 +68,6 @@ public class TargetFragment extends DialogFragment {
 
     public static final String INIT_ARG_TARGET = "target";
 
-    private CategoryHandler _categoryHandler;
-    private TargetHandler _targetHandler;
-
     private Target _target;
 
     private EditText _titleView;
@@ -81,8 +78,6 @@ public class TargetFragment extends DialogFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        _categoryHandler = (CategoryHandler) activity;
-        _targetHandler = (TargetHandler) activity;
         handleInitArguments();
     }
 
@@ -113,7 +108,7 @@ public class TargetFragment extends DialogFragment {
             public void onClick(DialogInterface dialog, int which) {
                 _isDismissing = true;
                 updateTarget();
-                _targetHandler.editTarget(_target, false);
+                getEventManager().publish(new EditTargetEvent(_target, false));
             }
         });
         builder.setPositiveButton(R.string.fragment_target_next_button, new DialogInterface.OnClickListener() {
@@ -121,7 +116,7 @@ public class TargetFragment extends DialogFragment {
             public void onClick(DialogInterface dialog, int which) {
                 _isDismissing = true;
                 updateTarget();
-                _targetHandler.editTarget(_target, true);
+                getEventManager().publish(new EditTargetEvent(_target, true));
             }
         });
         return builder.create();
@@ -136,7 +131,13 @@ public class TargetFragment extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-        getEventManager().subscribe(this, EventType.LOAD_CATEGORIES, new EventManager.OnEventListener<LoadCategoriesEvent>() {
+        subscribeForEvents();
+        getEventManager().publish(new RequestLoadCategoriesEvent());
+    }
+
+    private void subscribeForEvents() {
+        EventManager manager = getEventManager();
+        manager.subscribe(this, EventType.LOAD_CATEGORIES, new EventManager.OnEventListener<LoadCategoriesEvent>() {
             @Override
             public void onEvent(LoadCategoriesEvent event) {
                 CategoryListAdapter adapter = (CategoryListAdapter) _categoriesView.getAdapter();
@@ -152,7 +153,6 @@ public class TargetFragment extends DialogFragment {
                 adapter.notifyDataSetChanged();
             }
         });
-        _categoryHandler.loadCategories();
     }
 
     private EventManager getEventManager() {

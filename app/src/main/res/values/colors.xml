@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- http://colorscheme.ru/#3u40rw0w0w0w0 -->
+<!-- http://colorscheme.ru/#3u40Rw0w0w0w0 -->
 <resources>
     <item type="color" name="target_with_no_category_text">#fff</item>
     <item type="color" name="target_with_no_category_background">#ff2300</item>
@@ -9,6 +9,7 @@
     <item type="color" name="stats_header_background">#0969a3</item>
     <item type="color" name="stats_navigation_normal_text">#64a8d1</item>
     <item type="color" name="stats_navigation_active_text">#fff</item>
+    <item type="color" name="stats_navigation_active_background">#245a7a</item>
     <item type="color" name="stats_category_divider_background">#0fff</item>
     <item type="color" name="stats_category_percentage_background">#64de89</item>
     <item type="color" name="stats_target_divider_background">#0fff</item>
