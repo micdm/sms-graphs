@@ -1,6 +1,7 @@
 package com.micdm.smsgraphs.fragments;
 
 import android.app.Activity;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -91,7 +92,15 @@ public class MonthStatsFragment extends Fragment {
             TextView nameView = (TextView) view.findViewById(R.id.v__stats__list_item_category__name);
             nameView.setText(stat.getCategory().getName());
             TextView amountView = (TextView) view.findViewById(R.id.v__stats__list_item_category__amount);
-            amountView.setText(String.valueOf(stat.getAmount()));
+            int amount = stat.getAmount();
+            if (amount == 0) {
+                setStrikethroughTextStyle(nameView);
+                amountView.setVisibility(View.GONE);
+            } else {
+                setNormalTextStyle(nameView);
+                amountView.setText(String.valueOf(amount));
+                amountView.setVisibility(View.VISIBLE);
+            }
             return view;
         }
 
@@ -106,13 +115,29 @@ public class MonthStatsFragment extends Fragment {
             Target target = stat.getTarget();
             nameView.setText(target.getPrettyTitle());
             TextView amountView = (TextView) view.findViewById(R.id.v__stats__list_item_target__amount);
-            amountView.setText(String.valueOf(stat.getAmount()));
+            int amount = stat.getAmount();
+            if (amount == 0) {
+                setStrikethroughTextStyle(nameView);
+                amountView.setVisibility(View.GONE);
+            } else {
+                setNormalTextStyle(nameView);
+                amountView.setText(String.valueOf(amount));
+                amountView.setVisibility(View.VISIBLE);
+            }
             return view;
         }
 
         @Override
         public boolean isChildSelectable(int groupPosition, int childPosition) {
             return true;
+        }
+
+        private void setStrikethroughTextStyle(TextView view) {
+            view.setPaintFlags(view.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        }
+
+        private void setNormalTextStyle(TextView view) {
+            view.setPaintFlags(view.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
         }
     }
 
@@ -214,21 +239,23 @@ public class MonthStatsFragment extends Fragment {
         for (Operation operation: operations) {
             Target target = operation.getTarget();
             Category category = target.getCategory();
-            CategoryStat categoryStat = updateCategoryStat(stats, (category == null) ? noCategory : category, operation.getAmount());
-            updateTargetStat(categoryStat.getStats(), target, operation.getAmount());
+            CategoryStat categoryStat = updateCategoryStat(stats, (category == null) ? noCategory : category, operation);
+            updateTargetStat(categoryStat.getStats(), target, operation);
         }
         addPercentages(stats);
         sortByName(stats);
         return stats;
     }
 
-    private CategoryStat updateCategoryStat(List<CategoryStat> stats, Category category, int amount) {
+    private CategoryStat updateCategoryStat(List<CategoryStat> stats, Category category, Operation operation) {
         CategoryStat stat = getCategoryStat(stats, category);
         if (stat == null) {
             stat = new CategoryStat(category);
             stats.add(stat);
         }
-        stat.setAmount(stat.getAmount() + amount);
+        if (!operation.isIgnored()) {
+            stat.setAmount(stat.getAmount() + operation.getAmount());
+        }
         return stat;
     }
 
@@ -241,13 +268,15 @@ public class MonthStatsFragment extends Fragment {
         return null;
     }
 
-    private void updateTargetStat(List<TargetStat> stats, Target target, int amount) {
+    private void updateTargetStat(List<TargetStat> stats, Target target, Operation operation) {
         TargetStat targetStat = getTargetStat(stats, target);
         if (targetStat == null) {
             targetStat = new TargetStat(target);
             stats.add(targetStat);
         }
-        targetStat.setAmount(targetStat.getAmount() + amount);
+        if (!operation.isIgnored()) {
+            targetStat.setAmount(targetStat.getAmount() + operation.getAmount());
+        }
     }
 
     public TargetStat getTargetStat(List<TargetStat> stats, Target target) {
@@ -261,11 +290,20 @@ public class MonthStatsFragment extends Fragment {
 
     private void addPercentages(List<CategoryStat> stats) {
         int total = getTotalSum(stats);
+        if (total == 0) {
+            return;
+        }
         for (CategoryStat categoryStat: stats) {
             int categoryAmount = categoryStat.getAmount();
+            if (categoryAmount == 0) {
+                continue;
+            }
             categoryStat.setPercentage((double) categoryAmount / total);
             for (TargetStat targetStat: categoryStat.getStats()) {
-                targetStat.setPercentage((double) targetStat.getAmount() / categoryAmount);
+                int targetAmount = targetStat.getAmount();
+                if (targetAmount != 0) {
+                    targetStat.setPercentage((double) targetAmount / categoryAmount);
+                }
             }
         }
     }

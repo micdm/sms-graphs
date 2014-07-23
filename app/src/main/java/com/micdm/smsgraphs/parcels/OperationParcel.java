@@ -14,7 +14,7 @@ public class OperationParcel implements Parcelable {
     public static final Creator<OperationParcel> CREATOR = new Creator<OperationParcel>() {
 
         public OperationParcel createFromParcel(Parcel in) {
-            Operation operation = new Operation(in.readInt(), getTarget(in), getCreated(in), in.readInt());
+            Operation operation = new Operation(in.readInt(), getTarget(in), getCreated(in), in.readInt(), (in.readInt() == 1));
             return new OperationParcel(operation);
         }
 
@@ -48,6 +48,7 @@ public class OperationParcel implements Parcelable {
         out.writeParcelable(new TargetParcel(_operation.getTarget()), flags);
         out.writeString(DateUtils.formatForDb(_operation.getCreated()));
         out.writeInt(_operation.getAmount());
+        out.writeInt(_operation.isIgnored() ? 1 : 0);
     }
 
     public Operation getOperation() {

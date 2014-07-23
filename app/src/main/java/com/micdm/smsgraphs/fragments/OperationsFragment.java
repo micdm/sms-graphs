@@ -4,11 +4,13 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -63,13 +65,28 @@ public class OperationsFragment extends DialogFragment {
                 view = View.inflate(getActivity(), R.layout.v__operations__list_item, null);
             }
             OperationStat stat = getItem(position);
-            ((PercentageView) view).setPercentage(stat.getPercentage());
             Operation operation = stat.getOperation();
+            ((PercentageView) view).setPercentage(stat.getPercentage());
             TextView createdView = (TextView) view.findViewById(R.id.v__operations__list_item__created);
             createdView.setText(DateUtils.formatForHuman(operation.getCreated()));
             TextView amountView = (TextView) view.findViewById(R.id.v__operations__list_item__amount);
             amountView.setText(String.valueOf(operation.getAmount()));
+            if (operation.isIgnored()) {
+                setStrikethroughTextStyle(createdView);
+                setStrikethroughTextStyle(amountView);
+            } else {
+                setNormalTextStyle(createdView);
+                setNormalTextStyle(amountView);
+            }
             return view;
+        }
+
+        private void setStrikethroughTextStyle(TextView view) {
+            view.setPaintFlags(view.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
+        }
+
+        private void setNormalTextStyle(TextView view) {
+            view.setPaintFlags(view.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
         }
     }
 
@@ -105,6 +122,14 @@ public class OperationsFragment extends DialogFragment {
         builder.setTitle(getString(R.string.fragment_operations_title, DateUtils.formatMonthForHuman(_date).toLowerCase(), _target.getPrettyTitle()));
         View view = View.inflate(getActivity(), R.layout.f__operations, null);
         _operationsView = (ListView) view.findViewById(R.id.f__operations__operations);
+        _operationsView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                OperationStat stat = ((OperationListAdapter) parent.getAdapter()).getItem(position);
+                Operation operation = stat.getOperation();
+                _operationHandler.setOperationIgnored(operation, !operation.isIgnored());
+            }
+        });
         _averageView = view.findViewById(R.id.f__operations__average);
         _averageValueView = (TextView) view.findViewById(R.id.f__operations__average_value);
         builder.setView(view);
@@ -171,7 +196,9 @@ public class OperationsFragment extends DialogFragment {
     private int getTargetAmount(List<Operation> operations) {
         int amount = 0;
         for (Operation operation: operations) {
-            amount += operation.getAmount();
+            if (!operation.isIgnored()) {
+                amount += operation.getAmount();
+            }
         }
         return amount;
     }

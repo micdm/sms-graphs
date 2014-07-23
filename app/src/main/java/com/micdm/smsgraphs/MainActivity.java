@@ -13,9 +13,11 @@ import android.widget.TextView;
 
 import com.micdm.smsgraphs.data.CategoryList;
 import com.micdm.smsgraphs.data.MonthOperationList;
+import com.micdm.smsgraphs.data.Operation;
 import com.micdm.smsgraphs.data.OperationReport;
 import com.micdm.smsgraphs.data.Target;
 import com.micdm.smsgraphs.data.TargetList;
+import com.micdm.smsgraphs.db.writers.DbOperationWriter;
 import com.micdm.smsgraphs.db.writers.DbTargetWriter;
 import com.micdm.smsgraphs.events.EventManager;
 import com.micdm.smsgraphs.events.EventType;
@@ -343,6 +345,15 @@ public class MainActivity extends PagerActivity implements OperationReportHandle
         int id = getOperationLoaderId(date);
         getLoaderManager().initLoader(id, null, getOperationLoaderCallbacks(date));
         _operationLoaders.put(id, date);
+    }
+
+    @Override
+    public void setOperationIgnored(Operation operation, boolean isIgnored) {
+        operation.setIgnored(isIgnored);
+        DbOperationWriter writer = new DbOperationWriter(((CustomApplication) getApplication()).getDbHelper());
+        writer.write(operation);
+        int loaderId = getOperationLoaderId(operation.getCreated());
+        getLoaderManager().getLoader(loaderId).onContentChanged();
     }
 
     private int getOperationLoaderId(DateTime date) {

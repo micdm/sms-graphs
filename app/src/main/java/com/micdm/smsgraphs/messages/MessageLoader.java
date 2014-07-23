@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.micdm.smsgraphs.data.Message;
 import com.micdm.smsgraphs.db.DbHelper;
-import com.micdm.smsgraphs.db.writers.DbOperationWriter;
+import com.micdm.smsgraphs.db.writers.DbMessageWriter;
 
 class MessageLoader {
 
@@ -15,7 +15,7 @@ class MessageLoader {
     }
 
     private final MessageReader _reader;
-    private final DbOperationWriter _writer;
+    private final DbMessageWriter _writer;
     private final OnLoadListener _listener;
 
     public MessageLoader(Context context, DbHelper dbHelper, final OnLoadListener listener) {
@@ -29,7 +29,7 @@ class MessageLoader {
                 _writer.write(message);
             }
         });
-        _writer = new DbOperationWriter(dbHelper);
+        _writer = new DbMessageWriter(dbHelper);
         _listener = listener;
     }
 

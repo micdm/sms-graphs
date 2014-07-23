@@ -10,7 +10,7 @@ import com.micdm.smsgraphs.R;
 public class DbHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "main";
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
 
     private final Context _context;
 
@@ -32,7 +32,7 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL(
             "CREATE TABLE cards (" +
                 "id INTEGER PRIMARY KEY," +
-                "name TEXT UNIQUE" +
+                "name TEXT NOT NULL UNIQUE" +
             ")"
         );
     }
@@ -41,7 +41,7 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL(
             "CREATE TABLE categories (" +
                 "id INTEGER PRIMARY KEY," +
-                "name TEXT UNIQUE" +
+                "name TEXT NOT NULL UNIQUE" +
             ")"
         );
     }
@@ -51,7 +51,7 @@ public class DbHelper extends SQLiteOpenHelper {
             "CREATE TABLE targets (" +
                 "id INTEGER PRIMARY KEY," +
                 "category_id INTEGER REFERENCES categories(id)," +
-                "name TEXT UNIQUE," +
+                "name TEXT NOT NULL UNIQUE," +
                 "title TEXT" +
             ")"
         );
@@ -61,10 +61,11 @@ public class DbHelper extends SQLiteOpenHelper {
         db.execSQL(
             "CREATE TABLE operations (" +
                 "id INTEGER PRIMARY KEY," +
-                "card_id INTEGER REFERENCES cards(id)," +
-                "target_id INTEGER REFERENCES targets(id)," +
-                "created DATETIME," +
-                "amount INTEGER," +
+                "card_id INTEGER NOT NULL REFERENCES cards(id)," +
+                "target_id INTEGER NOT NULL REFERENCES targets(id)," +
+                "created DATETIME NOT NULL," +
+                "amount INTEGER NOT NULL," +
+                "ignored BOOLEAN NOT NULL DEFAULT 0," +
                 "UNIQUE (card_id, target_id, created, amount)" +
             ")"
         );
@@ -81,6 +82,8 @@ public class DbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int previous, int next) {
-
+        if (next == 2) {
+            db.execSQL("ALTER TABLE operations ADD COLUMN ignored BOOLEAN NOT NULL DEFAULT 0");
+        }
     }
 }
