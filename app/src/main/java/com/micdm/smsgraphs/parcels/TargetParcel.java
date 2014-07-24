@@ -19,7 +19,8 @@ public class TargetParcel implements Parcelable {
         }
 
         private Category getCategory(Parcel in) {
-            return ((CategoryParcel) in.readParcelable(null)).getCategory();
+            CategoryParcel parcel = in.readParcelable(null);
+            return (parcel == null) ? null : parcel.getCategory();
         }
 
         private DateTime getLastPaid(Parcel in) {
@@ -45,7 +46,8 @@ public class TargetParcel implements Parcelable {
     @Override
     public void writeToParcel(Parcel out, int flags) {
         out.writeInt(_target.getId());
-        out.writeParcelable(new CategoryParcel(_target.getCategory()), flags);
+        Category category = _target.getCategory();
+        out.writeParcelable((category == null) ? null : new CategoryParcel(category), flags);
         out.writeString(_target.getName());
         out.writeString(_target.getTitle());
         out.writeString(DateUtils.formatForBundle(_target.getLastPaid()));
