@@ -51,6 +51,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 // TODO: при первом запуске показать обучение
+// TODO: падает, если в системе не русский язык
 public class MainActivity extends PagerActivity {
 
     private static final int OPERATION_REPORT_LOADER_ID = 0;

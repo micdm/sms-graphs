@@ -37,7 +37,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-// TODO: при клике по стрелкам слать событие, что надо прокрутить
 // TODO: когда приходит новое сообщение, списки схлопываются
 public class MonthStatsFragment extends Fragment {
 

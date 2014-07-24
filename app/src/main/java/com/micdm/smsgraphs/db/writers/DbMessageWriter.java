@@ -62,8 +62,8 @@ public class DbMessageWriter extends DbWriter<Message> {
         return result;
     }
 
-    private long writeOperation(SQLiteDatabase db, Message message, long cardRowId, long targetRowId) {
-        return db.insertWithOnConflict("operations", null, getMessageValues(message, cardRowId, targetRowId), SQLiteDatabase.CONFLICT_IGNORE);
+    private void writeOperation(SQLiteDatabase db, Message message, long cardRowId, long targetRowId) {
+        db.insertWithOnConflict("operations", null, getMessageValues(message, cardRowId, targetRowId), SQLiteDatabase.CONFLICT_IGNORE);
     }
 
     private ContentValues getMessageValues(Message message, long cardRowId, long targetRowId) {
