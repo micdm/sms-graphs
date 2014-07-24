@@ -1,7 +1,6 @@
 package com.micdm.smsgraphs.data;
 
 import org.joda.time.DateTime;
-import org.joda.time.Period;
 
 public class OperationReport {
 
@@ -19,14 +18,5 @@ public class OperationReport {
 
     public DateTime getLast() {
         return _last;
-    }
-
-    public int getMonthCount() {
-        if (_first == null || _last == null) {
-            return 0;
-        }
-        DateTime begin = _first.withDayOfMonth(1).withMillisOfDay(0);
-        DateTime end = _last.plusMonths(1).withDayOfMonth(1).withMillisOfDay(0);
-        return new Period(begin, end).getMonths();
     }
 }

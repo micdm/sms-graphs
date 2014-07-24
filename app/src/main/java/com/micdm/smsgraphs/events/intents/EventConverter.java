@@ -13,6 +13,7 @@ import com.micdm.smsgraphs.events.events.LoadTargetsEvent;
 import com.micdm.smsgraphs.events.events.ProgressLoadMessagesEvent;
 import com.micdm.smsgraphs.events.events.RequestEditTargetEvent;
 import com.micdm.smsgraphs.events.events.RequestLoadOperationsEvent;
+import com.micdm.smsgraphs.events.events.RequestMonthOperationsEvent;
 import com.micdm.smsgraphs.events.events.RequestSelectMonthEvent;
 import com.micdm.smsgraphs.events.events.RequestSetOperationIgnoredEvent;
 import com.micdm.smsgraphs.misc.DateUtils;
@@ -63,6 +64,9 @@ public class EventConverter {
             case EDIT_TARGET:
                 intent.putExtra("target", new TargetParcel(((EditTargetEvent) event).getTarget()));
                 intent.putExtra("need_edit_next", ((EditTargetEvent) event).needEditNext());
+                break;
+            case REQUEST_MONTH_OPERATIONS:
+                intent.putExtra("date", DateUtils.formatForBundle(((RequestMonthOperationsEvent) event).getDate()));
                 break;
             case REQUEST_SELECT_MONTH:
                 intent.putExtra("current", DateUtils.formatForBundle(((RequestSelectMonthEvent) event).getCurrent()));

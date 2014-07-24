@@ -24,8 +24,7 @@ import com.micdm.smsgraphs.events.EventManager;
 import com.micdm.smsgraphs.events.EventType;
 import com.micdm.smsgraphs.events.events.LoadOperationsEvent;
 import com.micdm.smsgraphs.events.events.RequestLoadOperationsEvent;
-import com.micdm.smsgraphs.events.events.RequestNextMonthOperationsEvent;
-import com.micdm.smsgraphs.events.events.RequestPreviousMonthOperationsEvent;
+import com.micdm.smsgraphs.events.events.RequestMonthOperationsEvent;
 import com.micdm.smsgraphs.events.events.RequestSelectMonthEvent;
 import com.micdm.smsgraphs.misc.DateUtils;
 import com.micdm.smsgraphs.misc.PercentageView;
@@ -178,7 +177,7 @@ public class MonthStatsFragment extends Fragment {
         previousView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getEventManager().publish(new RequestPreviousMonthOperationsEvent());
+                getEventManager().publish(new RequestMonthOperationsEvent(_date.minusMonths(1)));
             }
         });
         View nextView = view.findViewById(R.id.f__month_stats__next);
@@ -186,7 +185,7 @@ public class MonthStatsFragment extends Fragment {
         nextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getEventManager().publish(new RequestNextMonthOperationsEvent());
+                getEventManager().publish(new RequestMonthOperationsEvent(_date.plusMonths(1)));
             }
         });
         TextView monthView = (TextView) view.findViewById(R.id.f__month_stats__month);

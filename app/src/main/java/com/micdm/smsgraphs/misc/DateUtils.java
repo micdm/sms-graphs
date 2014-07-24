@@ -48,6 +48,13 @@ public class DateUtils {
     }
 
     public synchronized static String formatMonthForHuman(DateTime date) {
+        return formatMonthForHuman(date, false);
+    }
+
+    public synchronized static String formatMonthForHuman(DateTime date, boolean needMonthOnly) {
+        if (needMonthOnly) {
+            return HUMAN_MONTH_FORMAT.format(date.toDate());
+        }
         DateTime now = new DateTime();
         if (date.getYear() == now.getYear()) {
             return HUMAN_MONTH_FORMAT.format(date.toDate());

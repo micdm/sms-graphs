@@ -22,8 +22,7 @@ import com.micdm.smsgraphs.events.events.RequestLoadCategoriesEvent;
 import com.micdm.smsgraphs.events.events.RequestLoadOperationReportEvent;
 import com.micdm.smsgraphs.events.events.RequestLoadOperationsEvent;
 import com.micdm.smsgraphs.events.events.RequestLoadTargetsEvent;
-import com.micdm.smsgraphs.events.events.RequestNextMonthOperationsEvent;
-import com.micdm.smsgraphs.events.events.RequestPreviousMonthOperationsEvent;
+import com.micdm.smsgraphs.events.events.RequestMonthOperationsEvent;
 import com.micdm.smsgraphs.events.events.RequestSelectMonthEvent;
 import com.micdm.smsgraphs.events.events.RequestSetOperationIgnoredEvent;
 import com.micdm.smsgraphs.events.events.StartLoadMessagesEvent;
@@ -69,10 +68,8 @@ public class IntentConverter {
                 return getRequestEditTargetEvent(intent);
             case EDIT_TARGET:
                 return getEditTargetEvent(intent);
-            case REQUEST_PREVIOUS_MONTH_OPERATIONS:
-                return new RequestPreviousMonthOperationsEvent();
-            case REQUEST_NEXT_MONTH_OPERATIONS:
-                return new RequestNextMonthOperationsEvent();
+            case REQUEST_MONTH_OPERATIONS:
+                return getRequestMonthOperationsEvent(intent);
             case REQUEST_SELECT_MONTH:
                 return getRequestSelectMonthEvent(intent);
             default:
@@ -138,6 +135,11 @@ public class IntentConverter {
         Target target = ((TargetParcel) intent.getParcelableExtra("target")).getTarget();
         boolean needEditNext = intent.getBooleanExtra("need_edit_next", false);
         return new EditTargetEvent(target, needEditNext);
+    }
+
+    private Event getRequestMonthOperationsEvent(Intent intent) {
+        DateTime date = DateUtils.parseForBundle(intent.getStringExtra("date"));
+        return new RequestMonthOperationsEvent(date);
     }
 
     private Event getRequestSelectMonthEvent(Intent intent) {

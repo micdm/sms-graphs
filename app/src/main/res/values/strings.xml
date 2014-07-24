@@ -38,6 +38,8 @@
     <string name="activity_main_loading_messages">Обрабатываем новые SMS-сообщения…</string>
     <string name="activity_main_no_operations">Похоже, у вас пока нет сообщений из банка.</string>
     <string name="activity_main_loading_data">Загружаем данные…</string>
+    <!-- Фрагмент для выбора месяца -->
+    <string name="fragment_select_month_title">Выбор месяца</string>
     <!-- Фрагмент со статистикой -->
     <string name="fragment_month_stats_previous">←</string>
     <string name="fragment_month_stats_next">→</string>

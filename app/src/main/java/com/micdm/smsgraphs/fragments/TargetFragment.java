@@ -90,19 +90,7 @@ public class TargetFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.fragment_target_title);
-        View view = View.inflate(getActivity(), R.layout.f__target, null);
-        TextView lastOperationView = (TextView) view.findViewById(R.id.f__target__last_operation);
-        int lastAmount = _target.getLastAmount();
-        lastOperationView.setText(getString(R.string.fragment_target_last_operation,
-                DateUtils.formatForHuman(_target.getLastPaid()), lastAmount, getResources().getQuantityString(R.plurals.rubles, lastAmount)));
-        _titleView = (EditText) view.findViewById(R.id.f__target__title);
-        _titleView.setHint(_target.getName());
-        String title = _target.getTitle();
-        if (title != null) {
-            _titleView.setText(title);
-        }
-        _categoriesView = (Spinner) view.findViewById(R.id.f__target__categories);
-        builder.setView(view);
+        builder.setView(getDialogView());
         builder.setNeutralButton(R.string.fragment_target_save_button, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -120,6 +108,22 @@ public class TargetFragment extends DialogFragment {
             }
         });
         return builder.create();
+    }
+
+    private View getDialogView() {
+        View view = View.inflate(getActivity(), R.layout.f__target, null);
+        TextView lastOperationView = (TextView) view.findViewById(R.id.f__target__last_operation);
+        int lastAmount = _target.getLastAmount();
+        lastOperationView.setText(getString(R.string.fragment_target_last_operation,
+                DateUtils.formatForHuman(_target.getLastPaid()), lastAmount, getResources().getQuantityString(R.plurals.rubles, lastAmount)));
+        _titleView = (EditText) view.findViewById(R.id.f__target__title);
+        _titleView.setHint(_target.getName());
+        String title = _target.getTitle();
+        if (title != null) {
+            _titleView.setText(title);
+        }
+        _categoriesView = (Spinner) view.findViewById(R.id.f__target__categories);
+        return view;
     }
 
     private void updateTarget() {
