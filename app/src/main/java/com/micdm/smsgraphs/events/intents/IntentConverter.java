@@ -133,7 +133,8 @@ public class IntentConverter {
 
     private Event getEditCategoryEvent(Intent intent) {
         Category category = ((CategoryParcel) intent.getParcelableExtra("category")).getCategory();
-        return new EditCategoryEvent(category);
+        boolean needRemove = intent.getBooleanExtra("need_remove", false);
+        return new EditCategoryEvent(category, needRemove);
     }
 
     private Event getRequestEditTargetEvent(Intent intent) {

@@ -29,4 +29,17 @@ public class DbCategoryWriter extends DbWriter<Category> {
         result.put("name", category.getName());
         return result;
     }
+
+    @Override
+    public void remove(Category category) {
+        SQLiteDatabase db = getDb();
+        db.update("targets", getTargetValues(), "category_id = ?", new String[] {String.valueOf(category.getId())});
+        db.delete("categories", "id = ?", new String[] {String.valueOf(category.getId())});
+    }
+
+    private ContentValues getTargetValues() {
+        ContentValues result = new ContentValues();
+        result.putNull("category_id");
+        return result;
+    }
 }

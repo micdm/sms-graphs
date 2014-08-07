@@ -314,7 +314,7 @@ public class MainActivity extends PagerActivity {
         manager.subscribe(this, EventType.EDIT_CATEGORY, new EventManager.OnEventListener<EditCategoryEvent>() {
             @Override
             public void onEvent(EditCategoryEvent event) {
-                editCategory(event.getCategory());
+                editCategory(event.getCategory(), event.needRemove());
             }
         });
         manager.subscribe(this, EventType.REQUEST_EDIT_TARGET, new EventManager.OnEventListener<RequestEditTargetEvent>() {
@@ -341,12 +341,16 @@ public class MainActivity extends PagerActivity {
         ((CustomApplication) getApplication()).getEventManager().unsubscribeAll(this);
     }
 
-    private void editCategory(Category category) {
+    private void editCategory(Category category, boolean needRemove) {
         DbCategoryWriter writer = new DbCategoryWriter(((CustomApplication) getApplication()).getDbHelper());
-        if (category.getId() == 0) {
-            writer.add(category);
+        if (needRemove) {
+            writer.remove(category);
         } else {
-            writer.update(category);
+            if (category.getId() == 0) {
+                writer.add(category);
+            } else {
+                writer.update(category);
+            }
         }
         notifyLoadersOnEditCategory();
     }

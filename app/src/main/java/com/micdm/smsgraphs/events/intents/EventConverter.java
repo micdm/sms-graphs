@@ -62,6 +62,7 @@ public class EventConverter {
                 break;
             case EDIT_CATEGORY:
                 intent.putExtra("category", new CategoryParcel(((EditCategoryEvent) event).getCategory()));
+                intent.putExtra("need_remove", ((EditCategoryEvent) event).needRemove());
                 break;
             case REQUEST_EDIT_TARGET:
                 intent.putExtra("target", new TargetParcel(((RequestEditTargetEvent) event).getTarget()));

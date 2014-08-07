@@ -47,14 +47,14 @@ public class CategoryFragment extends DialogFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 updateCategory();
-                getEventManager().publish(new EditCategoryEvent(_category));
+                getEventManager().publish(new EditCategoryEvent(_category, false));
             }
         });
         if (_category != null) {
             builder.setPositiveButton(R.string.fragment_category_remove_button, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-
+                    getEventManager().publish(new EditCategoryEvent(_category, true));
                 }
             });
         }

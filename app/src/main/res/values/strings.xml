@@ -49,6 +49,7 @@
     <string name="fragment_operations_title">Операции за %1$s\n%2$s</string>
     <string name="fragment_operations_average">Средний чек</string>
     <!-- Фрагмент со списком категорий -->
+    <string name="fragment_category_list_no_items">Категорий пока нет.\nДобавьте какие-нибудь!</string>
     <string name="fragment_category_list_add">Добавить…</string>
     <!-- Фрагмент для редактирования категории -->
     <string name="fragment_category_title">Категория</string>

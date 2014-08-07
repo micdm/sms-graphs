@@ -65,6 +65,7 @@ public class CategoryListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.f__category_list, null);
         _categoriesView = (ListView) view.findViewById(R.id.f__category_list__categories);
+        _categoriesView.setEmptyView(view.findViewById(R.id.f__category_list__no_items));
         _categoriesView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
