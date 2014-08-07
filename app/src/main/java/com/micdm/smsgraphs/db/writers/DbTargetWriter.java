@@ -14,7 +14,7 @@ public class DbTargetWriter extends DbWriter<Target> {
     }
 
     @Override
-    public void write(Target target) {
+    public void update(Target target) {
         SQLiteDatabase db = getDb();
         db.update("targets", getValues(target), "id = ?", new String[] {String.valueOf(target.getId())});
     }

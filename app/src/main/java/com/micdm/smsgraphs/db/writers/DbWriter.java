@@ -16,5 +16,9 @@ public abstract class DbWriter<Entity> {
         return _dbHelper.getWritableDatabase();
     }
 
-    public abstract void write(Entity entity);
+    public void add(Entity entity) {}
+
+    public void update(Entity entity) {}
+
+    public void remove(Entity entity) {}
 }

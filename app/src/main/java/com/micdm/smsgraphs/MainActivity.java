@@ -306,7 +306,7 @@ public class MainActivity extends PagerActivity {
                 boolean needIgnore = event.needIgnore();
                 operation.setIgnored(needIgnore);
                 DbOperationWriter writer = new DbOperationWriter(((CustomApplication) getApplication()).getDbHelper());
-                writer.write(operation);
+                writer.update(operation);
                 int loaderId = getOperationLoaderId(operation.getCreated());
                 getLoaderManager().getLoader(loaderId).onContentChanged();
             }
@@ -341,17 +341,14 @@ public class MainActivity extends PagerActivity {
         ((CustomApplication) getApplication()).getEventManager().unsubscribeAll(this);
     }
 
-    private void editCategory(Category edited) {
-        Category category = updateCategory(edited);
+    private void editCategory(Category category) {
         DbCategoryWriter writer = new DbCategoryWriter(((CustomApplication) getApplication()).getDbHelper());
-        writer.write(category);
+        if (category.getId() == 0) {
+            writer.add(category);
+        } else {
+            writer.update(category);
+        }
         notifyLoadersOnEditCategory();
-    }
-
-    private Category updateCategory(Category edited) {
-        Category category = _categories.getById(edited.getId());
-        category.setName(edited.getName());
-        return category;
     }
 
     private void notifyLoadersOnEditCategory() {
@@ -378,7 +375,7 @@ public class MainActivity extends PagerActivity {
         Target target = updateTarget(edited);
         updateWithNoCategoryCount();
         DbTargetWriter writer = new DbTargetWriter(((CustomApplication) getApplication()).getDbHelper());
-        writer.write(target);
+        writer.update(target);
         notifyLoadersOnEditTarget();
         if (editNext) {
             Target nextTarget = getNextTargetToEdit(_targets, target);

@@ -13,7 +13,7 @@ public class DbOperationWriter extends DbWriter<Operation> {
     }
 
     @Override
-    public void write(Operation operation) {
+    public void update(Operation operation) {
         SQLiteDatabase db = getDb();
         db.update("operations", getValues(operation), "id = ?", new String[] {String.valueOf(operation.getId())});
     }

@@ -26,7 +26,7 @@ class MessageLoader {
             }
             @Override
             public void onMessage(Message message) {
-                _writer.write(message);
+                _writer.add(message);
             }
         });
         _writer = new DbMessageWriter(dbHelper);

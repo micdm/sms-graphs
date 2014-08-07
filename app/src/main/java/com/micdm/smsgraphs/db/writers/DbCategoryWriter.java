@@ -13,7 +13,13 @@ public class DbCategoryWriter extends DbWriter<Category> {
     }
 
     @Override
-    public void write(Category category) {
+    public void add(Category category) {
+        SQLiteDatabase db = getDb();
+        db.insert("categories", null, getValues(category));
+    }
+
+    @Override
+    public void update(Category category) {
         SQLiteDatabase db = getDb();
         db.update("categories", getValues(category), "id = ?", new String[] {String.valueOf(category.getId())});
     }

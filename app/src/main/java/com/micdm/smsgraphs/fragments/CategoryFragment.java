@@ -73,7 +73,11 @@ public class CategoryFragment extends DialogFragment {
     private void updateCategory() {
         String name = _nameView.getText().toString();
         if (name.length() != 0) {
-            _category.setName(name);
+            if (_category == null) {
+                _category = new Category(0, name);
+            } else {
+                _category.setName(name);
+            }
         }
     }
 

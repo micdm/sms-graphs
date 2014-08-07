@@ -16,7 +16,7 @@ public class DbMessageWriter extends DbWriter<Message> {
     }
 
     @Override
-    public void write(Message message) {
+    public void add(Message message) {
         SQLiteDatabase db = getDb();
         long cardRowId = writeCard(db, message);
         long targetRowId = writeTarget(db, message);
