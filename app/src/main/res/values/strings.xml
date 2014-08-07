@@ -33,6 +33,7 @@
     </plurals>
     <!-- Названия вкладок -->
     <string name="tab_title_stats">Статистика</string>
+    <string name="tab_title_categories">Категории</string>
     <string name="tab_title_targets">Продавцы</string>
     <!-- Главный экран -->
     <string name="activity_main_loading_messages">Обрабатываем новые SMS-сообщения…</string>
@@ -47,6 +48,13 @@
     <!-- Фрагмент со списком операций -->
     <string name="fragment_operations_title">Операции за %1$s\n%2$s</string>
     <string name="fragment_operations_average">Средний чек</string>
+    <!-- Фрагмент со списком категорий -->
+    <string name="fragment_category_list_add">Добавить…</string>
+    <!-- Фрагмент для редактирования категории -->
+    <string name="fragment_category_title">Категория</string>
+    <string name="fragment_category_name_hint">Название</string>
+    <string name="fragment_category_save_button">Готово</string>
+    <string name="fragment_category_remove_button">Удалить</string>
     <!-- Фрагмент со списком продавцов -->
     <string name="fragment_target_list_no_category">Новый</string>
     <string name="fragment_target_list_last_operation">%1$s — %2$s %3$s</string>

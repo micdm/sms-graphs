@@ -5,6 +5,7 @@ import android.content.Intent;
 
 import com.micdm.smsgraphs.events.Event;
 import com.micdm.smsgraphs.events.EventType;
+import com.micdm.smsgraphs.events.events.EditCategoryEvent;
 import com.micdm.smsgraphs.events.events.EditTargetEvent;
 import com.micdm.smsgraphs.events.events.LoadCategoriesEvent;
 import com.micdm.smsgraphs.events.events.LoadOperationReportEvent;
@@ -18,6 +19,7 @@ import com.micdm.smsgraphs.events.events.RequestSelectMonthEvent;
 import com.micdm.smsgraphs.events.events.RequestSetOperationIgnoredEvent;
 import com.micdm.smsgraphs.misc.DateUtils;
 import com.micdm.smsgraphs.parcels.CategoryListParcel;
+import com.micdm.smsgraphs.parcels.CategoryParcel;
 import com.micdm.smsgraphs.parcels.MonthOperationListParcel;
 import com.micdm.smsgraphs.parcels.OperationParcel;
 import com.micdm.smsgraphs.parcels.OperationReportParcel;
@@ -57,6 +59,9 @@ public class EventConverter {
             case REQUEST_SET_OPERATION_IGNORED:
                 intent.putExtra("operation", new OperationParcel(((RequestSetOperationIgnoredEvent) event).getOperation()));
                 intent.putExtra("need_ignore", ((RequestSetOperationIgnoredEvent) event).needIgnore());
+                break;
+            case EDIT_CATEGORY:
+                intent.putExtra("category", new CategoryParcel(((EditCategoryEvent) event).getCategory()));
                 break;
             case REQUEST_EDIT_TARGET:
                 intent.putExtra("target", new TargetParcel(((RequestEditTargetEvent) event).getTarget()));

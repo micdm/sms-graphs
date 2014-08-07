@@ -14,7 +14,6 @@ import com.micdm.smsgraphs.data.Target;
 import com.micdm.smsgraphs.data.TargetList;
 import com.micdm.smsgraphs.events.EventManager;
 import com.micdm.smsgraphs.events.EventType;
-import com.micdm.smsgraphs.events.events.EditTargetEvent;
 import com.micdm.smsgraphs.events.events.LoadTargetsEvent;
 import com.micdm.smsgraphs.events.events.RequestEditTargetEvent;
 import com.micdm.smsgraphs.events.events.RequestLoadTargetsEvent;
@@ -100,12 +99,6 @@ public class TargetListFragment extends ListFragment {
                 }
                 adapter.setTargets(event.getTargets());
                 adapter.notifyDataSetChanged();
-            }
-        });
-        manager.subscribe(this, EventType.EDIT_TARGET, new EventManager.OnEventListener<EditTargetEvent>() {
-            @Override
-            public void onEvent(EditTargetEvent event) {
-                ((TargetListAdapter) getListView().getAdapter()).notifyDataSetChanged();
             }
         });
     }

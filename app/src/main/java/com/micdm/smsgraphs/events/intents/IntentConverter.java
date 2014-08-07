@@ -2,6 +2,7 @@ package com.micdm.smsgraphs.events.intents;
 
 import android.content.Intent;
 
+import com.micdm.smsgraphs.data.Category;
 import com.micdm.smsgraphs.data.CategoryList;
 import com.micdm.smsgraphs.data.MonthOperationList;
 import com.micdm.smsgraphs.data.Operation;
@@ -10,6 +11,7 @@ import com.micdm.smsgraphs.data.Target;
 import com.micdm.smsgraphs.data.TargetList;
 import com.micdm.smsgraphs.events.Event;
 import com.micdm.smsgraphs.events.EventType;
+import com.micdm.smsgraphs.events.events.EditCategoryEvent;
 import com.micdm.smsgraphs.events.events.EditTargetEvent;
 import com.micdm.smsgraphs.events.events.FinishLoadMessagesEvent;
 import com.micdm.smsgraphs.events.events.LoadCategoriesEvent;
@@ -28,6 +30,7 @@ import com.micdm.smsgraphs.events.events.RequestSetOperationIgnoredEvent;
 import com.micdm.smsgraphs.events.events.StartLoadMessagesEvent;
 import com.micdm.smsgraphs.misc.DateUtils;
 import com.micdm.smsgraphs.parcels.CategoryListParcel;
+import com.micdm.smsgraphs.parcels.CategoryParcel;
 import com.micdm.smsgraphs.parcels.MonthOperationListParcel;
 import com.micdm.smsgraphs.parcels.OperationParcel;
 import com.micdm.smsgraphs.parcels.OperationReportParcel;
@@ -64,6 +67,8 @@ public class IntentConverter {
                 return getLoadOperationsEvent(intent);
             case REQUEST_SET_OPERATION_IGNORED:
                 return getRequestSetOperationIgnoredEvent(intent);
+            case EDIT_CATEGORY:
+                return getEditCategoryEvent(intent);
             case REQUEST_EDIT_TARGET:
                 return getRequestEditTargetEvent(intent);
             case EDIT_TARGET:
@@ -124,6 +129,11 @@ public class IntentConverter {
         Operation operation = ((OperationParcel) intent.getParcelableExtra("operation")).getOperation();
         boolean needIgnore = intent.getBooleanExtra("need_ignore", false);
         return new RequestSetOperationIgnoredEvent(operation, needIgnore);
+    }
+
+    private Event getEditCategoryEvent(Intent intent) {
+        Category category = ((CategoryParcel) intent.getParcelableExtra("category")).getCategory();
+        return new EditCategoryEvent(category);
     }
 
     private Event getRequestEditTargetEvent(Intent intent) {

@@ -3,7 +3,7 @@ package com.micdm.smsgraphs.data;
 public class Category {
 
     private final int _id;
-    private final String _name;
+    private String _name;
 
     public Category(int id, String name) {
         _id = id;
@@ -16,5 +16,9 @@ public class Category {
 
     public String getName() {
         return _name;
+    }
+
+    public void setName(String name) {
+        _name = name;
     }
 }

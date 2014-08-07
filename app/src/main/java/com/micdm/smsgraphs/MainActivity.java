@@ -11,17 +11,20 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.micdm.smsgraphs.data.Category;
 import com.micdm.smsgraphs.data.CategoryList;
 import com.micdm.smsgraphs.data.MonthOperationList;
 import com.micdm.smsgraphs.data.Operation;
 import com.micdm.smsgraphs.data.OperationReport;
 import com.micdm.smsgraphs.data.Target;
 import com.micdm.smsgraphs.data.TargetList;
+import com.micdm.smsgraphs.db.writers.DbCategoryWriter;
 import com.micdm.smsgraphs.db.writers.DbOperationWriter;
 import com.micdm.smsgraphs.db.writers.DbTargetWriter;
 import com.micdm.smsgraphs.events.Event;
 import com.micdm.smsgraphs.events.EventManager;
 import com.micdm.smsgraphs.events.EventType;
+import com.micdm.smsgraphs.events.events.EditCategoryEvent;
 import com.micdm.smsgraphs.events.events.EditTargetEvent;
 import com.micdm.smsgraphs.events.events.FinishLoadMessagesEvent;
 import com.micdm.smsgraphs.events.events.LoadCategoriesEvent;
@@ -33,6 +36,7 @@ import com.micdm.smsgraphs.events.events.RequestEditTargetEvent;
 import com.micdm.smsgraphs.events.events.RequestLoadOperationsEvent;
 import com.micdm.smsgraphs.events.events.RequestSetOperationIgnoredEvent;
 import com.micdm.smsgraphs.events.events.StartLoadMessagesEvent;
+import com.micdm.smsgraphs.fragments.CategoryListFragment;
 import com.micdm.smsgraphs.fragments.StatsFragment;
 import com.micdm.smsgraphs.fragments.TargetFragment;
 import com.micdm.smsgraphs.fragments.TargetListFragment;
@@ -126,6 +130,7 @@ public class MainActivity extends PagerActivity {
                     return;
                 }
                 _categories = data;
+                // TODO: может, перезапускать только если категории изменились?
                 getLoaderManager().restartLoader(TARGET_LOADER_ID, null, getTargetLoaderCallbacks());
                 ((CustomApplication) getApplication()).getEventManager().publish(new LoadCategoriesEvent(data));
             }
@@ -193,6 +198,7 @@ public class MainActivity extends PagerActivity {
     protected void setupPager(ViewPager pager) {
         super.setupPager(pager);
         addStatsPage(pager);
+        addCategoryListPage(pager);
         addTargetListPage(pager);
     }
 
@@ -200,6 +206,12 @@ public class MainActivity extends PagerActivity {
         String title = getString(R.string.tab_title_stats);
         addTab(pager, title);
         addPage(pager, new PagerAdapter.Page(title, new StatsFragment()));
+    }
+
+    private void addCategoryListPage(ViewPager pager) {
+        String title = getString(R.string.tab_title_categories);
+        addTab(pager, title);
+        addPage(pager, new PagerAdapter.Page(title, new CategoryListFragment()));
     }
 
     private void addTargetListPage(ViewPager pager) {
@@ -218,7 +230,7 @@ public class MainActivity extends PagerActivity {
         if (actionBar == null) {
             return;
         }
-        View view = actionBar.getTabAt(1).getCustomView();
+        View view = actionBar.getTabAt(2).getCustomView();
         TextView countView = (TextView) view.findViewById(R.id.v__actionbar__target_list_tab__count);
         int count = _targets.getWithNoCategoryCount();
         if (count == 0) {
@@ -235,6 +247,7 @@ public class MainActivity extends PagerActivity {
         subscribeForEvents();
     }
 
+    // TODO: не отписываться от событий сервиса при onStop
     private void subscribeForEvents() {
         EventManager manager = ((CustomApplication) getApplication()).getEventManager();
         manager.subscribe(this, EventType.START_LOAD_MESSAGES, new EventManager.OnEventListener<StartLoadMessagesEvent>() {
@@ -298,6 +311,12 @@ public class MainActivity extends PagerActivity {
                 getLoaderManager().getLoader(loaderId).onContentChanged();
             }
         });
+        manager.subscribe(this, EventType.EDIT_CATEGORY, new EventManager.OnEventListener<EditCategoryEvent>() {
+            @Override
+            public void onEvent(EditCategoryEvent event) {
+                editCategory(event.getCategory());
+            }
+        });
         manager.subscribe(this, EventType.REQUEST_EDIT_TARGET, new EventManager.OnEventListener<RequestEditTargetEvent>() {
             @Override
             public void onEvent(RequestEditTargetEvent event) {
@@ -312,16 +331,31 @@ public class MainActivity extends PagerActivity {
         });
     }
 
+    private int getOperationLoaderId(DateTime date) {
+        return date.getYear() * 100 + date.getMonthOfYear();
+    }
+
     @Override
     public void onStop() {
         super.onStop();
         ((CustomApplication) getApplication()).getEventManager().unsubscribeAll(this);
     }
 
-    private Bundle getTargetFragmentArguments(Target target) {
-        Bundle arguments = new Bundle();
-        arguments.putParcelable(TargetFragment.INIT_ARG_TARGET, new TargetParcel(target));
-        return arguments;
+    private void editCategory(Category edited) {
+        Category category = updateCategory(edited);
+        DbCategoryWriter writer = new DbCategoryWriter(((CustomApplication) getApplication()).getDbHelper());
+        writer.write(category);
+        notifyLoadersOnEditCategory();
+    }
+
+    private Category updateCategory(Category edited) {
+        Category category = _categories.getById(edited.getId());
+        category.setName(edited.getName());
+        return category;
+    }
+
+    private void notifyLoadersOnEditCategory() {
+        getLoaderManager().getLoader(CATEGORY_LOADER_ID).onContentChanged();
     }
 
     private void requestEditTarget(Target target) {
@@ -334,14 +368,18 @@ public class MainActivity extends PagerActivity {
         }
     }
 
+    private Bundle getTargetFragmentArguments(Target target) {
+        Bundle arguments = new Bundle();
+        arguments.putParcelable(TargetFragment.INIT_ARG_TARGET, new TargetParcel(target));
+        return arguments;
+    }
+
     private void editTarget(Target edited, boolean editNext) {
         Target target = updateTarget(edited);
         updateWithNoCategoryCount();
-        for (int loaderId: _operationLoaders.keySet()) {
-            getLoaderManager().getLoader(loaderId).onContentChanged();
-        }
         DbTargetWriter writer = new DbTargetWriter(((CustomApplication) getApplication()).getDbHelper());
         writer.write(target);
+        notifyLoadersOnEditTarget();
         if (editNext) {
             Target nextTarget = getNextTargetToEdit(_targets, target);
             requestEditTarget(nextTarget);
@@ -374,7 +412,10 @@ public class MainActivity extends PagerActivity {
         return (index + 1 == targets.size()) ? targets.get(0) : targets.get(index + 1);
     }
 
-    private int getOperationLoaderId(DateTime date) {
-        return date.getYear() * 100 + date.getMonthOfYear();
+    private void notifyLoadersOnEditTarget() {
+        getLoaderManager().getLoader(TARGET_LOADER_ID).onContentChanged();
+        for (int loaderId: _operationLoaders.keySet()) {
+            getLoaderManager().getLoader(loaderId).onContentChanged();
+        }
     }
 }
