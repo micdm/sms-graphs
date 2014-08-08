@@ -78,11 +78,105 @@ public class MainActivity extends PagerActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        subscribeForEvents();
         startMessageService();
         initLoaders();
         setupView();
         setupActionBar();
         setupPager((ViewPager) findViewById(R.id.a__main__pager));
+    }
+
+    private void subscribeForEvents() {
+        EventManager manager = ((CustomApplication) getApplication()).getEventManager();
+        manager.subscribe(this, EventType.START_LOAD_MESSAGES, new EventManager.OnEventListener<StartLoadMessagesEvent>() {
+            @Override
+            public void onEvent(StartLoadMessagesEvent event) {
+                if (_loadingMessagesView != null) {
+                    _loadingMessagesView.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+        manager.subscribe(this, EventType.PROGRESS_LOAD_MESSAGES, new EventManager.OnEventListener<ProgressLoadMessagesEvent>() {
+            @Override
+            public void onEvent(ProgressLoadMessagesEvent event) {
+                if (_loadingMessagesProgressView != null) {
+                    _loadingMessagesProgressView.setMax(event.getTotal());
+                    _loadingMessagesProgressView.setProgress(event.getCurrent());
+                }
+            }
+        });
+        manager.subscribe(this, EventType.FINISH_LOAD_MESSAGES, new EventManager.OnEventListener<FinishLoadMessagesEvent>() {
+            @Override
+            public void onEvent(FinishLoadMessagesEvent event) {
+                LoaderManager manager = getLoaderManager();
+                manager.getLoader(OPERATION_REPORT_LOADER_ID).onContentChanged();
+                manager.getLoader(TARGET_LOADER_ID).onContentChanged();
+                if (_loadingMessagesView != null) {
+                    _loadingMessagesView.setVisibility(View.GONE);
+                }
+            }
+        });
+        manager.subscribe(this, EventType.REQUEST_LOAD_OPERATION_REPORT, new EventManager.OnEventListener<Event>() {
+            @Override
+            public void onEvent(Event event) {
+                getLoaderManager().initLoader(OPERATION_REPORT_LOADER_ID, null, getOperationReportLoaderCallbacks());
+            }
+        });
+        manager.subscribe(this, EventType.REQUEST_LOAD_CATEGORIES, new EventManager.OnEventListener<Event>() {
+            @Override
+            public void onEvent(Event event) {
+                getLoaderManager().initLoader(CATEGORY_LOADER_ID, null, getCategoryLoaderCallbacks());
+            }
+        });
+        manager.subscribe(this, EventType.REQUEST_LOAD_TARGETS, new EventManager.OnEventListener<Event>() {
+            @Override
+            public void onEvent(Event event) {
+                getLoaderManager().initLoader(TARGET_LOADER_ID, null, getTargetLoaderCallbacks());
+            }
+        });
+        manager.subscribe(this, EventType.REQUEST_LOAD_OPERATIONS, new EventManager.OnEventListener<RequestLoadOperationsEvent>() {
+            @Override
+            public void onEvent(RequestLoadOperationsEvent event) {
+                DateTime date = event.getDate();
+                int id = getOperationLoaderId(date);
+                getLoaderManager().initLoader(id, null, getOperationLoaderCallbacks(date));
+                _operationLoaders.put(id, date);
+            }
+        });
+        manager.subscribe(this, EventType.REQUEST_SET_OPERATION_IGNORED, new EventManager.OnEventListener<RequestSetOperationIgnoredEvent>() {
+            @Override
+            public void onEvent(RequestSetOperationIgnoredEvent event) {
+                Operation operation = event.getOperation();
+                boolean needIgnore = event.needIgnore();
+                operation.setIgnored(needIgnore);
+                DbOperationWriter writer = new DbOperationWriter(((CustomApplication) getApplication()).getDbHelper());
+                writer.update(operation);
+                int loaderId = getOperationLoaderId(operation.getCreated());
+                getLoaderManager().getLoader(loaderId).onContentChanged();
+            }
+        });
+        manager.subscribe(this, EventType.EDIT_CATEGORY, new EventManager.OnEventListener<EditCategoryEvent>() {
+            @Override
+            public void onEvent(EditCategoryEvent event) {
+                editCategory(event.getCategory(), event.needRemove());
+            }
+        });
+        manager.subscribe(this, EventType.REQUEST_EDIT_TARGET, new EventManager.OnEventListener<RequestEditTargetEvent>() {
+            @Override
+            public void onEvent(RequestEditTargetEvent event) {
+                requestEditTarget(event.getTarget());
+            }
+        });
+        manager.subscribe(this, EventType.EDIT_TARGET, new EventManager.OnEventListener<EditTargetEvent>() {
+            @Override
+            public void onEvent(EditTargetEvent event) {
+                editTarget(event.getTarget(), event.needEditNext());
+            }
+        });
+    }
+
+    private int getOperationLoaderId(DateTime date) {
+        return date.getYear() * 100 + date.getMonthOfYear();
     }
 
     private void startMessageService() {
@@ -241,106 +335,6 @@ public class MainActivity extends PagerActivity {
         }
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        subscribeForEvents();
-    }
-
-    // TODO: не отписываться от событий сервиса при onStop
-    private void subscribeForEvents() {
-        EventManager manager = ((CustomApplication) getApplication()).getEventManager();
-        manager.subscribe(this, EventType.START_LOAD_MESSAGES, new EventManager.OnEventListener<StartLoadMessagesEvent>() {
-            @Override
-            public void onEvent(StartLoadMessagesEvent event) {
-                _loadingMessagesView.setVisibility(View.VISIBLE);
-            }
-        });
-        manager.subscribe(this, EventType.PROGRESS_LOAD_MESSAGES, new EventManager.OnEventListener<ProgressLoadMessagesEvent>() {
-            @Override
-            public void onEvent(ProgressLoadMessagesEvent event) {
-                _loadingMessagesProgressView.setMax(event.getTotal());
-                _loadingMessagesProgressView.setProgress(event.getCurrent());
-            }
-        });
-        manager.subscribe(this, EventType.FINISH_LOAD_MESSAGES, new EventManager.OnEventListener<FinishLoadMessagesEvent>() {
-            @Override
-            public void onEvent(FinishLoadMessagesEvent event) {
-                LoaderManager manager = getLoaderManager();
-                manager.getLoader(OPERATION_REPORT_LOADER_ID).onContentChanged();
-                manager.getLoader(TARGET_LOADER_ID).onContentChanged();
-                _loadingMessagesView.setVisibility(View.GONE);
-            }
-        });
-        manager.subscribe(this, EventType.REQUEST_LOAD_OPERATION_REPORT, new EventManager.OnEventListener<Event>() {
-            @Override
-            public void onEvent(Event event) {
-                getLoaderManager().initLoader(OPERATION_REPORT_LOADER_ID, null, getOperationReportLoaderCallbacks());
-            }
-        });
-        manager.subscribe(this, EventType.REQUEST_LOAD_CATEGORIES, new EventManager.OnEventListener<Event>() {
-            @Override
-            public void onEvent(Event event) {
-                getLoaderManager().initLoader(CATEGORY_LOADER_ID, null, getCategoryLoaderCallbacks());
-            }
-        });
-        manager.subscribe(this, EventType.REQUEST_LOAD_TARGETS, new EventManager.OnEventListener<Event>() {
-            @Override
-            public void onEvent(Event event) {
-                getLoaderManager().initLoader(TARGET_LOADER_ID, null, getTargetLoaderCallbacks());
-            }
-        });
-        manager.subscribe(this, EventType.REQUEST_LOAD_OPERATIONS, new EventManager.OnEventListener<RequestLoadOperationsEvent>() {
-            @Override
-            public void onEvent(RequestLoadOperationsEvent event) {
-                DateTime date = event.getDate();
-                int id = getOperationLoaderId(date);
-                getLoaderManager().initLoader(id, null, getOperationLoaderCallbacks(date));
-                _operationLoaders.put(id, date);
-            }
-        });
-        manager.subscribe(this, EventType.REQUEST_SET_OPERATION_IGNORED, new EventManager.OnEventListener<RequestSetOperationIgnoredEvent>() {
-            @Override
-            public void onEvent(RequestSetOperationIgnoredEvent event) {
-                Operation operation = event.getOperation();
-                boolean needIgnore = event.needIgnore();
-                operation.setIgnored(needIgnore);
-                DbOperationWriter writer = new DbOperationWriter(((CustomApplication) getApplication()).getDbHelper());
-                writer.update(operation);
-                int loaderId = getOperationLoaderId(operation.getCreated());
-                getLoaderManager().getLoader(loaderId).onContentChanged();
-            }
-        });
-        manager.subscribe(this, EventType.EDIT_CATEGORY, new EventManager.OnEventListener<EditCategoryEvent>() {
-            @Override
-            public void onEvent(EditCategoryEvent event) {
-                editCategory(event.getCategory(), event.needRemove());
-            }
-        });
-        manager.subscribe(this, EventType.REQUEST_EDIT_TARGET, new EventManager.OnEventListener<RequestEditTargetEvent>() {
-            @Override
-            public void onEvent(RequestEditTargetEvent event) {
-                requestEditTarget(event.getTarget());
-            }
-        });
-        manager.subscribe(this, EventType.EDIT_TARGET, new EventManager.OnEventListener<EditTargetEvent>() {
-            @Override
-            public void onEvent(EditTargetEvent event) {
-                editTarget(event.getTarget(), event.needEditNext());
-            }
-        });
-    }
-
-    private int getOperationLoaderId(DateTime date) {
-        return date.getYear() * 100 + date.getMonthOfYear();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        ((CustomApplication) getApplication()).getEventManager().unsubscribeAll(this);
-    }
-
     private void editCategory(Category category, boolean needRemove) {
         DbCategoryWriter writer = new DbCategoryWriter(((CustomApplication) getApplication()).getDbHelper());
         if (needRemove) {
@@ -418,5 +412,11 @@ public class MainActivity extends PagerActivity {
         for (int loaderId: _operationLoaders.keySet()) {
             getLoaderManager().getLoader(loaderId).onContentChanged();
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        ((CustomApplication) getApplication()).getEventManager().unsubscribeAll(this);
     }
 }
