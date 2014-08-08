@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 
 import com.micdm.smsgraphs.CustomApplication;
@@ -109,7 +110,7 @@ public class CategoryFragment extends DialogFragment {
         subscribeForEvents();
         getEventManager().publish(new RequestLoadCategoriesEvent());
         if (_nameView.requestFocus()) {
-            // TODO: показывать клавиатуру
+            getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         }
     }
 
