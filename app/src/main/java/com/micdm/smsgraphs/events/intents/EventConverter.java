@@ -26,6 +26,8 @@ import com.micdm.smsgraphs.parcels.OperationReportParcel;
 import com.micdm.smsgraphs.parcels.TargetListParcel;
 import com.micdm.smsgraphs.parcels.TargetParcel;
 
+import org.joda.time.DateTime;
+
 public class EventConverter {
 
     private final Context _context;
@@ -40,6 +42,8 @@ public class EventConverter {
             case PROGRESS_LOAD_MESSAGES:
                 intent.putExtra("total", ((ProgressLoadMessagesEvent) event).getTotal());
                 intent.putExtra("current", ((ProgressLoadMessagesEvent) event).getCurrent());
+                DateTime date = ((ProgressLoadMessagesEvent) event).getDate();
+                intent.putExtra("date", (date == null) ? null : DateUtils.formatForBundle(date));
                 break;
             case LOAD_OPERATION_REPORT:
                 intent.putExtra("report", new OperationReportParcel(((LoadOperationReportEvent) event).getReport()));

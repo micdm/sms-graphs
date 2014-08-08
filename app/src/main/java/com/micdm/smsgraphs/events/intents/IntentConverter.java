@@ -97,7 +97,8 @@ public class IntentConverter {
     private Event getProgressLoadMessagesEvent(Intent intent) {
         int total = intent.getIntExtra("total", -1);
         int current = intent.getIntExtra("current", -1);
-        return new ProgressLoadMessagesEvent(total, current);
+        String date = intent.getStringExtra("date");
+        return new ProgressLoadMessagesEvent(total, current, (date == null) ? null : DateUtils.parseForBundle(date));
     }
 
     private Event getLoadOperationReportEvent(Intent intent) {

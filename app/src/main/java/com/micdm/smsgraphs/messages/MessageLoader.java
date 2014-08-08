@@ -10,7 +10,7 @@ class MessageLoader {
 
     public static interface OnLoadListener {
         public void onStartLoad();
-        public void onProgress(int total, int current);
+        public void onProgress(int total, int current, Message message);
         public void onFinishLoad();
     }
 
@@ -21,12 +21,11 @@ class MessageLoader {
     public MessageLoader(Context context, DbHelper dbHelper, final OnLoadListener listener) {
         _reader = new MessageReader(context, new MessageReader.OnMessageListener() {
             @Override
-            public void onProgress(int total, int current) {
-                listener.onProgress(total, current);
-            }
-            @Override
-            public void onMessage(Message message) {
-                _writer.add(message);
+            public void onProgress(int total, int current, Message message) {
+                listener.onProgress(total, current, message);
+                if (message != null) {
+                    _writer.add(message);
+                }
             }
         });
         _writer = new DbMessageWriter(dbHelper);

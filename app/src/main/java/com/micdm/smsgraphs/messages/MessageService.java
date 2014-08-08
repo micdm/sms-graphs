@@ -14,6 +14,8 @@ import com.micdm.smsgraphs.events.events.FinishLoadMessagesEvent;
 import com.micdm.smsgraphs.events.events.ProgressLoadMessagesEvent;
 import com.micdm.smsgraphs.events.events.StartLoadMessagesEvent;
 
+import org.joda.time.DateTime;
+
 public class MessageService extends Service {
 
     private static final String THREAD_NAME = "MessageService";
@@ -41,8 +43,9 @@ public class MessageService extends Service {
                 manager.publish(new StartLoadMessagesEvent());
             }
             @Override
-            public void onProgress(int total, int current) {
-                manager.publish(new ProgressLoadMessagesEvent(total, current));
+            public void onProgress(int total, int current, com.micdm.smsgraphs.data.Message message) {
+                DateTime date = (message == null) ? null : message.getCreated();
+                manager.publish(new ProgressLoadMessagesEvent(total, current, date));
             }
             @Override
             public void onFinishLoad() {

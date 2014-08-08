@@ -45,6 +45,7 @@ import com.micdm.smsgraphs.loaders.OperationLoader;
 import com.micdm.smsgraphs.loaders.OperationReportLoader;
 import com.micdm.smsgraphs.loaders.TargetLoader;
 import com.micdm.smsgraphs.messages.MessageService;
+import com.micdm.smsgraphs.misc.DateUtils;
 import com.micdm.smsgraphs.misc.PagerActivity;
 import com.micdm.smsgraphs.misc.PagerAdapter;
 import com.micdm.smsgraphs.parcels.TargetParcel;
@@ -72,6 +73,7 @@ public class MainActivity extends PagerActivity {
 
     private View _loadingMessagesView;
     private ProgressBar _loadingMessagesProgressView;
+    private TextView _loadingMessagesMonthView;
     private View _loadingDataView;
     private View _noOperationsView;
 
@@ -102,6 +104,12 @@ public class MainActivity extends PagerActivity {
                 if (_loadingMessagesProgressView != null) {
                     _loadingMessagesProgressView.setMax(event.getTotal());
                     _loadingMessagesProgressView.setProgress(event.getCurrent());
+                }
+                if (_loadingMessagesMonthView != null) {
+                    DateTime date = event.getDate();
+                    if (date != null) {
+                        _loadingMessagesMonthView.setText(DateUtils.formatMonthForHuman(date));
+                    }
                 }
             }
         });
@@ -278,6 +286,7 @@ public class MainActivity extends PagerActivity {
         setContentView(R.layout.a__main);
         _loadingMessagesView = findViewById(R.id.a__main__loading_messages);
         _loadingMessagesProgressView = (ProgressBar) findViewById(R.id.a__main__loading_messages_progress);
+        _loadingMessagesMonthView = (TextView) findViewById(R.id.a__main__loading_messages_month);
         _loadingDataView = findViewById(R.id.a__main__loading_data);
         _noOperationsView = findViewById(R.id.a__main__no_operations);
     }

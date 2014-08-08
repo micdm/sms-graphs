@@ -11,8 +11,7 @@ import com.micdm.smsgraphs.data.Message;
 public class MessageReader {
 
     public static interface OnMessageListener {
-        public void onProgress(int total, int current);
-        public void onMessage(Message message);
+        public void onProgress(int total, int current, Message message);
     }
 
     public static final String SERVICE_NUMBER = "900";
@@ -39,11 +38,8 @@ public class MessageReader {
         while (!cursor.isAfterLast()) {
             id = cursor.getInt(0);
             Message message = _parser.parse(cursor.getString(1));
-            if (message != null) {
-                _listener.onMessage(message);
-            }
+            _listener.onProgress(total, current, message);
             cursor.moveToNext();
-            _listener.onProgress(total, current);
             current += 1;
         }
         if (id != 0) {

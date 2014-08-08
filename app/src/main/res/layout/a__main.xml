@@ -39,5 +39,9 @@
             android:layout_marginTop="5dp"
             android:layout_marginRight="30dp"
             style="@android:style/Widget.ProgressBar.Horizontal"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/a__main__loading_messages_month"/>
     </LinearLayout>
 </merge>
