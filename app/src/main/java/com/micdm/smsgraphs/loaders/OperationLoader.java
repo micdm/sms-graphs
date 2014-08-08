@@ -27,9 +27,7 @@ public class OperationLoader extends AsyncTaskLoader<MonthOperationList> {
 
     @Override
     protected void onStartLoading() {
-        if (_operations == null) {
-            forceLoad();
-        } else if (takeContentChanged()) {
+        if (_operations == null || takeContentChanged()) {
             forceLoad();
         } else {
             deliverResult(_operations);

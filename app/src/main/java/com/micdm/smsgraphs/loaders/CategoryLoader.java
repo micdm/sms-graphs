@@ -20,7 +20,7 @@ public class CategoryLoader extends AsyncTaskLoader<CategoryList> {
 
     @Override
     protected void onStartLoading() {
-        if (_categories == null) {
+        if (_categories == null || takeContentChanged()) {
             forceLoad();
         } else {
             deliverResult(_categories);

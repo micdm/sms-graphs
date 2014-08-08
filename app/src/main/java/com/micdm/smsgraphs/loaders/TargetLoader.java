@@ -23,9 +23,7 @@ public class TargetLoader extends AsyncTaskLoader<TargetList> {
 
     @Override
     protected void onStartLoading() {
-        if (_targets == null) {
-            forceLoad();
-        } else if (takeContentChanged()) {
+        if (_targets == null || takeContentChanged()) {
             forceLoad();
         } else {
             deliverResult(_targets);

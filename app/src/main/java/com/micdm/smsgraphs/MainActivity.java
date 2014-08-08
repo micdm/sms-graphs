@@ -210,9 +210,12 @@ public class MainActivity extends PagerActivity {
                 if (data == null) {
                     return;
                 }
+                boolean isChanged = (_report != data);
                 _report = data;
-                _noOperationsView.setVisibility((_report.getLast() == null) ? View.VISIBLE : View.GONE);
-                hideLoadingDataView();
+                if (isChanged) {
+                    _noOperationsView.setVisibility((_report.getLast() == null) ? View.VISIBLE : View.GONE);
+                    hideLoadingDataView();
+                }
                 ((CustomApplication) getApplication()).getEventManager().publish(new LoadOperationReportEvent(data));
             }
             @Override
@@ -231,9 +234,11 @@ public class MainActivity extends PagerActivity {
                 if (data == null) {
                     return;
                 }
+                boolean isChanged = (_categories != data);
                 _categories = data;
-                // TODO: может, перезапускать только если категории изменились?
-                getLoaderManager().restartLoader(TARGET_LOADER_ID, null, getTargetLoaderCallbacks());
+                if (isChanged) {
+                    getLoaderManager().restartLoader(TARGET_LOADER_ID, null, getTargetLoaderCallbacks());
+                }
                 ((CustomApplication) getApplication()).getEventManager().publish(new LoadCategoriesEvent(data));
             }
             @Override
@@ -252,13 +257,16 @@ public class MainActivity extends PagerActivity {
                 if (data == null) {
                     return;
                 }
+                boolean isChanged = (_targets != data);
                 _targets = data;
-                updateWithNoCategoryCount();
-                hideLoadingDataView();
-                ((CustomApplication) getApplication()).getEventManager().publish(new LoadTargetsEvent(data));
-                for (Map.Entry<Integer, DateTime> item: _operationLoaders.entrySet()) {
-                    getLoaderManager().restartLoader(item.getKey(), null, getOperationLoaderCallbacks(item.getValue()));
+                if (isChanged) {
+                    updateWithNoCategoryCount();
+                    hideLoadingDataView();
+                    for (Map.Entry<Integer, DateTime> item: _operationLoaders.entrySet()) {
+                        getLoaderManager().restartLoader(item.getKey(), null, getOperationLoaderCallbacks(item.getValue()));
+                    }
                 }
+                ((CustomApplication) getApplication()).getEventManager().publish(new LoadTargetsEvent(data));
             }
             @Override
             public void onLoaderReset(Loader<TargetList> loader) {}

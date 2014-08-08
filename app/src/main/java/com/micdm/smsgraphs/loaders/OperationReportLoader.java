@@ -20,9 +20,7 @@ public class OperationReportLoader extends AsyncTaskLoader<OperationReport> {
 
     @Override
     protected void onStartLoading() {
-        if (_report == null) {
-            forceLoad();
-        } else if (takeContentChanged()) {
+        if (_report == null || takeContentChanged()) {
             forceLoad();
         } else {
             deliverResult(_report);
