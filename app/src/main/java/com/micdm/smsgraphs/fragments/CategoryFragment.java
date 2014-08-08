@@ -13,8 +13,12 @@ import android.widget.EditText;
 import com.micdm.smsgraphs.CustomApplication;
 import com.micdm.smsgraphs.R;
 import com.micdm.smsgraphs.data.Category;
+import com.micdm.smsgraphs.data.CategoryList;
 import com.micdm.smsgraphs.events.EventManager;
+import com.micdm.smsgraphs.events.EventType;
 import com.micdm.smsgraphs.events.events.EditCategoryEvent;
+import com.micdm.smsgraphs.events.events.LoadCategoriesEvent;
+import com.micdm.smsgraphs.events.events.RequestLoadCategoriesEvent;
 import com.micdm.smsgraphs.parcels.CategoryParcel;
 
 public class CategoryFragment extends DialogFragment {
@@ -22,6 +26,7 @@ public class CategoryFragment extends DialogFragment {
     public static final String INIT_ARG_CATEGORY = "category";
 
     private Category _category;
+    private CategoryList _categories;
 
     private EditText _nameView;
 
@@ -46,8 +51,10 @@ public class CategoryFragment extends DialogFragment {
         builder.setNeutralButton(R.string.fragment_category_save_button, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                updateCategory();
-                getEventManager().publish(new EditCategoryEvent(_category, false));
+                Category category = getUpdatedCategory();
+                if (category != null) {
+                    getEventManager().publish(new EditCategoryEvent(category, false));
+                }
             }
         });
         if (_category != null) {
@@ -70,26 +77,59 @@ public class CategoryFragment extends DialogFragment {
         return view;
     }
 
-    private void updateCategory() {
+    private Category getUpdatedCategory() {
         String name = _nameView.getText().toString();
-        if (name.length() != 0) {
-            if (_category == null) {
-                _category = new Category(0, name);
-            } else {
-                _category.setName(name);
+        if (name.length() == 0) {
+            return null;
+        }
+        if (isCategoryExist(name)) {
+            return null;
+        }
+        Category category = _category;
+        if (category == null) {
+            category = new Category(0, name);
+        } else {
+            category.setName(name);
+        }
+        return category;
+    }
+
+    private boolean isCategoryExist(String name) {
+        for (Category category: _categories) {
+            if (category.getName().equals(name)) {
+                return true;
             }
         }
+        return false;
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        subscribeForEvents();
+        getEventManager().publish(new RequestLoadCategoriesEvent());
         if (_nameView.requestFocus()) {
             // TODO: показывать клавиатуру
         }
     }
 
+    private void subscribeForEvents() {
+        EventManager manager = getEventManager();
+        manager.subscribe(this, EventType.LOAD_CATEGORIES, new EventManager.OnEventListener<LoadCategoriesEvent>() {
+            @Override
+            public void onEvent(LoadCategoriesEvent event) {
+                _categories = event.getCategories();
+            }
+        });
+    }
+
     private EventManager getEventManager() {
         return ((CustomApplication) getActivity().getApplication()).getEventManager();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        getEventManager().unsubscribeAll(this);
     }
 }
