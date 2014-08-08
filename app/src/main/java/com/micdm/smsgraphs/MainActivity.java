@@ -1,11 +1,11 @@
 package com.micdm.smsgraphs;
 
 import android.app.ActionBar;
-import android.app.FragmentManager;
 import android.app.LoaderManager;
 import android.content.Intent;
 import android.content.Loader;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -363,7 +363,7 @@ public class MainActivity extends PagerActivity {
     }
 
     private void requestEditTarget(Target target) {
-        FragmentManager manager = getFragmentManager();
+        FragmentManager manager = getSupportFragmentManager();
         TargetFragment fragment = (TargetFragment) manager.findFragmentByTag(FRAGMENT_TARGET_TAG);
         if (fragment == null || fragment.isDismissing()) {
             fragment = new TargetFragment();
