@@ -10,6 +10,11 @@ public class Category {
         _name = name;
     }
 
+    @Override
+    public boolean equals(Object another) {
+        return (this == another) || ((another instanceof Category) && (getId() == ((Category) another).getId()));
+    }
+
     public int getId() {
         return _id;
     }

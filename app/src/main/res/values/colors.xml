@@ -20,6 +20,9 @@
     <item type="color" name="operations_percentage_background">#ff8673</item>
     <item type="color" name="operations_average_text">#fff</item>
     <item type="color" name="operations_average_background">#0969a3</item>
+    <item type="color" name="targets_no_category_background">#ff8673</item>
+    <item type="color" name="targets_category_background">#64de89</item>
+    <item type="color" name="targets_category_divider_background">#0fff</item>
     <item type="color" name="target_name_text">#888</item>
     <item type="color" name="target_last_operation_text">#888</item>
 </resources>

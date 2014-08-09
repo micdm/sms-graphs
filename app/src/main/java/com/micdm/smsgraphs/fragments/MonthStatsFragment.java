@@ -260,7 +260,10 @@ public class MonthStatsFragment extends Fragment {
         for (Operation operation: operations) {
             Target target = operation.getTarget();
             Category category = target.getCategory();
-            CategoryStat categoryStat = updateCategoryStat(stats, (category == null) ? noCategory : category, operation);
+            if (category == null) {
+                category = noCategory;
+            }
+            CategoryStat categoryStat = updateCategoryStat(stats, category, operation);
             updateTargetStat(categoryStat.getStats(), target, operation);
         }
         addPercentages(stats);

@@ -1,10 +1,12 @@
 package com.micdm.smsgraphs.fragments;
 
-import android.support.v4.app.ListFragment;
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
+import android.widget.BaseExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 import com.micdm.smsgraphs.CustomApplication;
@@ -19,37 +21,82 @@ import com.micdm.smsgraphs.events.events.RequestEditTargetEvent;
 import com.micdm.smsgraphs.events.events.RequestLoadTargetsEvent;
 import com.micdm.smsgraphs.misc.DateUtils;
 
-public class TargetListFragment extends ListFragment {
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
-    private class TargetListAdapter extends BaseAdapter {
+public class TargetListFragment extends Fragment {
 
-        private TargetList _targets;
+    private class TargetListAdapter extends BaseExpandableListAdapter {
 
-        public void setTargets(TargetList targets) {
-            _targets = targets;
+        private List<Category> _keys;
+        private List<List<Target>> _values;
+
+        public void setTargets(SortedMap<Category, List<Target>> targets) {
+            _keys = new ArrayList<Category>(targets.keySet());
+            _values = new ArrayList<List<Target>>(targets.values());
         }
 
         @Override
-        public int getCount() {
-            return (_targets == null) ? 0 : _targets.size();
+        public int getGroupCount() {
+            return (_keys == null) ? 0 : _keys.size();
         }
 
         @Override
-        public Target getItem(int position) {
-            return _targets.get(position);
+        public int getChildrenCount(int position) {
+            return _values.get(position).size();
         }
 
         @Override
-        public long getItemId(int position) {
-            return getItem(position).getId();
+        public Category getGroup(int position) {
+            return _keys.get(position);
         }
 
         @Override
-        public View getView(int position, View view, ViewGroup viewGroup) {
+        public Target getChild(int groupPosition, int childPosition) {
+            return _values.get(groupPosition).get(childPosition);
+        }
+
+        @Override
+        public long getGroupId(int position) {
+            return getGroup(position).getId();
+        }
+
+        @Override
+        public long getChildId(int groupPosition, int childPosition) {
+            return getChild(groupPosition, childPosition).getId();
+        }
+
+        @Override
+        public boolean hasStableIds() {
+            return true;
+        }
+
+        @Override
+        public View getGroupView(int position, boolean isExpanded, View view, ViewGroup parent) {
             if (view == null) {
-                view = View.inflate(getActivity(), R.layout.v__target_list__list_item, null);
+                view = View.inflate(getActivity(), R.layout.v__target_list__category, null);
             }
-            Target target = getItem(position);
+            Category category = getGroup(position);
+            view.setBackgroundColor(getCategoryBackgroundColor(category));
+            TextView nameView = (TextView) view.findViewById(R.id.v__target_list__category__name);
+            nameView.setText(category.getName());
+            return view;
+        }
+
+        private int getCategoryBackgroundColor(Category category) {
+            int id = (category.getId() == 0) ? R.color.targets_no_category_background : R.color.targets_category_background;
+            return getResources().getColor(id);
+        }
+
+        @Override
+        public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View view, ViewGroup parent) {
+            if (view == null) {
+                view = View.inflate(getActivity(), R.layout.v__target_list__target, null);
+            }
+            Target target = getChild(groupPosition, childPosition);
             TextView titleView = (TextView) view.findViewById(R.id.v__target_list__list_item__title);
             TextView nameView = (TextView) view.findViewById(R.id.v__target_list__list_item__name);
             String title = target.getTitle();
@@ -65,19 +112,54 @@ public class TargetListFragment extends ListFragment {
             int lastAmount = target.getLastAmount();
             lastOperationView.setText(getString(R.string.fragment_target_list_last_operation,
                     DateUtils.formatForHuman(target.getLastPaid()), lastAmount, getResources().getQuantityString(R.plurals.rubles, lastAmount)));
-            TextView categoryView = (TextView) view.findViewById(R.id.v__target_list__list_item__category);
-            View noCategoryView = view.findViewById(R.id.v__target_list__list_item__no_category);
-            Category category = target.getCategory();
-            if (category == null) {
-                categoryView.setVisibility(View.GONE);
-                noCategoryView.setVisibility(View.VISIBLE);
-            } else {
-                categoryView.setVisibility(View.VISIBLE);
-                categoryView.setText(category.getName());
-                noCategoryView.setVisibility(View.GONE);
-            }
             return view;
         }
+
+        @Override
+        public boolean isChildSelectable(int groupPosition, int childPosition) {
+            return true;
+        }
+
+        public Integer getNoCategoryGroupIndex() {
+            for (int i = 0; i < _keys.size(); i += 1) {
+                if (_keys.get(i).getId() == 0) {
+                    return i;
+                }
+            }
+            return null;
+        }
+    }
+
+    private static final Comparator<Category> CATEGORY_COMPARATOR = new Comparator<Category>() {
+        @Override
+        public int compare(Category a, Category b) {
+            if (a.equals(b)) {
+                return 0;
+            }
+            if (a.getId() == 0) {
+                return -1;
+            }
+            if (b.getId() == 0) {
+                return 1;
+            }
+            return a.getName().compareTo(b.getName());
+        }
+    };
+
+    private ExpandableListView _targetsView;
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        _targetsView = (ExpandableListView) inflater.inflate(R.layout.f__target_list, null);
+        _targetsView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+                Target target = ((TargetListAdapter) _targetsView.getExpandableListAdapter()).getChild(groupPosition, childPosition);
+                getEventManager().publish(new RequestEditTargetEvent(target));
+                return true;
+            }
+        });
+        return _targetsView;
     }
 
     @Override
@@ -92,13 +174,21 @@ public class TargetListFragment extends ListFragment {
         manager.subscribe(this, EventType.LOAD_TARGETS, new EventManager.OnEventListener<LoadTargetsEvent>() {
             @Override
             public void onEvent(LoadTargetsEvent event) {
-                TargetListAdapter adapter = (TargetListAdapter) getListAdapter();
+                TargetListAdapter adapter = (TargetListAdapter) _targetsView.getExpandableListAdapter();
+                boolean needExpandNoCategoryGroup = false;
                 if (adapter == null) {
                     adapter = new TargetListAdapter();
-                    setListAdapter(adapter);
+                    _targetsView.setAdapter(adapter);
+                    needExpandNoCategoryGroup = true;
                 }
-                adapter.setTargets(event.getTargets());
+                adapter.setTargets(getGroupedTargets(event.getTargets()));
                 adapter.notifyDataSetChanged();
+                if (needExpandNoCategoryGroup) {
+                    Integer index = adapter.getNoCategoryGroupIndex();
+                    if (index != null) {
+                        _targetsView.expandGroup(index);
+                    }
+                }
             }
         });
     }
@@ -107,10 +197,20 @@ public class TargetListFragment extends ListFragment {
         return ((CustomApplication) getActivity().getApplication()).getEventManager();
     }
 
-    @Override
-    public void onListItemClick(ListView listView, View view, int position, long id) {
-        Target target = ((TargetListAdapter) listView.getAdapter()).getItem(position);
-        getEventManager().publish(new RequestEditTargetEvent(target));
+    private SortedMap<Category, List<Target>> getGroupedTargets(TargetList targets) {
+        SortedMap<Category, List<Target>> grouped = new TreeMap<Category, List<Target>>(CATEGORY_COMPARATOR);
+        Category noCategory = new Category(0, getString(R.string.no_category));
+        for (Target target: targets) {
+            Category category = target.getCategory();
+            if (category == null) {
+                category = noCategory;
+            }
+            if (!grouped.containsKey(category)) {
+                grouped.put(category, new ArrayList<Target>());
+            }
+            grouped.get(category).add(target);
+        }
+        return grouped;
     }
 
     @Override
