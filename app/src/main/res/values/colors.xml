@@ -16,6 +16,7 @@
     <item type="color" name="stats_target_percentage_background">#ffc073</item>
     <item type="color" name="stats_total_text">#fff</item>
     <item type="color" name="stats_total_background">#0969a3</item>
+    <item type="color" name="operations_divider_background">#0fff</item>
     <item type="color" name="operations_percentage_background">#ff8673</item>
     <item type="color" name="operations_average_text">#fff</item>
     <item type="color" name="operations_average_background">#0969a3</item>
