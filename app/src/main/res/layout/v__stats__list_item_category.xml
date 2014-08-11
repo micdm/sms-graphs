@@ -10,6 +10,7 @@
         android:id="@+id/v__stats__list_item_category__name"
         android:layout_weight="1"
         android:layout_marginLeft="@dimen/margin_expandable_list_group"
+        android:layout_marginStart="@dimen/margin_expandable_list_group"
         android:textSize="@dimen/font_large"/>
     <TextView
         android:layout_width="wrap_content"

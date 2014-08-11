@@ -7,5 +7,6 @@
         android:id="@+id/v__target_list__category__name"
         android:padding="@dimen/padding_default"
         android:layout_marginLeft="@dimen/margin_expandable_list_group"
+        android:layout_marginStart="@dimen/margin_expandable_list_group"
         android:textSize="@dimen/font_large"/>
 </LinearLayout>

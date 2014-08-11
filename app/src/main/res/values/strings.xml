@@ -57,7 +57,6 @@
     <string name="fragment_category_save_button">Готово</string>
     <string name="fragment_category_remove_button">Удалить</string>
     <!-- Фрагмент со списком продавцов -->
-    <string name="fragment_target_list_no_category">Новый</string>
     <string name="fragment_target_list_last_operation">%1$s — %2$s %3$s</string>
     <!-- Фрагмент для редактирования продавца -->
     <string name="fragment_target_title">Продавец</string>

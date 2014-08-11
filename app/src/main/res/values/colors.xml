@@ -3,8 +3,6 @@
 <resources>
     <item type="color" name="target_with_no_category_text">#fff</item>
     <item type="color" name="target_with_no_category_background">#ff2300</item>
-    <item type="color" name="target_with_category_text">#000</item>
-    <item type="color" name="target_with_category_background">#ddd</item>
     <item type="color" name="stats_header_text">#fff</item>
     <item type="color" name="stats_header_background">#0969a3</item>
     <item type="color" name="stats_navigation_normal_text">#64a8d1</item>
@@ -22,7 +20,6 @@
     <item type="color" name="operations_average_background">#0969a3</item>
     <item type="color" name="targets_no_category_background">#ff8673</item>
     <item type="color" name="targets_category_background">@android:color/transparent</item>
-    <item type="color" name="targets_category_divider_background">#0fff</item>
     <item type="color" name="target_name_text">#888</item>
     <item type="color" name="target_last_operation_text">#888</item>
 </resources>
