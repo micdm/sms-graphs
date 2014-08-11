@@ -154,16 +154,18 @@ public class OperationsFragment extends DialogFragment {
                 if (!operations.getMonth().equals(_date)) {
                     return;
                 }
-                List<Operation> filtered = getTargetOperations(operations.getOperations());
+                List<Operation> allOperations = getTargetOperations(operations.getOperations());
+                List<Operation> notIgnoredOperations = getNotIgnoredOperations(allOperations);
                 OperationListAdapter adapter = (OperationListAdapter) _operationsView.getAdapter();
                 if (adapter == null) {
                     adapter = new OperationListAdapter();
                     _operationsView.setAdapter(adapter);
                 }
-                adapter.setStats(getOperationStats(filtered));
+                adapter.setStats(getOperationStats(allOperations, notIgnoredOperations));
                 adapter.notifyDataSetChanged();
-                if (filtered.size() > 1) {
-                    _averageValueView.setText(String.valueOf(getAverage(filtered)));
+                Integer average = getAverage(notIgnoredOperations);
+                if (average != null) {
+                    _averageValueView.setText(String.valueOf(average));
                     _averageView.setVisibility(View.VISIBLE);
                 } else {
                     _averageView.setVisibility(View.GONE);
@@ -187,11 +189,22 @@ public class OperationsFragment extends DialogFragment {
         return filtered;
     }
 
-    private List<OperationStat> getOperationStats(List<Operation> operations) {
-        int amount = getTargetAmount(operations);
-        List<OperationStat> stats = new ArrayList<OperationStat>();
+    private List<Operation> getNotIgnoredOperations(List<Operation> operations) {
+        List<Operation> filtered = new ArrayList<Operation>();
         for (Operation operation: operations) {
-            stats.add(new OperationStat(operation, (double) operation.getAmount() / amount));
+            if (!operation.isIgnored()) {
+                filtered.add(operation);
+            }
+        }
+        return filtered;
+    }
+
+    private List<OperationStat> getOperationStats(List<Operation> allOperations, List<Operation> notIgnoredOperations) {
+        int amount = getTargetAmount(notIgnoredOperations);
+        List<OperationStat> stats = new ArrayList<OperationStat>();
+        for (Operation operation: allOperations) {
+            double percentage = operation.isIgnored() ? 0 : (double) operation.getAmount() / amount;
+            stats.add(new OperationStat(operation, percentage));
         }
         return stats;
     }
@@ -199,15 +212,13 @@ public class OperationsFragment extends DialogFragment {
     private int getTargetAmount(List<Operation> operations) {
         int amount = 0;
         for (Operation operation: operations) {
-            if (!operation.isIgnored()) {
-                amount += operation.getAmount();
-            }
+            amount += operation.getAmount();
         }
         return amount;
     }
 
-    private int getAverage(List<Operation> operations) {
-        return getTargetAmount(operations) / operations.size();
+    private Integer getAverage(List<Operation> operations) {
+        return (operations.size() < 2) ? null : getTargetAmount(operations) / operations.size();
     }
 
     @Override
