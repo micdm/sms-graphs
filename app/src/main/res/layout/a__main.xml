@@ -10,6 +10,7 @@
         android:id="@+id/a__main__no_operations"
         android:gravity="center"
         android:background="@android:color/background_light"
+        android:textSize="@dimen/font_info_message"
         android:text="@string/activity_main_no_operations"/>
     <TextView
         android:layout_width="match_parent"
@@ -17,31 +18,34 @@
         android:id="@+id/a__main__loading_data"
         android:gravity="center"
         android:background="@android:color/background_light"
+        android:textSize="@dimen/font_info_message"
         android:text="@string/activity_main_loading_data"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:id="@+id/a__main__loading_messages"
-        android:padding="5dp"
+        android:padding="@dimen/padding_default"
         android:gravity="center"
         android:background="@android:color/background_light"
         android:visibility="gone">
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="@dimen/font_info_message"
             android:text="@string/activity_main_loading_messages"/>
         <ProgressBar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/a__main__loading_messages_progress"
             android:layout_marginLeft="30dp"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="@dimen/margin_default"
             android:layout_marginRight="30dp"
             style="@android:style/Widget.ProgressBar.Horizontal"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="@dimen/font_info_message"
             android:id="@+id/a__main__loading_messages_month"/>
     </LinearLayout>
 </merge>

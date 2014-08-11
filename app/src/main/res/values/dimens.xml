@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Размеры шрифтов -->
+    <item type="dimen" name="font_x_large">25sp</item>
+    <item type="dimen" name="font_large">23sp</item>
+    <item type="dimen" name="font_medium">20sp</item>
+    <item type="dimen" name="font_small">16sp</item>
+    <item type="dimen" name="font_info_message">@dimen/font_medium</item>
+    <!-- Отступы -->
+    <item type="dimen" name="padding_default">7dp</item>
+    <item type="dimen" name="margin_default">5dp</item>
+    <item type="dimen" name="margin_expandable_list_group">25dp</item>
+    <!-- Прочее -->
     <item type="dimen" name="stats_percentage_corner_radius">3dp</item>
+    <item type="dimen" name="list_divider_height">1dp</item>
 </resources>

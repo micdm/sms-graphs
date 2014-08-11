@@ -8,13 +8,13 @@
         android:id="@+id/f__operations__operations"
         android:layout_weight="1"
         android:divider="@color/operations_divider_background"
-        android:dividerHeight="1dp"/>
+        android:dividerHeight="@dimen/list_divider_height"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:id="@+id/f__operations__average"
-        android:padding="5dp"
+        android:padding="@dimen/padding_default"
         android:background="@color/operations_average_background">
         <TextView
             android:layout_width="0dp"
@@ -22,14 +22,14 @@
             android:layout_weight="1"
             android:textStyle="bold"
             android:textColor="@color/operations_average_text"
-            android:textSize="16sp"
+            android:textSize="@dimen/font_medium"
             android:text="@string/fragment_operations_average"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/f__operations__average_value"
             android:textStyle="bold"
-            android:textSize="16sp"
+            android:textSize="@dimen/font_medium"
             android:textColor="@color/operations_average_text"/>
     </LinearLayout>
 </LinearLayout>

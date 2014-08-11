@@ -15,7 +15,7 @@
             android:id="@+id/f__month_stats__previous"
             android:padding="10dp"
             android:gravity="center"
-            android:textSize="25sp"
+            android:textSize="@dimen/font_x_large"
             android:textColor="@color/stats_navigation_text"
             android:background="@drawable/stats_navigation"
             android:text="@string/fragment_month_stats_previous"/>
@@ -25,7 +25,7 @@
             android:id="@+id/f__month_stats__month"
             android:layout_weight="1"
             android:gravity="center"
-            android:textSize="25sp"
+            android:textSize="@dimen/font_x_large"
             android:textColor="@color/stats_header_text"
             android:background="@drawable/stats_navigation"/>
         <TextView
@@ -34,7 +34,7 @@
             android:id="@+id/f__month_stats__next"
             android:padding="10dp"
             android:gravity="center"
-            android:textSize="25sp"
+            android:textSize="@dimen/font_x_large"
             android:textColor="@color/stats_navigation_text"
             android:background="@drawable/stats_navigation"
             android:text="@string/fragment_month_stats_next"/>
@@ -45,19 +45,19 @@
         android:id="@+id/f__month_stats__categories"
         android:layout_weight="1"
         android:divider="@color/stats_category_divider_background"
-        android:dividerHeight="1dp"
+        android:dividerHeight="@dimen/list_divider_height"
         android:childDivider="@color/stats_target_divider_background"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="5dp"
+        android:padding="@dimen/padding_default"
         android:background="@color/stats_total_background">
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textSize="20sp"
+            android:textSize="@dimen/font_medium"
             android:textStyle="bold"
             android:textColor="@color/stats_total_text"
             android:text="@string/fragment_month_stats_total"/>
@@ -65,7 +65,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/f__month_stats__total"
-            android:textSize="20sp"
+            android:textSize="@dimen/font_medium"
             android:textStyle="bold"
             android:textColor="@color/stats_total_text"/>
     </LinearLayout>

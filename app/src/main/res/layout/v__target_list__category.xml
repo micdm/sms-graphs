@@ -5,7 +5,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/v__target_list__category__name"
-        android:padding="5dp"
-        android:layout_marginLeft="25dp"
-        android:textSize="20sp"/>
+        android:padding="@dimen/padding_default"
+        android:layout_marginLeft="@dimen/margin_expandable_list_group"
+        android:textSize="@dimen/font_large"/>
 </LinearLayout>
