@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.provider.Telephony;
 import android.telephony.SmsMessage;
 
+import com.micdm.smsgraphs.misc.Logger;
+
 public class MessageIntentReceiver extends BroadcastReceiver {
 
     @Override
@@ -25,6 +27,7 @@ public class MessageIntentReceiver extends BroadcastReceiver {
     }
 
     private void startMessageService(final Context context) {
+        Logger.debug("New SMS message received, starting service...");
         Intent intent = new Intent(context, MessageService.class);
         context.startService(intent);
     }

@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import com.micdm.smsgraphs.data.Message;
 import com.micdm.smsgraphs.db.DbHelper;
 import com.micdm.smsgraphs.misc.DateUtils;
+import com.micdm.smsgraphs.misc.Logger;
 
 public class DbMessageWriter extends DbWriter<Message> {
 
@@ -17,6 +18,7 @@ public class DbMessageWriter extends DbWriter<Message> {
 
     @Override
     public void add(Message message) {
+        Logger.debug("Writing out new operation...");
         SQLiteDatabase db = getDb();
         long cardRowId = writeCard(db, message);
         long targetRowId = writeTarget(db, message);

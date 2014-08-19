@@ -46,6 +46,7 @@ import com.micdm.smsgraphs.loaders.OperationReportLoader;
 import com.micdm.smsgraphs.loaders.TargetLoader;
 import com.micdm.smsgraphs.messages.MessageService;
 import com.micdm.smsgraphs.misc.DateUtils;
+import com.micdm.smsgraphs.misc.Logger;
 import com.micdm.smsgraphs.misc.PagerActivity;
 import com.micdm.smsgraphs.misc.PagerAdapter;
 import com.micdm.smsgraphs.parcels.TargetParcel;
@@ -116,6 +117,7 @@ public class MainActivity extends PagerActivity {
         manager.subscribe(this, EventType.FINISH_LOAD_MESSAGES, new EventManager.OnEventListener<FinishLoadMessagesEvent>() {
             @Override
             public void onEvent(FinishLoadMessagesEvent event) {
+                Logger.debug("New SMS messages parsing finished, updating loaders...");
                 LoaderManager manager = getLoaderManager();
                 manager.getLoader(OPERATION_REPORT_LOADER_ID).onContentChanged();
                 manager.getLoader(TARGET_LOADER_ID).onContentChanged();

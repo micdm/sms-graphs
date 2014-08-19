@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 
 import com.micdm.smsgraphs.data.Message;
+import com.micdm.smsgraphs.misc.Logger;
 
 public class MessageReader {
 
@@ -30,6 +31,7 @@ public class MessageReader {
     }
 
     public void read() {
+        Logger.debug("Reading new SMS messages...");
         Cursor cursor = getCursor();
         cursor.moveToFirst();
         int id = 0;
