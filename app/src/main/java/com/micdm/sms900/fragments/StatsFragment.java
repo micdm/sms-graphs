@@ -22,7 +22,7 @@ import com.micdm.sms900.events.events.RequestSelectMonthEvent;
 import com.micdm.sms900.misc.DateUtils;
 
 import org.joda.time.DateTime;
-import org.joda.time.Period;
+import org.joda.time.Months;
 
 public class StatsFragment extends Fragment {
 
@@ -50,7 +50,7 @@ public class StatsFragment extends Fragment {
             }
             begin = begin.withDayOfMonth(1).withMillisOfDay(0);
             end = end.plusMonths(1).withDayOfMonth(1).withMillisOfDay(0);
-            return new Period(begin, end).getMonths();
+            return Months.monthsBetween(begin, end).getMonths();
         }
 
         @Override
