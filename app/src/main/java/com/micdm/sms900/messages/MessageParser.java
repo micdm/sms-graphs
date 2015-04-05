@@ -15,6 +15,7 @@ public class MessageParser {
     private static final String PATTERN_V1 = "^(\\w+\\d+): (\\d{2})\\.(\\d{2})\\.(\\d{2}) (\\d{2}):(\\d{2}) (.+?) на сумму ([\\d\\.]+) руб\\. (.+?) выполнена успешно";
     private static final String PATTERN_V2 = "^(\\w+\\d+): (\\d{2})\\.(\\d{2})\\.(\\d{2}) (\\d{2}):(\\d{2}) (.+?) на сумму ([\\d\\.]+) р\\. (.+?) Баланс";
     private static final String PATTERN_V3 = "^(\\w+\\d+): (\\d{2})\\.(\\d{2})\\.(\\d{2}) (\\d{2}):(\\d{2}) (.+?) на сумму ([\\d\\.]+)р\\. (.+?)\\. Баланс";
+    private static final String PATTERN_V4 = "^(\\w+\\d+) (\\d{2})\\.(\\d{2})\\.(\\d{2}) (\\d{2}):(\\d{2}) (.+?) ([\\d\\.]+)р (.+?) Баланс";
 
     private static final int GROUP_CARD = 1;
     private static final int GROUP_DAY = 2;
@@ -32,6 +33,7 @@ public class MessageParser {
         _patterns.add(Pattern.compile(PATTERN_V1));
         _patterns.add(Pattern.compile(PATTERN_V2));
         _patterns.add(Pattern.compile(PATTERN_V3));
+        _patterns.add(Pattern.compile(PATTERN_V4));
     }
 
     public Message parse(String message) {
